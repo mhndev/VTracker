@@ -1,0 +1,70 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: sentinel-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-sentinel}
+      POSTGRES_USER: ${DATABASE_USER:-sentinel}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-sentinel}
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
+    volumes:
+      # postgres:18+ keeps its cluster under /var/lib/postgresql/<major>/docker,
+      # so the parent directory is the volume target (also valid for <=17).
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-sentinel} -d ${DATABASE_NAME:-sentinel}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: sentinel-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # Explicit so the container stack always uses the bundled PostgreSQL service.
+      # DATABASE_URL must stay empty here: when set it takes precedence over
+      # DATABASE_HOST/DATABASE_PORT.
+      API_PORT: ${API_PORT:-8787}
+      DATABASE_DIALECT: postgres
+      DATABASE_URL: ""
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      CORS_ORIGIN: http://localhost:${PORTAL_PORT:-5173},http://localhost:${ADMIN_PORT:-5174}
+    ports:
+      - "${API_PORT:-8787}:${API_PORT:-8787}"
+
+  portal:
+    build:
+      context: .
+      dockerfile: apps/portal/Dockerfile
+    container_name: sentinel-portal
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${PORTAL_PORT:-5173}:80"
+
+  admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: sentinel-admin
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${ADMIN_PORT:-5174}:80"
+
+volumes:
+  pgdata:
+    driver: local

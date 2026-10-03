@@ -1,0 +1,29 @@
+{
+  "name": "sentinel-fleet-platform",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n API,PORTAL,ADMIN -c cyan,blue,magenta \"npm:dev:api\" \"npm:dev:portal\" \"npm:dev:admin\"",
+    "dev:api": "npm --workspace @sentinel/api run dev",
+    "dev:portal": "npm --workspace @sentinel/portal run dev",
+    "dev:admin": "npm --workspace @sentinel/admin run dev",
+    "build": "npm run build:portal && npm run build:admin && npm run build:api",
+    "build:portal": "npm --workspace @sentinel/portal run build",
+    "build:admin": "npm --workspace @sentinel/admin run build",
+    "build:api": "npm --workspace @sentinel/api run build",
+    "start": "npm --workspace @sentinel/api run start",
+    "test": "npm --workspace @sentinel/api run test"
+  },
+  "dependencies": {
+    "concurrently": "latest",
+    "express": "latest"
+  },
+  "devDependencies": {
+    "@types/express": "latest",
+    "@types/node": "latest"
+  }
+}
