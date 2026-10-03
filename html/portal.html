@@ -48,6 +48,7 @@
   body{margin:0;background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;}
   h1,h2,h3,p{margin:0;}
   button{font-family:inherit;}
+  select,input{font-family:inherit;}
   ::selection{background:var(--accent-soft);}
 
   .app{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
@@ -57,10 +58,7 @@
     height:56px;flex-shrink:0;display:flex;align-items:center;gap:14px;
     padding:0 18px;background:#fff;border-bottom:1px solid var(--border);z-index:50;
   }
-  .menu-toggle{
-    display:none;width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
-    background:#fff;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0;
-  }
+  .menu-toggle{display:none;}
   .brand{display:flex;align-items:center;gap:8px;}
   .brand .logo{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#19d6a0,var(--accent));flex-shrink:0;}
   .brand-name{font-weight:800;font-size:16.5px;color:var(--accent-dark);letter-spacing:-.01em;}
@@ -70,10 +68,7 @@
     width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7dff,#8a5cf6);
     display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;
   }
-  .demo-pill{
-    font-size:10.5px;font-weight:700;color:var(--warn);border:1px dashed #e9c98f;background:#fff8ee;
-    padding:4px 10px;border-radius:999px;
-  }
+  .demo-pill{font-size:10.5px;font-weight:700;color:var(--warn);border:1px dashed #e9c98f;background:#fff8ee;padding:4px 10px;border-radius:999px;}
 
   /* ================= APP SHELL ================= */
   .shell{flex:1;display:flex;min-height:0;}
@@ -97,11 +92,10 @@
   }
   .rail-btn:hover .rail-label{opacity:1;}
 
-  /* ===== TRACK VIEW (list + detail + map) ===== */
+  /* ===== TRACK VIEW (list + map, no detail sidebar) ===== */
   .view-track{display:none;flex:1;min-width:0;}
   .view-track.active{display:flex;}
 
-  /* -- list panel -- */
   .list-panel{
     width:300px;flex-shrink:0;background:#fff;border-inline-end:1px solid var(--border);
     display:flex;flex-direction:column;min-width:0;
@@ -115,22 +109,13 @@
     border-radius:999px;padding:8px 13px;font-size:12px;color:var(--text-faint);margin-bottom:10px;
   }
   .filter-row{display:flex;gap:8px;}
-  .filter-select{
-    flex:1;font-size:11.5px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);
-    background:#fff;color:var(--text-dim);display:flex;align-items:center;justify-content:space-between;cursor:pointer;
-  }
+  .filter-select{flex:1;font-size:11.5px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-dim);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
   .assets-label{font-size:10.5px;font-weight:700;color:var(--text-faint);letter-spacing:.04em;padding:12px 16px 4px;}
   .vehicle-list{flex:1;overflow-y:auto;}
-  .vehicle-row{
-    display:flex;gap:11px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;
-    border-inline-start:3px solid transparent;
-  }
+  .vehicle-row{display:flex;gap:11px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;border-inline-start:3px solid transparent;}
   .vehicle-row:hover{background:var(--panel-soft);}
   .vehicle-row.selected{background:var(--select-soft);border-inline-start-color:var(--select);}
-  .vr-thumb{
-    width:40px;height:40px;border-radius:9px;background:var(--panel-soft);border:1px solid var(--border);
-    display:grid;place-items:center;font-size:18px;flex-shrink:0;
-  }
+  .vr-thumb{width:40px;height:40px;border-radius:9px;background:var(--panel-soft);border:1px solid var(--border);display:grid;place-items:center;font-size:18px;flex-shrink:0;}
   .vr-body{flex:1;min-width:0;}
   .vr-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
   .vr-name{font-size:13px;font-weight:700;}
@@ -145,84 +130,36 @@
   .vr-speed .arrow{color:var(--ok);font-size:10px;}
   .vr-speed.offline{color:var(--text-faint);}
 
-  /* -- detail panel -- */
-  .detail-panel{
-    width:320px;flex-shrink:0;background:#fff;border-inline-end:1px solid var(--border);
-    overflow-y:auto;
-  }
-  .dp-head{padding:16px;border-bottom:1px solid var(--border);position:relative;}
-  .dp-close{position:absolute;top:14px;inset-inline-end:14px;background:none;border:none;color:var(--text-faint);font-size:16px;cursor:pointer;}
-  .dp-top{display:flex;gap:12px;align-items:center;}
-  .dp-thumb{width:46px;height:46px;border-radius:10px;background:var(--panel-soft);border:1px solid var(--border);display:grid;place-items:center;font-size:21px;flex-shrink:0;}
-  .dp-name{font-size:15.5px;font-weight:800;}
-  .dp-meta{font-size:11.5px;color:var(--text-dim);margin-top:2px;display:flex;gap:7px;align-items:center;}
-  .dp-addr{font-size:12px;color:var(--text-dim);margin-top:12px;line-height:1.6;}
-
-  .dp-row{
-    display:flex;align-items:center;justify-content:space-between;padding:13px 16px;
-    border-bottom:1px solid var(--border);cursor:pointer;
-  }
-  .dp-row:hover{background:var(--panel-soft);}
-  .dp-row-left{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;}
-  .dp-row .chev{color:var(--text-faint);font-size:14px;}
-
-  .section-label{
-    display:flex;align-items:center;justify-content:space-between;
-    font-size:10.5px;font-weight:700;color:var(--text-faint);letter-spacing:.04em;
-    padding:14px 16px 10px;
-  }
-  .controls-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 16px 16px;}
-  .ctrl-btn{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;}
-  .ctrl-circle{
-    width:50px;height:50px;border-radius:50%;border:1.6px solid var(--border);
-    display:grid;place-items:center;font-size:19px;color:var(--text);background:#fff;
-    transition:border-color .15s ease, color .15s ease;
-  }
-  .ctrl-btn:hover .ctrl-circle{border-color:var(--accent);color:var(--accent);}
-  .ctrl-btn.on .ctrl-circle{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
-  .ctrl-label{font-size:10px;color:var(--text-dim);font-weight:600;text-align:center;}
-
-  .trip-row{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;}
-  .trip-row:hover{background:var(--panel-soft);}
-  .trip-markers{display:flex;flex-direction:column;align-items:center;padding-top:3px;}
-  .trip-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
-  .trip-dot.a{background:var(--ok);}
-  .trip-dot.b{background:var(--danger);}
-  .trip-line{width:1.5px;flex:1;background:var(--border);margin:3px 0;min-height:14px;}
-  .trip-body{flex:1;min-width:0;}
-  .trip-stop{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:12px;}
-  .trip-stop:last-child{margin-bottom:0;}
-  .trip-addr{font-weight:600;}
-  .trip-time{color:var(--text-faint);font-size:11px;white-space:nowrap;}
-  .trip-chev{color:var(--text-faint);font-size:14px;align-self:center;}
-  .view-all-link{
-    display:block;text-align:center;padding:12px;font-size:12.5px;font-weight:700;
-    color:var(--accent-dark);cursor:pointer;border-bottom:1px solid var(--border);
-  }
-  .dashcam-row{padding:14px 16px 20px;font-size:11.5px;color:var(--text-faint);}
-
-  /* -- map area -- */
   .map-area{flex:1;position:relative;min-width:0;}
   #leafletMap{width:100%;height:100%;}
+
+  /* ----- leaflet shared look ----- */
   .leaflet-control-attribution{font-size:9.5px !important;}
   .leaflet-control-zoom{display:none;}
-  .leaflet-popup-content-wrapper{border-radius:10px;box-shadow:var(--shadow-md);font-family:'Vazirmatn',sans-serif;}
-  .leaflet-popup-content{font-size:12px;margin:9px 11px;}
+  .leaflet-popup-content-wrapper{border-radius:12px;box-shadow:var(--shadow-md);font-family:'Vazirmatn',sans-serif;}
+  .leaflet-popup-content{margin:0;}
+  .leaflet-popup-tip{box-shadow:var(--shadow-sm);}
 
-  .veh-marker{display:flex;align-items:center;gap:0;transform:translateX(0);}
-  .veh-marker .dot{
-    width:26px;height:26px;border-radius:50%;background:var(--accent);border:3px solid #fff;
-    box-shadow:0 2px 8px rgba(0,0,0,.25);display:grid;place-items:center;color:#fff;font-size:11px;
-  }
-  .veh-marker .label{
-    background:var(--accent);color:#fff;font-size:11px;font-weight:700;
-    padding:4px 10px;border-radius:999px;margin-inline-start:-8px;padding-inline-start:16px;
-    box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:nowrap;
-  }
+  .veh-marker{display:flex;align-items:center;}
+  .veh-marker .dot{width:26px;height:26px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);display:grid;place-items:center;color:#fff;font-size:11px;}
+  .veh-marker .label{background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-inline-start:-8px;padding-inline-start:16px;box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:nowrap;}
   .veh-marker.offline .dot,.veh-marker.offline .label{background:var(--offline);}
-  .veh-marker.alert .dot,.veh-marker.alert .label{background:var(--danger);}
 
-  /* ===== GENERIC PAGE VIEWS (Home / Activity / Shared / Setup) ===== */
+  /* ----- vehicle popup (replaces side detail panel) ----- */
+  .veh-popup{min-width:220px;padding:14px;}
+  .vp-head{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .vp-thumb{width:38px;height:38px;border-radius:10px;background:var(--panel-soft);display:grid;place-items:center;font-size:18px;flex-shrink:0;}
+  .vp-name{font-size:13.5px;font-weight:800;}
+  .vp-meta{font-size:10.5px;color:var(--text-faint);margin-top:1px;}
+  .vp-addr{font-size:11px;color:var(--text-dim);margin-bottom:11px;line-height:1.6;padding-bottom:11px;border-bottom:1px solid var(--border);}
+  .vp-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .pop-ctrl{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
+  .pop-ctrl-circle{width:36px;height:36px;border-radius:50%;border:1.6px solid var(--border);display:grid;place-items:center;font-size:15px;color:var(--text);background:#fff;transition:all .15s ease;}
+  .pop-ctrl:hover .pop-ctrl-circle{border-color:var(--accent);color:var(--accent);}
+  .pop-ctrl.on .pop-ctrl-circle{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark);}
+  .pop-ctrl-label{font-size:9px;color:var(--text-dim);font-weight:600;text-align:center;}
+
+  /* ===== GENERIC PAGE VIEWS ===== */
   .view-page{display:none;flex:1;overflow-y:auto;padding:22px;min-width:0;}
   .view-page.active{display:block;}
   .page-head{margin-bottom:18px;}
@@ -251,16 +188,6 @@
   .pill.medium{background:#fff3e4;color:var(--warn);}
   .pill.active{background:var(--accent-soft);color:var(--accent-dark);}
 
-  .history-row{display:flex;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);}
-  .history-row:last-child{border-bottom:none;}
-  .hdot-col{display:flex;flex-direction:column;align-items:center;}
-  .hdot{width:9px;height:9px;border-radius:50%;background:var(--accent);margin-top:4px;}
-  .hline{width:1.5px;flex:1;background:var(--border);margin-top:4px;}
-  .history-content{flex:1;}
-  .history-time{font-size:10.5px;color:var(--text-faint);}
-  .history-place{font-size:13px;font-weight:700;margin-top:2px;}
-  .history-detail{font-size:11.5px;color:var(--text-dim);margin-top:2px;}
-
   .grant-row{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
   .grant-row:last-child{border-bottom:none;}
   .grant-av{width:38px;height:38px;border-radius:10px;background:var(--panel-soft);color:var(--text-dim);font-weight:700;font-size:12px;display:grid;place-items:center;flex-shrink:0;}
@@ -284,56 +211,82 @@
   .member-row .name{font-size:13px;font-weight:700;}
   .member-row .email{font-size:11px;color:var(--text-dim);direction:ltr;text-align:right;}
 
-  /* ================= MOBILE BOTTOM TABS ================= */
-  .bottom-tabs{
-    display:none;height:60px;background:#fff;border-top:1px solid var(--border);
-    align-items:center;justify-content:space-around;flex-shrink:0;z-index:60;
+  /* ===== ACTIVITY & HISTORY (replay) ===== */
+  .activity-toolbar{
+    display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);
+    padding:16px;margin-bottom:14px;
   }
+  .activity-field{display:flex;flex-direction:column;gap:5px;}
+  .activity-field label{font-size:10.5px;color:var(--text-dim);font-weight:700;}
+  .activity-field select, .activity-field input{
+    font-size:12.5px;padding:9px 12px;border-radius:9px;border:1px solid var(--border);
+    background:#fff;color:var(--text);min-width:150px;
+  }
+  .mode-tabs{display:flex;gap:4px;background:var(--panel-soft);padding:4px;border-radius:999px;}
+  .mode-tab{font-size:12px;font-weight:700;padding:8px 16px;border-radius:999px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;}
+  .mode-tab.active{background:var(--accent);color:#fff;}
+  .activity-toolbar .btn{margin-inline-start:auto;align-self:flex-end;}
+
+  .activity-map-wrap{position:relative;height:440px;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:14px;background:#eef0f3;}
+  #activityMap{width:100%;height:100%;}
+
+  .activity-legend{
+    position:absolute;bottom:12px;inset-inline-start:12px;z-index:450;
+    background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:9px;
+    padding:8px 12px;font-size:11px;color:var(--text-dim);display:flex;gap:14px;
+    box-shadow:var(--shadow-sm);
+  }
+  .legend-dot{display:inline-flex;align-items:center;gap:5px;}
+  .legend-dot span{width:9px;height:9px;border-radius:50%;display:inline-block;}
+
+  .playback-bar{
+    display:none;align-items:center;gap:16px;background:#fff;border:1px solid var(--border);
+    border-radius:var(--radius-md);padding:14px 18px;flex-wrap:wrap;
+  }
+  .pb-btn{width:40px;height:40px;border-radius:50%;border:1.6px solid var(--border);background:#fff;display:grid;place-items:center;font-size:15px;color:var(--text);cursor:pointer;flex-shrink:0;}
+  .pb-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .pb-btn.play{border-color:var(--accent);background:var(--accent);color:#fff;}
+  .pb-scrubber{flex:1;min-width:140px;}
+  .pb-scrubber input[type=range]{width:100%;accent-color:var(--accent);}
+  .pb-time{font-size:11.5px;color:var(--text-dim);min-width:120px;text-align:center;white-space:nowrap;font-weight:600;}
+  .pb-speed{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+  .pb-speed-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:14px;color:var(--text-dim);}
+  .pb-speed-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .pb-speed-label{font-size:12px;font-weight:800;min-width:32px;text-align:center;}
+
+  /* ================= MOBILE BOTTOM TABS ================= */
+  .bottom-tabs{display:none;height:60px;background:#fff;border-top:1px solid var(--border);align-items:center;justify-content:space-around;flex-shrink:0;z-index:60;}
   .bt-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-faint);cursor:pointer;font-size:10px;font-weight:600;}
   .bt-item .bi{font-size:19px;}
   .bt-item.active{color:var(--accent);}
 
-  /* ================= MOBILE CONTROLS SHEET (dark, like phone mockup) ================= */
-  .mobile-controls{
-    display:none;position:fixed;inset:0;background:#15171c;z-index:900;
-    flex-direction:column;align-items:center;padding:50px 24px 24px;color:#fff;
-    overflow-y:auto;
-  }
+  /* ================= MOBILE QUICK-CONTROLS SHEET ================= */
+  .mobile-controls{display:none;position:fixed;inset:0;background:#15171c;z-index:900;flex-direction:column;align-items:center;padding:50px 24px 24px;color:#fff;overflow-y:auto;}
   .mobile-controls.show{display:flex;}
   .mc-close{position:absolute;top:18px;inset-inline-end:18px;background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer;}
   .mc-photo{width:96px;height:96px;border-radius:50%;background:#2a2d35;display:grid;place-items:center;font-size:40px;margin-bottom:16px;border:3px solid #333;}
-  .mc-name{font-size:19px;font-weight:800;margin-bottom:8px;}
-  .mc-dots{display:flex;gap:6px;margin-bottom:34px;}
-  .mc-dots span{width:6px;height:6px;border-radius:50%;background:#444;}
-  .mc-dots span.active{background:#fff;}
-  .mc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px 22px;width:100%;max-width:300px;}
-  .mc-btn{display:flex;flex-direction:column;align-items:center;gap:9px;}
-  .mc-circle{width:68px;height:68px;border-radius:50%;border:2px solid #3a3d45;display:grid;place-items:center;font-size:25px;color:#fff;}
+  .mc-name{font-size:19px;font-weight:800;margin-bottom:34px;}
+  .mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 34px;width:100%;max-width:260px;}
+  .mc-btn{display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;}
+  .mc-circle{width:72px;height:72px;border-radius:50%;border:2px solid #3a3d45;display:grid;place-items:center;font-size:26px;color:#fff;}
   .mc-btn.on .mc-circle{border-color:var(--accent);box-shadow:0 0 0 4px rgba(13,181,131,.25);color:var(--accent);}
   .mc-label{font-size:11.5px;color:#d7d9de;font-weight:600;}
 
   /* ================================================================ RESPONSIVE */
-  @media (max-width: 1180px){
-    .detail-panel{width:290px;}
-    .list-panel{width:270px;}
-  }
-
   @media (max-width: 1024px){
     .icon-rail{display:none;}
     .bottom-tabs{display:flex;}
-    .menu-toggle{display:none;}
-
-    .view-track.active{flex-direction:column;}
-    .list-panel,.detail-panel{display:none;}  /* map takes over on mobile Track tab */
-    .map-area{flex:1;}
-
+    .list-panel{display:none;}
     .stat-grid{grid-template-columns:repeat(2,1fr);}
+    .activity-toolbar .btn{margin-inline-start:0;}
   }
 
-  @media (max-width: 480px){
-    .topbar{padding:0 14px;}
-    .brand-name{font-size:15px;}
-    .demo-pill{display:none;}
+  @media (max-width: 680px){
+    .view-page{padding:16px;}
+    .activity-field select,.activity-field input{min-width:120px;}
+    .activity-map-wrap{height:340px;}
+    .pb-time{min-width:90px;font-size:10.5px;}
   }
 </style>
 </head>
@@ -341,36 +294,31 @@
 
 <div class="app">
 
-  <!-- ============ TOPBAR ============ -->
   <header class="topbar">
-    <button class="menu-toggle">☰</button>
     <div class="brand">
       <span class="logo"></span>
       <span class="brand-name">سنتینل</span>
     </div>
     <div class="topbar-right">
       <span class="demo-pill">نسخه آزمایشی</span>
-      <button class="icon-btn-plain">🛒</button>
       <div class="avatar-circle">ج.د</div>
     </div>
   </header>
 
   <div class="shell">
 
-    <!-- ============ ICON RAIL (desktop) ============ -->
     <nav class="icon-rail">
       <div class="rail-btn" data-view="home">▦<span class="rail-label">خانه</span></div>
       <div class="rail-btn active" data-view="track">◎<span class="rail-label">ردیابی</span></div>
-      <div class="rail-btn" data-view="activity">⟳<span class="rail-label">فعالیت</span></div>
+      <div class="rail-btn" data-view="activity">⟳<span class="rail-label">فعالیت و تاریخچه</span></div>
       <div class="rail-btn" data-view="alerts">🔔<span class="rail-label">هشدارها</span></div>
       <div class="rail-btn" data-view="shared">👥<span class="rail-label">دسترسی‌ها</span></div>
       <div class="rail-btn" data-view="setup">🔧<span class="rail-label">تنظیمات</span></div>
     </nav>
 
-    <!-- ============ TRACK VIEW (list + detail + map) ============ -->
+    <!-- ============ TRACK VIEW (list + map only) ============ -->
     <div class="view-track active" id="view-track">
 
-      <!-- LIST PANEL -->
       <div class="list-panel">
         <div class="lp-head">
           <div class="lp-head-row">
@@ -385,52 +333,40 @@
         </div>
         <div class="assets-label">خودروها</div>
         <div class="vehicle-list" id="vehicleList">
-          <div class="vehicle-row" data-id="alpha" data-lat="35.700" data-lng="51.398" data-name="آلفا">
+          <div class="vehicle-row" data-id="alpha" data-lat="35.700" data-lng="51.398">
             <div class="vr-thumb">🚐</div>
             <div class="vr-body">
-              <div class="vr-top">
-                <span class="vr-name">آلفا</span>
-                <span class="vr-time">۳ دقیقه پیش</span>
-              </div>
+              <div class="vr-top"><span class="vr-name">آلفا</span><span class="vr-time">۳ دقیقه پیش</span></div>
               <div class="vr-addr">خیابان ولیعصر، نرسیده به میدان ونک</div>
               <div class="vr-speed"><span class="arrow">▲</span> ۴۳ کیلومتر/ساعت</div>
             </div>
             <div class="vr-signal"><span></span><span></span><span></span></div>
           </div>
 
-          <div class="vehicle-row selected" data-id="beta" data-lat="35.730" data-lng="51.420" data-name="بتا">
+          <div class="vehicle-row selected" data-id="beta" data-lat="35.730" data-lng="51.420">
             <div class="vr-thumb">🚐</div>
             <div class="vr-body">
-              <div class="vr-top">
-                <span class="vr-name">بتا</span>
-                <span class="vr-time">۳ دقیقه پیش</span>
-              </div>
+              <div class="vr-top"><span class="vr-name">بتا</span><span class="vr-time">۳ دقیقه پیش</span></div>
               <div class="vr-addr">بزرگراه چمران، خروجی پل مدیریت</div>
               <div class="vr-speed"><span class="arrow">▲</span> ۲۹ کیلومتر/ساعت</div>
             </div>
             <div class="vr-signal"><span></span><span></span><span></span></div>
           </div>
 
-          <div class="vehicle-row" data-id="gamma" data-lat="35.745" data-lng="51.389" data-name="گاما">
+          <div class="vehicle-row" data-id="gamma" data-lat="35.745" data-lng="51.389">
             <div class="vr-thumb">🚚</div>
             <div class="vr-body">
-              <div class="vr-top">
-                <span class="vr-name">گاما</span>
-                <span class="vr-time">۳ دقیقه پیش</span>
-              </div>
+              <div class="vr-top"><span class="vr-name">گاما</span><span class="vr-time">۳ دقیقه پیش</span></div>
               <div class="vr-addr">خیابان شریعتی، نبش خیابان ملک</div>
               <div class="vr-speed offline">متوقف</div>
             </div>
             <div class="vr-signal"><span></span><span></span><span></span></div>
           </div>
 
-          <div class="vehicle-row" data-id="delta" data-lat="35.760" data-lng="51.455" data-name="دلتا">
+          <div class="vehicle-row" data-id="delta" data-lat="35.760" data-lng="51.455">
             <div class="vr-thumb">🛻</div>
             <div class="vr-body">
-              <div class="vr-top">
-                <span class="vr-name">دلتا</span>
-                <span class="vr-time">۵ دقیقه پیش</span>
-              </div>
+              <div class="vr-top"><span class="vr-name">دلتا</span><span class="vr-time">۵ دقیقه پیش</span></div>
               <div class="vr-addr">اتوبان باقری، جنوب به شمال</div>
               <div class="vr-speed"><span class="arrow">▲</span> ۶۲ کیلومتر/ساعت</div>
             </div>
@@ -439,65 +375,12 @@
         </div>
       </div>
 
-      <!-- DETAIL PANEL -->
-      <div class="detail-panel">
-        <div class="dp-head">
-          <button class="dp-close">✕</button>
-          <div class="dp-top">
-            <div class="dp-thumb">🚐</div>
-            <div>
-              <div class="dp-name" id="dpName">بتا</div>
-              <div class="dp-meta"><span id="dpTime">۳ دقیقه پیش</span> · <span id="dpSpeed">۲۹ کیلومتر/ساعت</span></div>
-            </div>
-          </div>
-          <div class="dp-addr" id="dpAddr">بزرگراه چمران، خروجی پل مدیریت، تهران</div>
-        </div>
-
-        <div class="dp-row">
-          <div class="dp-row-left">⚙️ تنظیمات خودرو</div>
-          <span class="chev">‹</span>
-        </div>
-
-        <div class="section-label">کنترل‌ها</div>
-        <div class="controls-grid">
-          <div class="ctrl-btn on"><div class="ctrl-circle">⏻</div><div class="ctrl-label">روشن/خاموش</div></div>
-          <div class="ctrl-btn"><div class="ctrl-circle">🔒</div><div class="ctrl-label">قفل</div></div>
-          <div class="ctrl-btn"><div class="ctrl-circle">🔓</div><div class="ctrl-label">باز کردن</div></div>
-          <div class="ctrl-btn"><div class="ctrl-circle">🚪</div><div class="ctrl-label">صندوق</div></div>
-          <div class="ctrl-btn"><div class="ctrl-circle">❗</div><div class="ctrl-label">اضطراری</div></div>
-          <div class="ctrl-btn"><div class="ctrl-circle">1</div><div class="ctrl-label">کمکی ۱</div></div>
-          <div class="ctrl-btn"><div class="ctrl-circle">2</div><div class="ctrl-label">کمکی ۲</div></div>
-          <div class="ctrl-btn"><div class="ctrl-circle">↻</div><div class="ctrl-label">بروزرسانی</div></div>
-        </div>
-
-        <div class="section-label">سفرها <span>۳۰ دقیقه پیش</span></div>
-        <div class="trip-row">
-          <div class="trip-markers"><div class="trip-dot a"></div><div class="trip-line"></div><div class="trip-dot b"></div></div>
-          <div class="trip-body">
-            <div class="trip-stop"><span class="trip-addr">خیابان هرندی ۳۰۵</span><span class="trip-time">۱۳:۰۵</span></div>
-            <div class="trip-stop"><span class="trip-addr">ایستگاه کنت، واحد ۱۰۴</span><span class="trip-time">۱۴:۲۵</span></div>
-          </div>
-          <span class="trip-chev">‹</span>
-        </div>
-        <div class="trip-row">
-          <div class="trip-markers"><div class="trip-dot a"></div><div class="trip-line"></div><div class="trip-dot b"></div></div>
-          <div class="trip-body">
-            <div class="trip-stop"><span class="trip-addr">خیابان هرندی ۳۰۵</span><span class="trip-time">۱۳:۰۵</span></div>
-            <div class="trip-stop"><span class="trip-addr">ایستگاه کنت، واحد ۱۰۴</span><span class="trip-time">۱۴:۲۵</span></div>
-          </div>
-          <span class="trip-chev">‹</span>
-        </div>
-        <div class="view-all-link">مشاهده همه</div>
-        <div class="dashcam-row">🎥 دوربین خودرو — کلیپ جدیدی وجود ندارد</div>
-      </div>
-
-      <!-- MAP AREA -->
       <div class="map-area">
         <div id="leafletMap"></div>
       </div>
     </div>
 
-    <!-- ============ HOME VIEW ============ -->
+    <!-- ============ HOME ============ -->
     <div class="view-page" id="view-home">
       <div class="page-head"><h2>خانه</h2><p>نمای کلی از وضعیت خودروهای شما</p></div>
       <div class="stat-grid">
@@ -513,26 +396,63 @@
       </div>
     </div>
 
-    <!-- ============ ACTIVITY VIEW ============ -->
+    <!-- ============ فعالیت و تاریخچه (REPLAY) ============ -->
     <div class="view-page" id="view-activity">
-      <div class="page-head"><h2>فعالیت و تاریخچه</h2><p>مسیر حرکت گذشته خودروها</p></div>
-      <div class="section-card">
-        <div class="history-row">
-          <div class="hdot-col"><div class="hdot"></div><div class="hline"></div></div>
-          <div class="history-content"><div class="history-time">۰۸:۱۲</div><div class="history-place">خروج از منزل — خیابان ولیعصر</div><div class="history-detail">شروع سفر</div></div>
+      <div class="page-head"><h2>فعالیت و تاریخچه</h2><p>مسیر حرکت گذشته خودرو را در یک بازه زمانی مشخص مرور کنید</p></div>
+
+      <div class="activity-toolbar">
+        <div class="activity-field">
+          <label>خودرو</label>
+          <select id="actVehicleSelect">
+            <option value="alpha">آلفا</option>
+            <option value="beta" selected>بتا</option>
+            <option value="gamma">گاما</option>
+            <option value="delta">دلتا</option>
+          </select>
         </div>
-        <div class="history-row">
-          <div class="hdot-col"><div class="hdot"></div><div class="hline"></div></div>
-          <div class="history-content"><div class="history-time">۰۸:۳۴</div><div class="history-place">بزرگراه چمران</div><div class="history-detail">سرعت میانگین ۷۲ کیلومتر/ساعت</div></div>
+        <div class="activity-field">
+          <label>از تاریخ و زمان</label>
+          <input type="datetime-local" id="actFrom" value="2024-06-10T08:00">
         </div>
-        <div class="history-row">
-          <div class="hdot-col"><div class="hdot"></div></div>
-          <div class="history-content"><div class="history-time">۰۹:۰۲</div><div class="history-place">رسیدن به مقصد</div><div class="history-detail">پایان سفر · ۲۴٫۳ کیلومتر</div></div>
+        <div class="activity-field">
+          <label>تا تاریخ و زمان</label>
+          <input type="datetime-local" id="actTo" value="2024-06-10T09:00">
+        </div>
+
+        <div class="activity-field">
+          <label>نحوه نمایش</label>
+          <div class="mode-tabs">
+            <button class="mode-tab active" data-mode="trace">فقط مسیر</button>
+            <button class="mode-tab" data-mode="replay">پخش زنده</button>
+          </div>
+        </div>
+
+        <button class="btn primary" id="actLoadBtn">رسم مسیر</button>
+      </div>
+
+      <div class="activity-map-wrap">
+        <div id="activityMap"></div>
+        <div class="activity-legend">
+          <span class="legend-dot"><span style="background:#15a876;"></span> شروع</span>
+          <span class="legend-dot"><span style="background:#e14a4a;"></span> پایان</span>
+          <span class="legend-dot"><span style="background:#4f7dff;"></span> موقعیت فعلی پخش</span>
+        </div>
+      </div>
+
+      <div class="playback-bar" id="playbackBar">
+        <button class="pb-btn" id="pbRestart">⟲</button>
+        <button class="pb-btn play" id="pbPlayPause">▶</button>
+        <div class="pb-scrubber"><input type="range" id="pbScrubber" min="0" max="10" value="0" step="1"></div>
+        <div class="pb-time" id="pbTimeLabel">۰۸:۰۰ · ۰ کیلومتر/ساعت</div>
+        <div class="pb-speed">
+          <button class="pb-speed-btn" id="pbSpeedMinus">−</button>
+          <span class="pb-speed-label" id="pbSpeedLabel">×۱</span>
+          <button class="pb-speed-btn" id="pbSpeedPlus">+</button>
         </div>
       </div>
     </div>
 
-    <!-- ============ ALERTS VIEW ============ -->
+    <!-- ============ ALERTS ============ -->
     <div class="view-page" id="view-alerts">
       <div class="page-head"><h2>هشدارها</h2><p>اعلان‌های فعال مربوط به خودروهای شما</p></div>
       <div class="section-card">
@@ -542,7 +462,7 @@
       </div>
     </div>
 
-    <!-- ============ SHARED ACCESS VIEW ============ -->
+    <!-- ============ SHARED ACCESS ============ -->
     <div class="view-page" id="view-shared">
       <div class="page-head"><h2>دسترسی و حریم خصوصی</h2><p>افرادی که به موقعیت خودروهای شما دسترسی دارند</p></div>
       <div class="tab-row">
@@ -578,7 +498,7 @@
       </div>
     </div>
 
-    <!-- ============ SETUP VIEW ============ -->
+    <!-- ============ SETUP ============ -->
     <div class="view-page" id="view-setup">
       <div class="page-head"><h2>تنظیمات</h2><p>مدیریت حساب و کاربران</p></div>
       <div class="section-card">
@@ -589,56 +509,56 @@
 
   </div>
 
-  <!-- ============ BOTTOM TABS (mobile) ============ -->
   <nav class="bottom-tabs">
     <div class="bt-item" data-view="home"><span class="bi">🏠</span>خانه</div>
     <div class="bt-item active" data-view="track"><span class="bi">📍</span>ردیابی</div>
     <div class="bt-item" id="btControls"><span class="bi">🎛️</span>کنترل‌ها</div>
-    <div class="bt-item" data-view="activity"><span class="bi">📋</span>فعالیت</div>
+    <div class="bt-item" data-view="activity"><span class="bi">⟳</span>فعالیت</div>
     <div class="bt-item" data-view="setup"><span class="bi">⚙️</span>تنظیمات</div>
   </nav>
 
 </div>
 
-<!-- ============ MOBILE CONTROLS SHEET (dark, matches phone mockup) ============ -->
 <div class="mobile-controls" id="mobileControls">
   <button class="mc-close" id="mcClose">✕</button>
   <div class="mc-photo">🚐</div>
   <div class="mc-name" id="mcName">بتا</div>
-  <div class="mc-dots"><span class="active"></span><span></span></div>
   <div class="mc-grid">
-    <div class="mc-btn on"><div class="mc-circle">⏻</div><div class="mc-label">روشن/خاموش</div></div>
-    <div class="mc-btn"><div class="mc-circle">🔒</div><div class="mc-label">قفل</div></div>
-    <div class="mc-btn"><div class="mc-circle">🔓</div><div class="mc-label">باز کردن</div></div>
-    <div class="mc-btn"><div class="mc-circle">🚪</div><div class="mc-label">صندوق</div></div>
-    <div class="mc-btn"><div class="mc-circle">❗</div><div class="mc-label">اضطراری</div></div>
+    <div class="mc-btn on" data-mctype="power"><div class="mc-circle">⏻</div><div class="mc-label">روشن/خاموش</div></div>
+    <div class="mc-btn" data-mctype="lock"><div class="mc-circle">🔒</div><div class="mc-label">قفل</div></div>
+    <div class="mc-btn" data-mctype="unlock"><div class="mc-circle">🔓</div><div class="mc-label">باز کردن</div></div>
+    <div class="mc-btn" data-mctype="trunk"><div class="mc-circle">🚪</div><div class="mc-label">صندوق</div></div>
   </div>
 </div>
 
 <script>
-  /* ============== VIEW SWITCHING (desktop rail + mobile bottom tabs) ============== */
+  /* ============== VIEW SWITCHING ============== */
   const railBtns = document.querySelectorAll('.rail-btn');
   const tabBtns = document.querySelectorAll('.bt-item[data-view]');
   const trackView = document.getElementById('view-track');
   const pageViews = document.querySelectorAll('.view-page');
+  let activityInitialized = false;
 
   function activateView(key){
     railBtns.forEach(b => b.classList.toggle('active', b.dataset.view === key));
     tabBtns.forEach(b => b.classList.toggle('active', b.dataset.view === key));
-
     trackView.classList.toggle('active', key === 'track');
     pageViews.forEach(v => v.classList.toggle('active', v.id === 'view-' + key));
 
     if (key === 'track' && window.leafletMap) {
-      setTimeout(() => window.leafletMap.invalidateSize(), 200);
+      setTimeout(() => window.leafletMap.invalidateSize(), 180);
+    }
+    if (key === 'activity') {
+      ensureActivityMap();
+      setTimeout(() => {
+        activityMap.invalidateSize();
+        if (!activityInitialized) { activityInitialized = true; actLoadBtn.click(); }
+      }, 180);
     }
   }
+  document.querySelectorAll('[data-view]').forEach(el => el.addEventListener('click', () => activateView(el.dataset.view)));
 
-  document.querySelectorAll('[data-view]').forEach(el => {
-    el.addEventListener('click', () => activateView(el.dataset.view));
-  });
-
-  /* ============== TABS inside Shared Access page ============== */
+  /* ============== TABS (shared access page) ============== */
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -648,59 +568,298 @@
     });
   });
 
-  /* ============== MOBILE CONTROLS SHEET ============== */
-  const mobileControls = document.getElementById('mobileControls');
-  document.getElementById('btControls').addEventListener('click', () => mobileControls.classList.add('show'));
-  document.getElementById('mcClose').addEventListener('click', () => mobileControls.classList.remove('show'));
-
-  /* ============== LEAFLET MAP (CartoDB — free, no key) ============== */
-  const map = L.map('leafletMap', { zoomControl:false, attributionControl:true })
-    .setView([35.730, 51.420], 12);
-
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19,
-    subdomains: 'abcd',
-    attribution: '&copy; OpenStreetMap &copy; CARTO'
-  }).addTo(map);
-
-  window.leafletMap = map;
-
-  function makeMarkerIcon(label, state){
-    return L.divIcon({
-      className: '',
-      html: `<div class="veh-marker ${state}"><div class="dot">▲</div><div class="label">${label}</div></div>`,
-      iconSize: [0,0],
-      iconAnchor: [13,13]
-    });
+  /* ============== PERSIAN DIGIT HELPER ============== */
+  function fa(n){
+    const map = {'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹'};
+    return String(n).split('').map(c => map[c] !== undefined ? map[c] : c).join('');
   }
 
+  /* ============== TRACK MAP + POPUPS (controls live here now) ============== */
+  const map = L.map('leafletMap', { zoomControl:false, attributionControl:true }).setView([35.730, 51.420], 12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19, subdomains: 'abcd', attribution: '&copy; OpenStreetMap &copy; CARTO'
+  }).addTo(map);
+  window.leafletMap = map;
+
+  const vehiclesData = [];
+  const vehicleState = {};
   const vehicleMarkers = {};
 
   document.querySelectorAll('.vehicle-row').forEach(row => {
+    const id = row.dataset.id;
     const lat = parseFloat(row.dataset.lat);
     const lng = parseFloat(row.dataset.lng);
-    const name = row.dataset.name;
-    const id = row.dataset.id;
-    const isOffline = row.querySelector('.vr-speed').classList.contains('offline');
-    const state = isOffline ? 'offline' : '';
+    const icon = row.querySelector('.vr-thumb').textContent.trim();
+    const name = row.querySelector('.vr-name').textContent.trim();
+    const time = row.querySelector('.vr-time').textContent.trim();
+    const addr = row.querySelector('.vr-addr').textContent.trim();
+    const offline = row.querySelector('.vr-speed').classList.contains('offline');
 
-    const marker = L.marker([lat, lng], { icon: makeMarkerIcon(name, state) }).addTo(map);
-    vehicleMarkers[id] = { marker, lat, lng };
+    vehiclesData.push({ id, name, lat, lng, icon, time, addr, offline });
+    vehicleState[id] = { power: !offline, locked: true, trunk: false };
+  });
 
+  function controlBtn(vid, type, icon, label, isOn){
+    return `<div class="pop-ctrl ${isOn?'on':''}" onclick="toggleControl('${vid}','${type}')">
+      <div class="pop-ctrl-circle">${icon}</div>
+      <div class="pop-ctrl-label">${label}</div>
+    </div>`;
+  }
+
+  function popupHTML(v){
+    const s = vehicleState[v.id];
+    return `
+      <div class="veh-popup">
+        <div class="vp-head">
+          <div class="vp-thumb">${v.icon}</div>
+          <div>
+            <div class="vp-name">${v.name}</div>
+            <div class="vp-meta">آخرین بروزرسانی: ${v.time}</div>
+          </div>
+        </div>
+        <div class="vp-addr">${v.addr}</div>
+        <div class="vp-controls">
+          ${controlBtn(v.id,'power','⏻','روشن/خاموش', s.power)}
+          ${controlBtn(v.id,'lock','🔒','قفل', s.locked)}
+          ${controlBtn(v.id,'unlock','🔓','باز کردن', !s.locked)}
+          ${controlBtn(v.id,'trunk','🚪','صندوق', s.trunk)}
+        </div>
+      </div>`;
+  }
+
+  function makeMarkerIcon(label, offline){
+    return L.divIcon({
+      className: '',
+      html: `<div class="veh-marker ${offline?'offline':''}"><div class="dot">▲</div><div class="label">${label}</div></div>`,
+      iconSize: [0,0], iconAnchor: [13,13]
+    });
+  }
+
+  vehiclesData.forEach(v => {
+    const marker = L.marker([v.lat, v.lng], { icon: makeMarkerIcon(v.name, v.offline) }).addTo(map);
+    marker.bindPopup(popupHTML(v), { minWidth: 230, closeButton: true });
+    vehicleMarkers[v.id] = marker;
+
+    marker.on('click', () => {
+      document.querySelectorAll('.vehicle-row').forEach(r => r.classList.toggle('selected', r.dataset.id === v.id));
+    });
+  });
+
+  window.toggleControl = function(vid, type){
+    const s = vehicleState[vid];
+    const v = vehiclesData.find(x => x.id === vid);
+    const marker = vehicleMarkers[vid];
+
+    if (type === 'trunk') {
+      s.trunk = true;
+      marker.setPopupContent(popupHTML(v));
+      setTimeout(() => { s.trunk = false; marker.setPopupContent(popupHTML(v)); }, 1100);
+      return;
+    }
+    if (type === 'power') s.power = !s.power;
+    if (type === 'lock') s.locked = true;
+    if (type === 'unlock') s.locked = false;
+    marker.setPopupContent(popupHTML(v));
+  };
+
+  document.querySelectorAll('.vehicle-row').forEach(row => {
     row.addEventListener('click', () => {
       document.querySelectorAll('.vehicle-row').forEach(r => r.classList.remove('selected'));
       row.classList.add('selected');
-      map.setView([lat, lng], 13, { animate:true });
-
-      document.getElementById('dpName').textContent = name;
-      document.getElementById('dpTime').textContent = row.querySelector('.vr-time').textContent;
-      document.getElementById('dpSpeed').textContent = row.querySelector('.vr-speed').textContent.trim();
-      document.getElementById('dpAddr').textContent = row.querySelector('.vr-addr').textContent;
-      document.getElementById('mcName').textContent = name;
+      const id = row.dataset.id;
+      const v = vehiclesData.find(x => x.id === id);
+      map.setView([v.lat, v.lng], 14, { animate: true });
+      vehicleMarkers[id].openPopup();
     });
   });
 
   window.addEventListener('resize', () => map.invalidateSize());
+
+  /* ============== MOBILE QUICK CONTROLS SHEET ============== */
+  const mobileControls = document.getElementById('mobileControls');
+  document.getElementById('btControls').addEventListener('click', () => mobileControls.classList.add('show'));
+  document.getElementById('mcClose').addEventListener('click', () => mobileControls.classList.remove('show'));
+  document.querySelectorAll('.mc-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if (btn.dataset.mctype === 'trunk'){
+        btn.classList.add('on');
+        setTimeout(()=>btn.classList.remove('on'), 1000);
+        return;
+      }
+      if (btn.dataset.mctype === 'lock'){
+        document.querySelector('.mc-btn[data-mctype="unlock"]').classList.remove('on');
+        btn.classList.add('on');
+        return;
+      }
+      if (btn.dataset.mctype === 'unlock'){
+        document.querySelector('.mc-btn[data-mctype="lock"]').classList.remove('on');
+        btn.classList.add('on');
+        setTimeout(()=>btn.classList.remove('on'), 800);
+        return;
+      }
+      btn.classList.toggle('on');
+    });
+  });
+
+  /* ======================================================================
+     ACTIVITY & HISTORY — map, time range, trace vs replay, playback speed
+     ====================================================================== */
+  let activityMap = null;
+  let activityPolyline = null, activityStartMarker = null, activityEndMarker = null;
+  let activityFullPath = null, activityTravelled = null, activityReplayMarker = null;
+
+  function ensureActivityMap(){
+    if (activityMap) return;
+    activityMap = L.map('activityMap', { zoomControl:false, attributionControl:true }).setView([35.72, 51.42], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19, subdomains: 'abcd', attribution: '&copy; OpenStreetMap &copy; CARTO'
+    }).addTo(activityMap);
+  }
+
+  // sample historical route (base path near Tehran) — in production this comes from the telemetry API
+  const baseRoute = [
+    { lat:35.700, lng:51.398, time:'۰۸:۰۰', speed:0  },
+    { lat:35.704, lng:51.402, time:'۰۸:۰۶', speed:22 },
+    { lat:35.709, lng:51.408, time:'۰۸:۱۲', speed:38 },
+    { lat:35.714, lng:51.413, time:'۰۸:۱۸', speed:45 },
+    { lat:35.719, lng:51.418, time:'۰۸:۲۴', speed:52 },
+    { lat:35.723, lng:51.423, time:'۰۸:۳۰', speed:40 },
+    { lat:35.727, lng:51.428, time:'۰۸:۳۶', speed:35 },
+    { lat:35.731, lng:51.433, time:'۰۸:۴۲', speed:48 },
+    { lat:35.735, lng:51.438, time:'۰۸:۴۸', speed:30 },
+    { lat:35.739, lng:51.442, time:'۰۸:۵۴', speed:15 },
+    { lat:35.742, lng:51.446, time:'۰۹:۰۰', speed:0  }
+  ];
+
+  const vehicleOffsets = { alpha:[0,0], beta:[0,0], gamma:[-0.015, 0.012], delta:[0.018, -0.01] };
+
+  function buildRoute(vehicleKey){
+    const off = vehicleOffsets[vehicleKey] || [0,0];
+    return baseRoute.map(p => ({ lat: p.lat + off[0], lng: p.lng + off[1], time: p.time, speed: p.speed }));
+  }
+
+  function clearActivityLayers(){
+    [activityPolyline, activityStartMarker, activityEndMarker, activityFullPath, activityTravelled, activityReplayMarker]
+      .forEach(l => { if (l) activityMap.removeLayer(l); });
+    activityPolyline = activityStartMarker = activityEndMarker = activityFullPath = activityTravelled = activityReplayMarker = null;
+    stopTicking(); playing = false; pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
+  }
+
+  function drawTrace(route){
+    clearActivityLayers();
+    const latlngs = route.map(p => [p.lat, p.lng]);
+    activityPolyline = L.polyline(latlngs, { color:'#0db583', weight:4, opacity:.85 }).addTo(activityMap);
+    activityStartMarker = L.circleMarker(latlngs[0], { radius:7, color:'#fff', weight:2, fillColor:'#15a876', fillOpacity:1 }).addTo(activityMap);
+    activityEndMarker = L.circleMarker(latlngs[latlngs.length-1], { radius:7, color:'#fff', weight:2, fillColor:'#e14a4a', fillOpacity:1 }).addTo(activityMap);
+    activityMap.fitBounds(activityPolyline.getBounds(), { padding:[40,40] });
+  }
+
+  let currentRoute = [];
+  let currentIndex = 0;
+  let playing = false;
+  let playTimer = null;
+  const speedLevels = [0.5, 1, 2, 4, 8];
+  let speedIndex = 1;
+
+  function prepareReplay(route){
+    clearActivityLayers();
+    currentRoute = route;
+    currentIndex = 0;
+    const latlngs = route.map(p => [p.lat, p.lng]);
+    activityFullPath = L.polyline(latlngs, { color:'#d8dce3', weight:4, opacity:.7 }).addTo(activityMap);
+    activityTravelled = L.polyline([latlngs[0]], { color:'#0db583', weight:4 }).addTo(activityMap);
+    activityReplayMarker = L.circleMarker(latlngs[0], { radius:8, color:'#fff', weight:2, fillColor:'#4f7dff', fillOpacity:1 }).addTo(activityMap);
+    activityMap.fitBounds(activityFullPath.getBounds(), { padding:[40,40] });
+    pbScrubber.max = route.length - 1;
+    renderIndex();
+  }
+
+  function renderIndex(){
+    const idx = Math.max(0, Math.min(currentRoute.length - 1, Math.floor(currentIndex)));
+    const point = currentRoute[idx];
+    if (!point) return;
+    activityReplayMarker.setLatLng([point.lat, point.lng]);
+    activityTravelled.setLatLngs(currentRoute.slice(0, idx + 1).map(p => [p.lat, p.lng]));
+    pbScrubber.value = idx;
+    pbTimeLabel.textContent = `${point.time} · ${fa(point.speed)} کیلومتر/ساعت`;
+  }
+
+  function startTicking(){
+    playTimer = setInterval(() => {
+      currentIndex += speedLevels[speedIndex];
+      if (currentIndex >= currentRoute.length - 1) {
+        currentIndex = currentRoute.length - 1;
+        stopTicking(); playing = false;
+        pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
+      }
+      renderIndex();
+    }, 450);
+  }
+  function stopTicking(){ clearInterval(playTimer); }
+
+  const actVehicleSelect = document.getElementById('actVehicleSelect');
+  const actLoadBtn = document.getElementById('actLoadBtn');
+  const playbackBar = document.getElementById('playbackBar');
+  const pbPlayPause = document.getElementById('pbPlayPause');
+  const pbRestart = document.getElementById('pbRestart');
+  const pbScrubber = document.getElementById('pbScrubber');
+  const pbTimeLabel = document.getElementById('pbTimeLabel');
+  const pbSpeedLabel = document.getElementById('pbSpeedLabel');
+  const pbSpeedMinus = document.getElementById('pbSpeedMinus');
+  const pbSpeedPlus = document.getElementById('pbSpeedPlus');
+
+  let activeMode = 'trace';
+
+  document.querySelectorAll('.mode-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeMode = btn.dataset.mode;
+      actLoadBtn.textContent = activeMode === 'trace' ? 'رسم مسیر' : 'آماده‌سازی پخش';
+      playbackBar.style.display = activeMode === 'replay' ? 'flex' : 'none';
+    });
+  });
+
+  actLoadBtn.addEventListener('click', () => {
+    ensureActivityMap();
+    const route = buildRoute(actVehicleSelect.value);
+    if (activeMode === 'trace') {
+      playbackBar.style.display = 'none';
+      drawTrace(route);
+    } else {
+      playbackBar.style.display = 'flex';
+      prepareReplay(route);
+    }
+  });
+
+  pbPlayPause.addEventListener('click', () => {
+    playing = !playing;
+    pbPlayPause.textContent = playing ? '⏸' : '▶';
+    pbPlayPause.classList.toggle('play', playing);
+    if (playing) startTicking(); else stopTicking();
+  });
+
+  pbRestart.addEventListener('click', () => {
+    stopTicking(); playing = false;
+    pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
+    currentIndex = 0; renderIndex();
+  });
+
+  pbScrubber.addEventListener('input', (e) => {
+    stopTicking(); playing = false;
+    pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
+    currentIndex = parseInt(e.target.value, 10);
+    renderIndex();
+  });
+
+  pbSpeedMinus.addEventListener('click', () => {
+    speedIndex = Math.max(0, speedIndex - 1);
+    pbSpeedLabel.textContent = '×' + fa(speedLevels[speedIndex]);
+  });
+  pbSpeedPlus.addEventListener('click', () => {
+    speedIndex = Math.min(speedLevels.length - 1, speedIndex + 1);
+    pbSpeedLabel.textContent = '×' + fa(speedLevels[speedIndex]);
+  });
 </script>
 
 </body>
