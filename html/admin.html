@@ -1,378 +1,2915 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8" />
-<title>Sentinel Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>سنتینل — کنسول مدیریت</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <style>
   :root{
-    --bg:#0f1115;
-    --panel:#161922;
-    --panel-2:#1d212c;
-    --border:#2a2f3b;
-    --text:#e6e8ec;
-    --text-dim:#9aa1b1;
-    --accent:#5b8cff;
-    --ok:#3ecf8e;
-    --warn:#f5b942;
-    --danger:#f05a5a;
-    --radius:10px;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;
+    --bg:#eef0f3;
+    --panel:#ffffff;
+    --panel-soft:#f6f7f9;
+    --border:#e4e7ec;
+
+    --text:#1a1d23;
+    --text-dim:#6b7280;
+    --text-faint:#9aa1ad;
+
+    --accent:#0db583;
+    --accent-dark:#09946b;
+    --accent-soft:#e3f8f1;
+
+    --select:#4f7dff;
+    --select-soft:#eef3ff;
+
+    --ok:#15a876;
+    --warn:#d97f23;
+    --danger:#e14a4a;
+    --violet:#8a5cf6;
+    --offline:#9aa1ad;
+
+    --radius-lg:14px;
+    --radius-md:10px;
+    --radius-sm:8px;
+    --shadow-sm:0 1px 2px rgba(16,24,40,.05);
+    --shadow-md:0 4px 14px rgba(16,24,40,.10);
+
+    font-family:'Vazirmatn', -apple-system, sans-serif;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-size:14px;
-    display:flex;
-    min-height:100vh;
-  }
+  html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3,h4,p{margin:0;}
+  button{font-family:inherit;}
+  select,input,textarea{font-family:inherit;}
+  ::selection{background:var(--accent-soft);}
+  .ltr{direction:ltr;unicode-bidi:embed;display:inline-block;}
 
-  /* ---------- Sidebar ---------- */
-  .sidebar{
-    width:220px;
-    flex-shrink:0;
-    background:var(--panel);
-    border-right:1px solid var(--border);
-    display:flex;
-    flex-direction:column;
-    padding:18px 12px;
-  }
-  .brand{
-    font-weight:700;
-    font-size:15px;
-    padding:0 10px 18px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    border-bottom:1px solid var(--border);
-    margin-bottom:12px;
-  }
-  .brand .dot{
-    width:8px;height:8px;border-radius:50%;
-    background:var(--accent);
-  }
-  .nav{
-    list-style:none;
-    margin:0;padding:0;
-    display:flex;flex-direction:column;gap:2px;
-  }
-  .nav a{
-    display:flex;align-items:center;gap:10px;
-    padding:9px 10px;
-    border-radius:8px;
-    color:var(--text-dim);
-    text-decoration:none;
-    font-size:13.5px;
-  }
-  .nav a:hover{background:var(--panel-2);color:var(--text);}
-  .nav a.active{background:var(--panel-2);color:var(--text);
-    box-shadow:inset 2px 0 0 var(--accent);}
-  .nav-icon{width:16px;text-align:center;opacity:.8;}
-  .sidebar-footer{
-    margin-top:auto;
-    padding-top:12px;
-    border-top:1px solid var(--border);
-    font-size:11px;
-    color:var(--text-dim);
-  }
+  .app{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
 
-  /* ---------- Main ---------- */
-  .main{flex:1;display:flex;flex-direction:column;min-width:0;}
-
+  /* ================= TOPBAR ================= */
   .topbar{
-    height:56px;
-    display:flex;align-items:center;justify-content:space-between;
-    padding:0 20px;
-    border-bottom:1px solid var(--border);
-    background:var(--panel);
+    height:58px;flex-shrink:0;display:flex;align-items:center;gap:14px;
+    padding:0 18px;background:#fff;border-bottom:1px solid var(--border);z-index:50;
   }
-  .topbar-left{display:flex;align-items:center;gap:14px;}
-  .page-title{font-size:16px;font-weight:600;}
-  .env-badge{
-    font-size:11px;font-weight:600;letter-spacing:.04em;
-    padding:3px 8px;border-radius:999px;
-    background:rgba(245,185,66,.12);
-    color:var(--warn);
-    border:1px solid rgba(245,185,66,.3);
+  .brand{display:flex;align-items:center;gap:8px;}
+  .brand .logo{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#19d6a0,var(--accent));flex-shrink:0;}
+  .brand-name{font-weight:800;font-size:16.5px;color:var(--accent-dark);letter-spacing:-.01em;}
+  .brand-sub{font-size:11px;font-weight:700;color:var(--text-dim);background:var(--panel-soft);border:1px solid var(--border);padding:3px 9px;border-radius:999px;}
+  .topbar-right{display:flex;align-items:center;gap:12px;margin-inline-start:auto;}
+  .global-search{
+    display:flex;align-items:center;gap:8px;background:var(--panel-soft);border:1px solid var(--border);
+    border-radius:999px;padding:7px 14px;min-width:260px;color:var(--text-faint);font-size:12px;
   }
-  .demo-actor{
-    display:flex;align-items:center;gap:8px;
-    border:1px dashed var(--border);
-    padding:5px 10px;border-radius:8px;
-    font-size:12px;color:var(--text-dim);
-  }
-  .demo-actor select{
-    background:transparent;border:none;color:var(--text);font-size:12px;
+  .global-search input{border:none;outline:none;background:transparent;font-size:12.5px;color:var(--text);width:100%;}
+  .demo-pill{font-size:10.5px;font-weight:700;color:var(--warn);border:1px dashed #e9c98f;background:#fff8ee;padding:4px 10px;border-radius:999px;white-space:nowrap;}
+  .avatar-circle{
+    width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#4f7dff,#8a5cf6);
+    display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;
   }
 
-  .content{padding:22px;overflow-y:auto;}
+  /* ================= SHELL / ICON RAIL ================= */
+  .shell{flex:1;display:flex;min-height:0;}
 
-  .notice{
-    background:rgba(91,140,255,.08);
-    border:1px solid rgba(91,140,255,.25);
-    color:#b7c7ff;
-    padding:10px 14px;
-    border-radius:var(--radius);
-    font-size:12.5px;
-    margin-bottom:20px;
+  .icon-rail{
+    width:66px;flex-shrink:0;background:#fff;border-inline-end:1px solid var(--border);
+    display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px;
+  }
+  .rail-btn{
+    width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+    color:var(--text-dim);font-size:19px;cursor:pointer;position:relative;flex-shrink:0;
+    transition:background .15s ease,color .15s ease;
+  }
+  .rail-btn:hover{background:var(--panel-soft);color:var(--text);}
+  .rail-btn.active{background:var(--accent);color:#fff;box-shadow:0 4px 10px rgba(13,181,131,.35);}
+  .rail-btn .rail-label{
+    position:absolute;inset-inline-start:54px;background:#1a1d23;color:#fff;
+    font-size:11px;padding:4px 9px;border-radius:7px;white-space:nowrap;
+    opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:80;
+  }
+  .rail-btn:hover .rail-label{opacity:1;}
+  .rail-badge{
+    position:absolute;top:5px;inset-inline-end:5px;background:var(--danger);color:#fff;
+    font-size:9.5px;font-weight:700;border-radius:999px;padding:1px 5px;line-height:1.5;
   }
 
-  /* ---------- Cards grid ---------- */
-  .cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-    gap:14px;
-    margin-bottom:26px;
-  }
-  .card{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:16px;
-  }
-  .card .label{
-    font-size:11.5px;color:var(--text-dim);
-    text-transform:uppercase;letter-spacing:.05em;
-    margin-bottom:8px;
-  }
-  .card .value{font-size:24px;font-weight:700;}
-  .card .sub{font-size:12px;color:var(--text-dim);margin-top:4px;}
-  .card .sub.ok{color:var(--ok);}
-  .card .sub.warn{color:var(--warn);}
+  /* ================= GENERIC PAGE VIEWS ================= */
+  .view-page{display:none;flex:1;overflow-y:auto;padding:22px;min-width:0;}
+  .view-page.active{display:block;}
 
-  /* ---------- Section ---------- */
-  .section{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    margin-bottom:22px;
-    overflow:hidden;
-  }
-  .section-head{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 16px;
-    border-bottom:1px solid var(--border);
-  }
-  .section-head h2{font-size:14px;margin:0;font-weight:600;}
-  .section-actions{display:flex;gap:8px;}
-  .btn{
-    font-size:12.5px;padding:6px 12px;border-radius:7px;
-    border:1px solid var(--border);
-    background:var(--panel-2);color:var(--text);
-    cursor:pointer;
-  }
-  .btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0f1a;font-weight:600;}
-  .btn.danger{background:rgba(240,90,90,.12);border-color:rgba(240,90,90,.4);color:var(--danger);}
+  .page-head{margin-bottom:18px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;}
+  .page-head h2{font-size:18px;font-weight:800;}
+  .page-head p{font-size:12.5px;color:var(--text-dim);margin-top:3px;}
+  .page-head .ph-actions{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap;}
 
+  /* ================= KPI CARDS ================= */
+  .kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;}
+  .kpi-grid.four{grid-template-columns:repeat(4,1fr);}
+  .kpi-grid.three{grid-template-columns:repeat(3,1fr);}
+  .kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 15px;position:relative;overflow:hidden;}
+  .kpi .kt{font-size:11px;color:var(--text-dim);font-weight:700;display:flex;align-items:center;gap:6px;}
+  .kpi .kv{font-size:20px;font-weight:800;margin-top:7px;letter-spacing:-.02em;}
+  .kpi .ks{font-size:11px;color:var(--text-faint);margin-top:4px;}
+  .kpi .kicon{position:absolute;inset-inline-end:13px;top:13px;font-size:17px;opacity:.45;}
+  .kpi.good .kv{color:var(--ok);}
+  .kpi.bad .kv{color:var(--danger);}
+  .kpi.warn .kv{color:var(--warn);}
+  .kpi.info .kv{color:var(--select);}
+
+  /* ================= CARDS / SECTIONS ================= */
+  .two-col{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-bottom:16px;}
+  .two-col.even{grid-template-columns:1fr 1fr;}
+  .section-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:16px;}
+  .section-card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+  .section-card-head h3{font-size:13.5px;font-weight:800;}
+  .section-card-head .head-sub{font-size:11px;color:var(--text-faint);}
+  .section-card-body{padding:16px 18px;}
+  .empty{padding:26px 18px;text-align:center;color:var(--text-faint);font-size:12.5px;}
+
+  /* ================= BUTTONS ================= */
+  .btn{font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+  .btn:hover{border-color:#cfd5dd;background:var(--panel-soft);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn.primary:hover{background:var(--accent-dark);border-color:var(--accent-dark);}
+  .btn.danger{background:#fdeaea;border-color:#f3cccc;color:var(--danger);}
+  .btn.danger:hover{background:#fbdcdc;}
+  .btn.ghost{background:transparent;border-color:transparent;color:var(--text-dim);}
+  .btn.ghost:hover{background:var(--panel-soft);color:var(--text);}
+  .btn.sm{font-size:11px;padding:6px 10px;border-radius:7px;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* ================= PILLS / BADGES ================= */
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--panel-soft);color:var(--text-dim);white-space:nowrap;}
+  .pill i{width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;}
+  .pill.ok{background:var(--accent-soft);color:var(--accent-dark);}
+  .pill.warn{background:#fff3e4;color:var(--warn);}
+  .pill.bad{background:#fdeaea;color:var(--danger);}
+  .pill.info{background:var(--select-soft);color:#3d64d8;}
+  .pill.violet{background:#f2ecff;color:#6d3fe0;}
+  .pill.gray{background:#f1f2f4;color:var(--text-dim);}
+  .tag{font-size:10.5px;font-weight:700;color:var(--text-dim);background:var(--panel-soft);border:1px solid var(--border);border-radius:6px;padding:2px 7px;}
+
+  /* ================= TABLES ================= */
+  .table-wrap{overflow-x:auto;}
   table{width:100%;border-collapse:collapse;}
-  thead th{
-    text-align:left;
-    font-size:11px;text-transform:uppercase;letter-spacing:.04em;
-    color:var(--text-dim);
-    padding:10px 16px;
-    border-bottom:1px solid var(--border);
-  }
-  tbody td{
-    padding:11px 16px;
-    border-bottom:1px solid var(--border);
-    font-size:13px;
-  }
+  thead th{text-align:right;font-size:10.5px;color:var(--text-faint);font-weight:700;padding:11px 18px;border-bottom:1px solid var(--border);background:var(--panel-soft);white-space:nowrap;}
+  tbody td{padding:12px 18px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;}
   tbody tr:last-child td{border-bottom:none;}
-  tbody tr:hover{background:var(--panel-2);}
+  tbody tr.clickable{cursor:pointer;}
+  tbody tr.clickable:hover{background:var(--panel-soft);}
+  tfoot td{padding:12px 18px;font-size:12px;font-weight:800;background:var(--panel-soft);border-top:1px solid var(--border);}
+  .row-actions{display:flex;gap:6px;white-space:nowrap;}
+  .num{font-weight:700;}
+  .debt{color:var(--danger);font-weight:800;}
+  .credit{color:var(--ok);font-weight:800;}
+  .muted{color:var(--text-dim);}
+  .faint{color:var(--text-faint);font-size:11px;}
 
-  .pill{
-    display:inline-flex;align-items:center;gap:5px;
-    font-size:11.5px;font-weight:600;
-    padding:3px 9px;border-radius:999px;
+  /* ================= USER CELL ================= */
+  .u-cell{display:flex;align-items:center;gap:10px;min-width:180px;}
+  .u-avatar{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:12.5px;font-weight:700;color:#fff;flex-shrink:0;background:linear-gradient(135deg,#4f7dff,#8a5cf6);}
+  .u-avatar.g2{background:linear-gradient(135deg,#19d6a0,#0db583);}
+  .u-avatar.g3{background:linear-gradient(135deg,#f6a23c,#e14a4a);}
+  .u-avatar.g4{background:linear-gradient(135deg,#8a5cf6,#4f7dff);}
+  .u-avatar.g5{background:linear-gradient(135deg,#3ea6ff,#0db583);}
+  .u-name{font-size:12.5px;font-weight:700;}
+  .u-sub{font-size:10.5px;color:var(--text-faint);}
+
+  /* ================= FILTER TOOLBAR ================= */
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:14px;}
+  .inp{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-size:12.5px;color:var(--text-dim);min-width:200px;}
+  .inp input{border:none;outline:none;background:transparent;font-size:12.5px;color:var(--text);width:100%;}
+  .inp:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  select.inp{min-width:150px;cursor:pointer;padding-inline-end:10px;}
+  .check{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-dim);font-weight:600;cursor:pointer;background:#fff;border:1px solid var(--border);border-radius:9px;padding:9px 12px;}
+  .check input{accent-color:var(--accent);width:14px;height:14px;}
+  .toolbar .spacer{flex:1;}
+  .summary-strip{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px;font-size:11.5px;color:var(--text-dim);}
+  .summary-strip b{color:var(--text);}
+
+  /* ================= TABS ================= */
+  .tab-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .tab-btn{font-size:12px;font-weight:700;padding:8px 16px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text-dim);cursor:pointer;}
+  .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .tab-pane{display:none;}
+  .tab-pane.active{display:block;}
+
+  /* ================= CHART / DONUT ================= */
+  .chart{display:flex;align-items:flex-end;gap:14px;height:180px;padding:24px 4px 0;}
+  .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;height:100%;}
+  .chart .bar{width:100%;max-width:46px;background:linear-gradient(180deg,#3fdcae,var(--accent));border-radius:8px 8px 4px 4px;position:relative;min-height:6px;}
+  .chart .bar .bv{position:absolute;top:-20px;inset-inline:0;text-align:center;font-size:10px;color:var(--text-dim);font-weight:700;}
+  .chart .cl{font-size:10.5px;color:var(--text-faint);font-weight:700;white-space:nowrap;}
+  .donut-wrap{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+  .donut{width:140px;height:140px;border-radius:50%;position:relative;flex-shrink:0;}
+  .donut::after{content:'';position:absolute;inset:28px;background:#fff;border-radius:50%;}
+  .donut .dcenter{position:absolute;inset:0;display:grid;place-items:center;z-index:2;text-align:center;}
+  .donut .dcenter strong{font-size:15px;font-weight:800;display:block;}
+  .donut .dcenter span{font-size:10px;color:var(--text-faint);}
+  .legend{display:flex;flex-direction:column;gap:10px;font-size:12px;flex:1;min-width:160px;}
+  .legend .lg{display:flex;align-items:center;gap:9px;}
+  .legend .lg .dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .legend .lg b{margin-inline-start:auto;font-weight:800;}
+
+  /* ================= LISTS (overdue / expiring) ================= */
+  .list-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .list-row:last-child{border-bottom:none;}
+  .list-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:15px;flex-shrink:0;background:var(--panel-soft);}
+  .list-ic.bad{background:#fdeaea;}
+  .list-ic.warn{background:#fff3e4;}
+  .list-ic.ok{background:var(--accent-soft);}
+  .list-body{flex:1;min-width:170px;}
+  .list-body .t{font-size:12.5px;font-weight:700;}
+  .list-body .s{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .list-side{display:flex;align-items:center;gap:8px;margin-inline-start:auto;}
+
+  /* ================= PROGRESS ================= */
+  .progress{height:6px;border-radius:99px;background:#eef0f3;overflow:hidden;min-width:90px;margin-top:6px;}
+  .progress i{display:block;height:100%;background:var(--accent);border-radius:99px;}
+  .progress.warn i{background:var(--warn);}
+  .progress.bad i{background:var(--danger);}
+
+  /* ================= DEVICE CARDS ================= */
+  .dev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+  .dev-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:15px;}
+  .dev-card .dh{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .dev-ic{width:38px;height:38px;border-radius:10px;background:var(--panel-soft);display:grid;place-items:center;font-size:17px;flex-shrink:0;}
+  .dev-card .dt{font-size:12.5px;font-weight:800;}
+  .dev-card .ds{font-size:10.5px;color:var(--text-faint);}
+  .dev-card .dh .pill{margin-inline-start:auto;}
+  .dev-meta{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;font-size:11.5px;}
+  .dev-meta div span{display:block;color:var(--text-faint);font-size:10.5px;}
+  .dev-meta div b{font-weight:700;}
+  .sim-row{display:flex;gap:8px;margin-top:13px;padding-top:12px;border-top:1px solid var(--border);}
+  .sim-row .btn{flex:1;justify-content:center;}
+  .hint{font-size:10.5px;color:var(--text-faint);margin-top:9px;}
+  .bar-row{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--text-dim);}
+  .bar-row .progress{flex:1;}
+
+  /* ================= TIMELINE (audit / actions) ================= */
+  .timeline{padding:6px 18px 14px;}
+  .tl{display:flex;gap:12px;padding:11px 0;border-bottom:1px dashed var(--border);}
+  .tl:last-child{border-bottom:none;}
+  .tl-dot{width:30px;height:30px;border-radius:9px;background:var(--panel-soft);display:grid;place-items:center;font-size:13px;flex-shrink:0;}
+  .tl-dot.ok{background:var(--accent-soft);}
+  .tl-dot.bad{background:#fdeaea;}
+  .tl-dot.warn{background:#fff3e4;}
+  .tl-dot.info{background:var(--select-soft);}
+  .tl-body{flex:1;min-width:0;}
+  .tl-body .t{font-size:12.5px;font-weight:700;}
+  .tl-body .s{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .tl-time{font-size:10.5px;color:var(--text-faint);white-space:nowrap;}
+
+  /* ================= USER DETAIL ================= */
+  .detail-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+  .detail-avatar{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-size:19px;font-weight:800;color:#fff;background:linear-gradient(135deg,#4f7dff,#8a5cf6);flex-shrink:0;}
+  .detail-id h2{font-size:17px;font-weight:800;}
+  .detail-id p{font-size:12px;color:var(--text-dim);margin-top:3px;}
+  .detail-actions{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap;}
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .info-grid.two{grid-template-columns:repeat(2,1fr);}
+  .info-cell{background:var(--panel-soft);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px;}
+  .info-cell span{display:block;font-size:10.5px;color:var(--text-faint);font-weight:700;}
+  .info-cell b{font-size:12.5px;font-weight:700;}
+
+  /* ================= IMPERSONATION ================= */
+  .imp-banner{
+    display:none;align-items:center;gap:12px;background:#2a1214;color:#ffd9d9;
+    border:1px solid #6b2a2e;border-radius:var(--radius-md);padding:12px 16px;margin-bottom:16px;
   }
-  .pill.active{background:rgba(62,207,142,.12);color:var(--ok);}
-  .pill.expiring{background:rgba(245,185,66,.12);color:var(--warn);}
-  .pill.expired{background:rgba(240,90,90,.12);color:var(--danger);}
-  .pill.revoked{background:var(--panel-2);color:var(--text-dim);}
+  .imp-banner.show{display:flex;}
+  .imp-banner b{color:#fff;}
+  .imp-banner .btn{margin-inline-start:auto;background:#e14a4a;border-color:#e14a4a;color:#fff;}
+  .imp-banner .btn:hover{background:#c93d3d;}
+  .imp-frame{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;}
+  .imp-sub{font-size:11.5px;color:var(--text-dim);margin:-6px 0 12px;}
+  .map-box{height:330px;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;background:#eef0f3;position:relative;}
+  .map-box.tall{height:420px;}
+  #impMap,#impTrackMap{width:100%;height:100%;}
+  .map-locked{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:6px;background:rgba(238,240,243,.94);z-index:420;padding:20px;}
+  .map-locked strong{font-size:13px;}
+  .map-locked span{font-size:11.5px;color:var(--text-dim);}
+  .leaflet-control-attribution{font-size:9.5px !important;}
+  .leaflet-popup-content-wrapper{border-radius:12px;box-shadow:var(--shadow-md);font-family:'Vazirmatn',sans-serif;}
+  .veh-marker{display:flex;align-items:center;}
+  .veh-marker .dot{width:24px;height:24px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);display:grid;place-items:center;color:#fff;font-size:10px;}
+  .veh-marker .label{background:var(--accent);color:#fff;font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;margin-inline-start:-8px;padding-inline-start:14px;white-space:nowrap;}
+  .veh-marker.offline .dot,.veh-marker.offline .label{background:var(--offline);}
+  .veh-marker.stale .dot,.veh-marker.stale .label{background:var(--warn);}
+  .vp{min-width:200px;padding:12px;font-size:11.5px;}
+  .vp strong{font-size:12.5px;}
+  .vp .vp-sub{color:var(--text-dim);margin:3px 0 7px;}
+  .track-list{max-height:420px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-md);}
+  .track-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;}
+  .track-row:last-child{border-bottom:none;}
+  .track-row:hover{background:var(--panel-soft);}
+  .track-row.selected{background:var(--select-soft);}
+  .track-row .ti{width:34px;height:34px;border-radius:9px;background:var(--panel-soft);display:grid;place-items:center;font-size:15px;flex-shrink:0;}
+  .track-row .tn{font-size:12px;font-weight:700;}
+  .track-row .ts{font-size:10.5px;color:var(--text-faint);}
+  .track-row .pill{margin-inline-start:auto;}
 
-  .avatar-tag{
-    display:inline-flex;align-items:center;gap:6px;
-    font-size:12.5px;
+  /* ================= MODAL / SHEET ================= */
+  .overlay{position:fixed;inset:0;background:rgba(16,24,40,.45);display:none;align-items:center;justify-content:center;z-index:900;padding:20px;}
+  .overlay.show{display:flex;}
+  .modal{background:#fff;border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:0 18px 50px rgba(16,24,40,.28);}
+  .modal.wide{max-width:720px;}
+  .modal-head{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:2;border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+  .modal-head h3{font-size:14px;font-weight:800;}
+  .modal-head .x{margin-inline-start:auto;background:none;border:none;font-size:17px;color:var(--text-dim);cursor:pointer;line-height:1;}
+  .modal-body{padding:18px 20px;}
+  .modal-foot{display:flex;gap:9px;justify-content:flex-start;padding:14px 20px;border-top:1px solid var(--border);background:var(--panel-soft);border-radius:0 0 var(--radius-lg) var(--radius-lg);}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .form-row.full{grid-template-columns:1fr;}
+  .field{display:flex;flex-direction:column;gap:6px;}
+  .field label{font-size:11px;font-weight:700;color:var(--text-dim);}
+  .field input,.field select,.field textarea{font-size:12.5px;padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:#fff;color:var(--text);outline:none;}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .field textarea{min-height:74px;resize:vertical;}
+  .callout{font-size:11.5px;border-radius:9px;padding:10px 13px;margin-top:6px;line-height:1.7;}
+  .callout.warn{background:#fff8ee;border:1px dashed #e9c98f;color:#8a5a12;}
+  .callout.danger{background:#fdeaea;border:1px solid #f3cccc;color:#a83232;}
+  .callout.info{background:var(--select-soft);border:1px solid #d6e0ff;color:#3d64d8;}
+  .danger-list{margin:8px 0 0;padding-inline-start:18px;font-size:11.5px;color:var(--text-dim);}
+  .danger-list li{margin-bottom:4px;}
+
+  /* ================= TOAST ================= */
+  .toast-wrap{position:fixed;bottom:22px;inset-inline-start:22px;z-index:950;display:flex;flex-direction:column;gap:9px;}
+  .toast{
+    background:#1a1d23;color:#fff;font-size:12.5px;font-weight:600;border-radius:10px;
+    padding:11px 15px;box-shadow:var(--shadow-md);display:flex;align-items:center;gap:9px;
+    animation:toastIn .18s ease;max-width:340px;
   }
-  .avatar-dot{
-    width:6px;height:6px;border-radius:50%;background:var(--accent);
+  .toast.ok{background:#0f8a63;}
+  .toast.bad{background:#c93d3d;}
+  .toast.warn{background:#b9721c;}
+  @keyframes toastIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* ================= MOBILE BOTTOM TABS ================= */
+  .bottom-tabs{display:none;height:60px;background:#fff;border-top:1px solid var(--border);align-items:center;justify-content:space-around;flex-shrink:0;z-index:60;}
+  .bt-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-faint);cursor:pointer;font-size:10px;font-weight:600;}
+  .bt-item .bi{font-size:19px;}
+  .bt-item.active{color:var(--accent);}
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 1280px){
+    .kpi-grid{grid-template-columns:repeat(3,1fr);}
+    .info-grid{grid-template-columns:repeat(2,1fr);}
   }
-
-  .two-col{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;}
-
-  footer.build-note{
-    font-size:11px;color:var(--text-dim);
-    padding:14px 16px;
+  @media (max-width: 1024px){
+    .icon-rail{display:none;}
+    .bottom-tabs{display:flex;}
+    .kpi-grid,.kpi-grid.four,.kpi-grid.three{grid-template-columns:repeat(2,1fr);}
+    .two-col,.two-col.even{grid-template-columns:1fr;}
+    .global-search{display:none;}
+  }
+  @media (max-width: 680px){
+    .view-page{padding:16px;}
+    .kpi-grid,.kpi-grid.four{grid-template-columns:1fr;}
+    .info-grid,.info-grid.two{grid-template-columns:1fr;}
+    .form-row{grid-template-columns:1fr;}
+    .detail-actions{width:100%;}
+    .th-hide{display:none;}
+    thead th,tbody td{padding:10px 12px;}
   }
 </style>
 </head>
 <body>
 
-  <aside class="sidebar">
-    <div class="brand"><span class="dot"></span> Sentinel Admin</div>
-    <ul class="nav">
-      <li><a href="#" class="active"><span class="nav-icon">▦</span> Overview</a></li>
-      <li><a href="#"><span class="nav-icon">🏢</span> Organizations</a></li>
-      <li><a href="#"><span class="nav-icon">🔗</span> Reseller Relationships</a></li>
-      <li><a href="#"><span class="nav-icon">🚗</span> Fleet &amp; Devices</a></li>
-      <li><a href="#"><span class="nav-icon">🛡</span> Location Grants</a></li>
-      <li><a href="#"><span class="nav-icon">📜</span> Audit Log</a></li>
-      <li><a href="#"><span class="nav-icon">🔔</span> Alerts</a></li>
-      <li><a href="#"><span class="nav-icon">👥</span> Members &amp; Roles</a></li>
-      <li><a href="#"><span class="nav-icon">⚙</span> System Health</a></li>
-    </ul>
-    <div class="sidebar-footer">
-      Sentinel Fleet · Admin Console<br/>
-      v0.1.0-local
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo"></span>
+      <span class="brand-name">سنتینل</span>
+      <span class="brand-sub">کنسول مدیریت پلتفرم</span>
     </div>
-  </aside>
-
-  <div class="main">
-    <div class="topbar">
-      <div class="topbar-left">
-        <span class="page-title">Overview</span>
-        <span class="env-badge">LOCAL / DEMO</span>
-      </div>
-      <div class="demo-actor">
-        DEMO AUTH ·
-        <select>
-          <option>platform.admin@sentinel.demo</option>
-          <option>platform.support@sentinel.demo</option>
-        </select>
-      </div>
+    <div class="topbar-right">
+      <div class="global-search">🔍<input id="globalSearch" placeholder="جستجوی کاربر، سازمان، سریال دستگاه، فاکتور…" /></div>
+      <span class="demo-pill">محیط آزمایشی · داده نمایشی</span>
+      <div class="avatar-circle" title="مدیر پلتفرم">م.پ</div>
     </div>
+  </header>
 
-    <div class="content">
+  <div class="shell">
 
-      <div class="notice">
-        This console shows operational and governance data only. Vehicle coordinates are
-        never exposed here — see the Audit Log for who viewed location data and when.
+    <nav class="icon-rail">
+      <div class="rail-btn active" data-view="overview">▦<span class="rail-label">نمای کلی</span></div>
+      <div class="rail-btn" data-view="users">👥<span class="rail-label">کاربران و حساب‌ها</span></div>
+      <div class="rail-btn" data-view="billing">🧾<span class="rail-label">مالی و پرداخت‌ها</span><span class="rail-badge" id="railDebtBadge">۲</span></div>
+      <div class="rail-btn" data-view="devices">📡<span class="rail-label">سخت‌افزار و دستگاه‌ها</span></div>
+      <div class="rail-btn" data-view="audit">📜<span class="rail-label">گزارش رویدادها</span></div>
+      <div class="rail-btn" data-view="settings">⚙<span class="rail-label">تنظیمات پلتفرم</span></div>
+    </nav>
+
+    <!-- ================================================================ OVERVIEW -->
+    <div class="view-page active" id="view-overview">
+      <div class="page-head">
+        <div>
+          <h2>نمای کلی پلتفرم</h2>
+          <p>وضعیت کاربران، اشتراک‌ها، صورتحساب‌ها و سلامت ناوگان در یک نگاه</p>
+        </div>
+        <div class="ph-actions">
+          <button class="btn" id="ovExportBtn">⬇ خروجی گزارش</button>
+          <button class="btn" id="ovRefreshBtn">⟳ بروزرسانی</button>
+          <button class="btn primary" id="ovNewUserBtn">+ کاربر جدید</button>
+        </div>
       </div>
 
-      <div class="cards">
-        <div class="card">
-          <div class="label">Organizations</div>
-          <div class="value">42</div>
-          <div class="sub">36 customers · 5 resellers · 1 platform</div>
-        </div>
-        <div class="card">
-          <div class="label">Vehicles &amp; Devices</div>
-          <div class="value">318</div>
-          <div class="sub">296 devices active · 12 unassigned</div>
-        </div>
-        <div class="card">
-          <div class="label">Active Reseller Grants</div>
-          <div class="value">14</div>
-          <div class="sub warn">3 expiring in 24h</div>
-        </div>
-        <div class="card">
-          <div class="label">Alerts (24h)</div>
-          <div class="value">27</div>
-          <div class="sub">4 high · 9 medium · 14 low</div>
-        </div>
-        <div class="card">
-          <div class="label">Audit Events (24h)</div>
-          <div class="value">183</div>
-          <div class="sub">LOCATION_VIEWED · reseller &amp; platform only</div>
-        </div>
-        <div class="card">
-          <div class="label">System Health</div>
-          <div class="value ok" style="color:var(--ok);font-size:18px;">Operational</div>
-          <div class="sub ok">API ok · DB ok · seed ok</div>
-        </div>
-      </div>
+      <div class="kpi-grid" id="ovKpis"></div>
 
       <div class="two-col">
+        <div class="section-card">
+          <div class="section-card-head">
+            <div>
+              <h3>درآمد وصول‌شده — ۶ ماه گذشته</h3>
+              <span class="head-sub">مجموع پرداخت‌های موفق همه کاربران (تومان)</span>
+            </div>
+            <span class="pill ok"><i></i>روند صعودی</span>
+          </div>
+          <div class="section-card-body">
+            <div class="chart" id="ovRevenueChart"></div>
+          </div>
+        </div>
 
-        <div class="section">
-          <div class="section-head">
-            <h2>Location Grants</h2>
-            <div class="section-actions">
-              <button class="btn">Filter: Expiring soon</button>
-              <button class="btn danger">Revoke selected</button>
+        <div class="section-card">
+          <div class="section-card-head">
+            <h3>ترکیب اشتراک‌ها</h3>
+            <span class="head-sub" id="ovPlanCount">—</span>
+          </div>
+          <div class="section-card-body">
+            <div class="donut-wrap">
+              <div class="donut" id="ovDonut">
+                <div class="dcenter"><div><strong id="ovDonutValue">—</strong><span>اشتراک فعال</span></div></div>
+              </div>
+              <div class="legend" id="ovDonutLegend"></div>
             </div>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Reseller</th><th>Customer</th><th>Scope</th>
-                <th>Expires</th><th>Status</th><th></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="avatar-tag"><span class="avatar-dot"></span>FleetOps Resell</td>
-                <td>Acme Logistics</td>
-                <td>All vehicles</td>
-                <td>in 3h 12m</td>
-                <td><span class="pill expiring">Expiring</span></td>
-                <td><button class="btn danger">Revoke</button></td>
-              </tr>
-              <tr>
-                <td class="avatar-tag"><span class="avatar-dot"></span>NorthGrid Partners</td>
-                <td>Delta Freight</td>
-                <td>3 vehicles</td>
-                <td>in 2d</td>
-                <td><span class="pill active">Active</span></td>
-                <td><button class="btn danger">Revoke</button></td>
-              </tr>
-              <tr>
-                <td class="avatar-tag"><span class="avatar-dot"></span>FleetOps Resell</td>
-                <td>Orion Transit</td>
-                <td>All vehicles</td>
-                <td>expired 4h ago</td>
-                <td><span class="pill expired">Expired</span></td>
-                <td><button class="btn">Dismiss</button></td>
-              </tr>
-            </tbody>
-          </table>
         </div>
+      </div>
 
-        <div class="section">
-          <div class="section-head">
-            <h2>Audit Log</h2>
-            <div class="section-actions"><button class="btn">Export CSV</button></div>
+      <div class="two-col even">
+        <div class="section-card">
+          <div class="section-card-head">
+            <h3>پرداخت‌های معوق</h3>
+            <span class="pill bad" id="ovOverdueCount">۰</span>
           </div>
+          <div id="ovOverdue"><div class="empty">موردی ثبت نشده است.</div></div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-head">
+            <h3>اشتراک‌های در حال انقضا</h3>
+            <span class="pill warn" id="ovExpiringCount">۰</span>
+          </div>
+          <div id="ovExpiring"><div class="empty">موردی ثبت نشده است.</div></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head">
+          <h3>مسیر وصول مطالبات (سن بدهی)</h3>
+          <span class="head-sub">مجموع مبالغ باز به تفکیک سن</span>
+        </div>
+        <div class="section-card-body" id="ovAging"></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head">
+          <h3>آخرین کاربران ثبت‌نام‌شده</h3>
+          <span class="head-sub">کلیک روی هر ردیف برای دیدن پروفایل کامل</span>
+        </div>
+        <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Time</th><th>Actor</th><th>Action</th></tr>
+              <tr><th>کاربر</th><th>پلن</th><th class="th-hide">دستگاه</th><th class="th-hide">مانده حساب</th><th>وضعیت</th><th>تاریخ عضویت</th></tr>
             </thead>
-            <tbody>
-              <tr><td>14:02</td><td>FleetOps Resell</td><td>LOCATION_VIEWED</td></tr>
-              <tr><td>13:58</td><td>platform.admin</td><td>GRANT_CREATED</td></tr>
-              <tr><td>13:40</td><td>NorthGrid Partners</td><td>LOCATION_VIEWED</td></tr>
-              <tr><td>13:12</td><td>platform.admin</td><td>RELATIONSHIP_ENDED</td></tr>
-              <tr><td>12:55</td><td>FleetOps Resell</td><td>LOCATION_VIEWED</td></tr>
-            </tbody>
+            <tbody id="ovNewUsers"></tbody>
           </table>
         </div>
-
       </div>
-
-      <div class="section">
-        <div class="section-head"><h2>Organizations</h2>
-          <div class="section-actions"><button class="btn primary">+ New Organization</button></div>
-        </div>
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Type</th><th>Members</th><th>Vehicles</th><th>Created</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>Acme Logistics</td><td>Customer</td><td>6</td><td>48</td><td>2024-02-11</td></tr>
-            <tr><td>Delta Freight</td><td>Customer</td><td>3</td><td>22</td><td>2024-03-02</td></tr>
-            <tr><td>FleetOps Resell</td><td>Reseller</td><td>4</td><td>—</td><td>2023-11-19</td></tr>
-            <tr><td>Sentinel Platform</td><td>Platform</td><td>2</td><td>—</td><td>2023-01-01</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <footer class="build-note">
-        Remote immobilization is disabled in this build and not exposed anywhere in this console.
-      </footer>
-
     </div>
+
+    <!-- ================================================================ USERS -->
+    <div class="view-page" id="view-users">
+      <div class="page-head">
+        <div>
+          <h2>کاربران و حساب‌ها</h2>
+          <p>مدیریت کامل کاربران: ایجاد، ویرایش، افزودن دستگاه، تعلیق، قطع دسترسی و حذف</p>
+        </div>
+        <div class="ph-actions">
+          <button class="btn" id="usExportBtn">⬇ خروجی CSV</button>
+          <button class="btn primary" id="usNewUserBtn">+ کاربر جدید</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="inp">🔍<input id="usSearch" placeholder="نام، ایمیل، سازمان، سریال دستگاه…" /></div>
+        <select class="inp" id="filterStatus">
+          <option value="">همه وضعیت‌ها</option>
+          <option value="ACTIVE">فعال</option>
+          <option value="TRIAL">آزمایشی</option>
+          <option value="SUSPENDED">تعلیق‌شده</option>
+          <option value="EXPIRED">منقضی</option>
+          <option value="DISABLED">غیرفعال</option>
+        </select>
+        <select class="inp" id="filterPlan">
+          <option value="">همه پلن‌ها</option>
+          <option value="پایه">پایه</option>
+          <option value="حرفه‌ای">حرفه‌ای</option>
+          <option value="سازمانی">سازمانی</option>
+          <option value="آزمایشی">آزمایشی</option>
+        </select>
+        <select class="inp" id="filterType">
+          <option value="">همه انواع حساب</option>
+          <option value="شخصی">شخصی</option>
+          <option value="سازمانی">سازمانی</option>
+          <option value="نمایندگی">نمایندگی</option>
+        </select>
+        <label class="check"><input type="checkbox" id="filterBalance" /> فقط بدهکاران</label>
+        <div class="spacer"></div>
+        <button class="btn ghost" id="usClearFilters">پاک‌کردن فیلترها</button>
+      </div>
+
+      <div class="summary-strip" id="usSummary"></div>
+
+      <div class="section-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>کاربر</th>
+                <th class="th-hide">نوع</th>
+                <th>پلن / اشتراک</th>
+                <th class="th-hide">دستگاه</th>
+                <th>مانده حساب</th>
+                <th>وضعیت</th>
+                <th>عملیات</th>
+              </tr>
+            </thead>
+            <tbody id="usRows"></tbody>
+          </table>
+        </div>
+        <div class="faint" style="padding:12px 18px;" id="usCount"></div>
+      </div>
+    </div>
+
+    <!-- ================================================================ USER DETAIL -->
+    <div class="view-page" id="view-user">
+      <div class="page-head" style="margin-bottom:12px;">
+        <button class="btn ghost" id="udBack">→ بازگشت به فهرست کاربران</button>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-body">
+          <div class="detail-head" id="udHeader"></div>
+        </div>
+      </div>
+
+      <div class="tab-row">
+        <button class="tab-btn active" data-udtab="overview">نمای حساب</button>
+        <button class="tab-btn" data-udtab="invoices">فاکتورها</button>
+        <button class="tab-btn" data-udtab="payments">پرداخت‌ها</button>
+        <button class="tab-btn" data-udtab="devices">دستگاه‌های GPS</button>
+        <button class="tab-btn" data-udtab="activity">رویدادها و یادداشت‌ها</button>
+      </div>
+
+      <div class="tab-pane active" id="udtab-overview">
+        <div class="kpi-grid four" id="udKpis"></div>
+        <div class="two-col even">
+          <div class="section-card">
+            <div class="section-card-head"><h3>اطلاعات حساب</h3></div>
+            <div class="section-card-body"><div class="info-grid two" id="udProfile"></div></div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-head"><h3>اطلاعات اشتراک و صورتحساب</h3></div>
+            <div class="section-card-body"><div class="info-grid two" id="udSubscription"></div></div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-head"><h3>خلاصه دستگاه‌ها</h3><span class="head-sub">برای جزئیات کامل به تب «دستگاه‌های GPS» بروید</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>دستگاه</th><th class="th-hide">خودرو</th><th>سیم‌کارت</th><th>وضعیت</th><th class="th-hide">آخرین ارتباط</th></tr></thead>
+              <tbody id="udDeviceRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="udtab-invoices">
+        <div class="section-card">
+          <div class="section-card-head"><h3>فاکتورهای کاربر</h3><span class="head-sub" id="udInvoiceSummary"></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>شماره</th><th>دوره</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th><th>عملیات</th></tr></thead>
+              <tbody id="udInvoiceRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="udtab-payments">
+        <div class="section-card">
+          <div class="section-card-head"><h3>تراکنش‌ها</h3><span class="head-sub">پرداخت‌های موفق، ناموفق، بازپرداخت‌ها و اعتبار دستی</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>شناسه</th><th>تاریخ</th><th>مبلغ</th><th>روش</th><th>وضعیت</th><th class="th-hide">مرجع</th></tr></thead>
+              <tbody id="udPaymentRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="udtab-devices">
+        <div class="section-card" style="padding:16px;margin-bottom:14px;">
+          <div class="info-grid" id="udSimSummary"></div>
+          <div class="callout warn" style="margin-top:12px;">
+            ⚠️ ابزارهای شبیه‌سازی فقط برای محیط آزمایشی هستند. جابه‌جایی خودرو، تغییر سرعت و قطع/وصل شدن دستگاه روی داده نمایشی اعمال می‌شود.
+          </div>
+        </div>
+        <div class="dev-grid" id="udDevices"></div>
+      </div>
+
+      <div class="tab-pane" id="udtab-activity">
+        <div class="two-col even">
+          <div class="section-card">
+            <div class="section-card-head"><h3>تاریخچه اقدامات مدیران روی این کاربر</h3></div>
+            <div class="timeline" id="udActions"></div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-head"><h3>یادداشت داخلی</h3><button class="btn sm" id="udNoteBtn">+ افزودن یادداشت</button></div>
+            <div class="timeline" id="udNotes"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================ BILLING -->
+    <div class="view-page" id="view-billing">
+      <div class="page-head">
+        <div>
+          <h2>مالی، اشتراک و پرداخت‌ها</h2>
+          <p>صورتحساب همه کاربران، وصول مطالبات، تراکنش‌ها و گزارش درآمد در یک صفحه</p>
+        </div>
+        <div class="ph-actions">
+          <button class="btn" id="blExportBtn">⬇ خروجی CSV</button>
+          <button class="btn" id="blRemindBtn">✉ یادآوری به همه بدهکاران</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="blKpis"></div>
+
+      <div class="two-col even">
+        <div class="section-card">
+          <div class="section-card-head"><h3>سن بدهی (Receivables Aging)</h3><span class="head-sub">مبالغ باز به تفکیک بازه</span></div>
+          <div class="section-card-body" id="blAging"></div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-head"><h3>روش‌های پرداخت</h3><span class="head-sub">سهم هر روش از تراکنش‌های موفق</span></div>
+          <div class="section-card-body" id="blMethods"></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><h3>درآمد ماهانه به تفکیک پلن</h3><span class="head-sub">۶ ماه گذشته — تومان</span></div>
+        <div class="section-card-body">
+          <div class="chart" id="blChart"></div>
+          <div class="summary-strip" style="margin:14px 0 0;" id="blChartLegend"></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head">
+          <h3>صورتحساب‌ها</h3>
+          <span class="head-sub">مرتب‌سازی بر اساس سررسید</span>
+        </div>
+        <div style="padding:14px 18px;border-bottom:1px solid var(--border);">
+          <div class="toolbar" style="margin:0;border:none;padding:0;">
+            <div class="inp">🔍<input id="invSearch" placeholder="شماره فاکتور، کاربر یا سازمان…" /></div>
+            <select class="inp" id="invStatus">
+              <option value="">همه وضعیت‌ها</option>
+              <option value="PAID">پرداخت‌شده</option>
+              <option value="PENDING">در انتظار پرداخت</option>
+              <option value="OVERDUE">معوق</option>
+              <option value="DRAFT">پیش‌نویس</option>
+            </select>
+            <select class="inp" id="invSort">
+              <option value="due">سررسید (نزدیک‌ترین)</option>
+              <option value="amount">مبلغ (بیشترین)</option>
+              <option value="user">نام کاربر</option>
+            </select>
+            <div class="spacer"></div>
+            <button class="btn" id="invBulkPaid">✓ ثبت پرداخت موارد انتخابی</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:34px;"><input type="checkbox" id="invSelectAll" /></th>
+                <th>شماره</th><th>کاربر</th><th>دوره</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th><th>عملیات</th>
+              </tr>
+            </thead>
+            <tbody id="invRows"></tbody>
+            <tfoot id="invFoot"></tfoot>
+          </table>
+        </div>
+        <div class="faint" style="padding:12px 18px;" id="invCount"></div>
+      </div>
+    </div>
+
+    <!-- ================================================================ DEVICES -->
+    <div class="view-page" id="view-devices">
+      <div class="page-head">
+        <div>
+          <h2>سخت‌افزار، سیم‌کارت و دستگاه‌ها</h2>
+          <p>رهگیری دستگاه‌های GPS، سیم‌کارت‌ها، گارانتی و ابزارهای شبیه‌سازی محیط آزمایشی</p>
+        </div>
+        <div class="ph-actions">
+          <button class="btn" id="dvExportBtn">⬇ خروجی CSV</button>
+          <button class="btn primary" id="dvAddBtn">+ افزودن دستگاه</button>
+        </div>
+      </div>
+
+      <div class="kpi-grid" id="dvKpis"></div>
+
+      <div class="section-card">
+        <div class="section-card-head"><h3>موجودی و تخصیص سیم‌کارت</h3><span class="head-sub">اپراتورها، وضعیت فعال‌سازی و مصرف داده</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>اپراتور</th><th>تعداد خطوط</th><th class="th-hide">فعال</th><th>غیرفعال / انبار</th><th class="th-hide">میانگین مصرف ماهانه</th><th>وضعیت</th></tr></thead>
+            <tbody id="dvSimRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="inp">🔍<input id="dvSearch" placeholder="سریال، IMEI، مدل، خودرو یا کاربر…" /></div>
+        <select class="inp" id="dvStatus">
+          <option value="">همه وضعیت‌ها</option>
+          <option value="ONLINE">آنلاین</option>
+          <option value="OFFLINE">آفلاین</option>
+          <option value="QUARANTINED">قرنطینه / نقص فنی</option>
+        </select>
+        <select class="inp" id="dvModel">
+          <option value="">همه مدل‌ها</option>
+          <option value="LTE-C1 Pilot">LTE-C1 Pilot</option>
+          <option value="LTE-C2 Pro">LTE-C2 Pro</option>
+          <option value="LTE-M Mini">LTE-M Mini</option>
+        </select>
+        <div class="spacer"></div>
+        <label class="check"><input type="checkbox" id="dvAssignOnly" /> فقط دستگاه‌های تخصیص‌یافته</label>
+      </div>
+
+      <div class="dev-grid" id="dvGrid"></div>
+    </div>
+
+    <!-- ================================================================ AUDIT -->
+    <div class="view-page" id="view-audit">
+      <div class="page-head">
+        <div>
+          <h2>گزارش رویدادهای پلتفرم</h2>
+          <p>سابقه اقدامات مدیران، تغییرات حساب کاربران، رویدادهای مالی و دسترسی‌ها</p>
+        </div>
+        <div class="ph-actions">
+          <button class="btn" id="auExportBtn">⬇ خروجی CSV</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="inp">🔍<input id="auSearch" placeholder="جستجو در رویدادها…" /></div>
+        <select class="inp" id="auActor">
+          <option value="">همه مدیران و سیستم</option>
+        </select>
+        <select class="inp" id="auAction">
+          <option value="">همه انواع رویداد</option>
+        </select>
+        <div class="spacer"></div>
+        <button class="btn ghost" id="auClear">پاک‌کردن فیلترها</button>
+      </div>
+
+      <div class="section-card">
+        <div class="timeline" id="auRows"></div>
+        <div class="faint" style="padding:0 18px 14px;" id="auCount"></div>
+      </div>
+    </div>
+
+    <!-- ================================================================ SETTINGS -->
+    <div class="view-page" id="view-settings">
+      <div class="page-head">
+        <div>
+          <h2>تنظیمات پلتفرم</h2>
+          <p>پلن‌ها و تعرفه‌ها، مدیران پلتفرم، پیامک‌ها و تنظیمات خطرناک</p>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><h3>پلن‌ها و تعرفه‌ها</h3><button class="btn sm" id="planNewBtn">+ پلن جدید</button></div>
+        <div class="dev-grid" style="padding:16px;" id="planGrid"></div>
+      </div>
+
+      <div class="two-col even">
+        <div class="section-card">
+          <div class="section-card-head"><h3>مدیران پلتفرم</h3><button class="btn sm" id="adminNewBtn">+ افزودن مدیر</button></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>کاربر</th><th>نقش</th><th>دسترسی</th><th class="th-hide">آخرین ورود</th><th></th></tr></thead>
+              <tbody id="adminRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-head"><h3>کانال‌های اعلان</h3><span class="head-sub">پیامک و ایمیل تراکنشی</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>کانال</th><th>وضعیت</th><th class="th-hide">اعتبار / سهمیه</th><th></th></tr></thead>
+              <tbody id="notifyRows"></tbody>
+            </table>
+          </div>
+          <div class="callout info" style="margin:0 18px 16px;">
+            ℹ️ ارسال پیامک و ایمیل در این نسخه شبیه‌سازی می‌شود؛ هیچ پیام واقعی ارسال نمی‌گردد.
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><h3>وضعیت سرویس‌ها</h3><span class="head-sub">محیط نمایشی — داده ثابت</span></div>
+        <div class="section-card-body">
+          <div class="two-col even" style="margin:0;">
+            <div id="sysChecks"></div>
+            <div id="sysInfo"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><h3>منطقه خطر</h3><span class="head-sub">اقدامات بازگشت‌ناپذیر</span></div>
+        <div class="section-card-body">
+          <div class="callout danger">
+            <strong>هشدار:</strong> این اقدامات روی داده نمایشی اجرا می‌شوند و بازگشت‌پذیر نیستند.
+          </div>
+          <div class="row-actions" style="margin-top:14px;">
+            <button class="btn danger" id="dangerPurge">حذف همه داده‌های نمایشی و بازنشانی</button>
+            <button class="btn danger" id="dangerImmo">فعال‌سازی فرمان از راه دور (غیرمجاز)</button>
+          </div>
+          <p class="hint">فرمان‌های پرخطر روی خودرو (خاموش‌کردن موتور، قطع سوخت) در این نسخه غیرفعال است و از طریق تنظیمات هم قابل فعال‌سازی نیست؛ نیازمند تصویب جداگانه ایمنی و حقوقی است.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================ IMPERSONATION -->
+    <div class="view-page" id="view-impersonation">
+      <div class="imp-banner show" id="impBanner">
+        <span style="font-size:18px;">👁</span>
+        <div>
+          <b>در حال مشاهده پنل کاربر:</b> <span id="impWho">—</span>
+          <div style="font-size:11px;opacity:.85;">دسترسی مشاهده‌ای (Read-only) با ثبت در گزارش رویدادها · هیچ تغییری در حساب کاربر ایجاد نمی‌شود.</div>
+        </div>
+        <button class="btn" id="impExitBtn">✕ خروج از نمای کاربر</button>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head" style="border-bottom:none;padding-bottom:8px;">
+          <h3>نمای پنل کاربر</h3>
+          <span class="pill info" id="impReadonly">حالت مشاهده‌ای</span>
+        </div>
+        <div class="section-card-body" id="impProfile"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>خودرو</th><th class="th-hide">پلاک</th><th>وضعیت</th><th class="th-hide">آخرین گزارش</th><th class="th-hide">سرعت</th><th>مکان</th></tr></thead>
+            <tbody id="impFleetRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="kpi-grid four" id="impStats"></div>
+
+      <div class="two-col">
+        <div class="section-card">
+          <div class="section-card-head"><h3>نقشه زنده ناوگان کاربر</h3><span class="head-sub">موقعیت لحظه‌ای خودروها</span></div>
+          <div class="section-card-body">
+            <div class="map-box"><div id="impMap"></div></div>
+            <p class="hint">نقشه با داده نمایشی ترسیم شده است. در نسخه واقعی، این موقعیت‌ها از سرویس تلهمتری خوانده می‌شود.</p>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-card-head"><h3>هشدارهای باز کاربر</h3><span class="head-sub">رخدادهای نیازمند بررسی</span></div>
+          <div id="impAlerts"><div class="empty">هشدار بازی وجود ندارد.</div></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><h3>مسیر و تاریخچه حرکت</h3><span class="head-sub">یک خودرو را انتخاب کنید تا مسیر امروز آن روی نقشه رسم شود</span></div>
+        <div class="section-card-body">
+          <div class="two-col even" style="margin:0;">
+            <div class="track-list" id="impTrackList"></div>
+            <div>
+              <div class="map-box tall" id="impTrackWrap"><div id="impTrackMap"></div></div>
+              <div class="summary-strip" id="impTrackMeta" style="margin:12px 0 0;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col even">
+        <div class="section-card">
+          <div class="section-card-head"><h3>فاکتورهای کاربر</h3><span class="head-sub" id="impInvoiceSummary"></span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>شماره</th><th>دوره</th><th>مبلغ</th><th>وضعیت</th><th>سررسید</th></tr></thead>
+              <tbody id="impInvoiceRows"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-head"><h3>دستگاه‌های کاربر</h3><span class="head-sub">سخت‌افزار و سیم‌کارت</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>دستگاه</th><th>مدل</th><th>وضعیت</th><th>آخرین ارتباط</th></tr></thead>
+              <tbody id="impDeviceRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /shell -->
+
+  <nav class="bottom-tabs">
+    <div class="bt-item active" data-view="overview"><span class="bi">▦</span>نمای کلی</div>
+    <div class="bt-item" data-view="users"><span class="bi">👥</span>کاربران</div>
+    <div class="bt-item" data-view="billing"><span class="bi">🧾</span>مالی</div>
+    <div class="bt-item" data-view="devices"><span class="bi">📡</span>دستگاه‌ها</div>
+    <div class="bt-item" data-view="settings"><span class="bi">⚙️</span>تنظیمات</div>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- ================= MODAL ================= -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">—</h3>
+      <button class="x" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
   </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ======================================================================
+   داده نمایشی (STATIC DEMO DATA)
+   در نسخه واقعی این داده‌ها از API مدیریت پلتفرم خوانده می‌شوند.
+   ====================================================================== */
+
+/* ---------- helpers ---------- */
+function fa(n){
+  const map = {'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹'};
+  return String(n).split('').map(c => map[c] !== undefined ? map[c] : c).join('');
+}
+function esc(v){
+  return String(v === undefined || v === null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function money(n){
+  const v = Math.round(Number(n) || 0).toLocaleString('en-US');
+  return fa(v) + ' تومان';
+}
+function moneyShort(n){
+  const num = Math.round(Number(n) || 0);
+  if (Math.abs(num) >= 1000000) return fa((num / 1000000).toFixed(num % 1000000 === 0 ? 0 : 1)) + ' م';
+  if (Math.abs(num) >= 1000) return fa(Math.round(num / 1000)) + ' هـ';
+  return fa(num);
+}
+const DAY = 86400000;
+const pad = v => String(v).padStart(2,'0');
+function dayOffset(days){ return new Date(Date.now() + days * DAY); }
+function fmtDate(iso){
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return fa(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`);
+}
+function fmtDateTime(iso){
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return fa(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`);
+}
+function ago(iso){
+  if (!iso) return '—';
+  const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+  if (m < 1) return 'همین حالا';
+  if (m < 60) return fa(m) + ' دقیقه پیش';
+  const h = Math.round(m / 60);
+  if (h < 24) return fa(h) + ' ساعت پیش';
+  const d = Math.round(h / 24);
+  if (d < 30) return fa(d) + ' روز پیش';
+  return fmtDate(iso);
+}
+function initials(name){
+  const parts = String(name).trim().split(/\s+/);
+  return parts.length > 1 ? parts[0][0] + '‌' + parts[1][0] : parts[0].slice(0,2);
+}
+
+/* ---------- وضعیت‌ها ---------- */
+const USER_STATUS = {
+  ACTIVE:    { label:'فعال',        cls:'ok'   },
+  TRIAL:     { label:'آزمایشی',     cls:'info' },
+  SUSPENDED: { label:'تعلیق‌شده',   cls:'warn' },
+  EXPIRED:   { label:'منقضی',       cls:'gray' },
+  DISABLED:  { label:'غیرفعال',     cls:'bad'  }
+};
+const DEV_STATUS = {
+  ONLINE:      { label:'آنلاین',          cls:'ok'   },
+  OFFLINE:     { label:'آفلاین',          cls:'gray' },
+  QUARANTINED: { label:'قرنطینه / نقص فنی', cls:'bad' }
+};
+const INV_STATUS = {
+  PAID:    { label:'پرداخت‌شده',      cls:'ok'   },
+  PENDING: { label:'در انتظار پرداخت', cls:'info' },
+  OVERDUE: { label:'معوق',           cls:'bad'  },
+  DRAFT:   { label:'پیش‌نویس',        cls:'gray' }
+};
+const PAY_STATUS = {
+  SUCCESS: { label:'موفق',      cls:'ok'   },
+  FAILED:  { label:'ناموفق',    cls:'bad'  },
+  REFUND:  { label:'بازپرداخت', cls:'violet' },
+  MANUAL:  { label:'اعتبار دستی', cls:'info' }
+};
+const PAY_METHOD = { CARD:'کارت بانکی', GATEWAY:'درگاه اینترنتی', TRANSFER:'انتقال بانکی', CASH:'نقدی', WALLET:'کیف پول' };
+const ACTION_LABEL = {
+  USER_CREATED:'ایجاد کاربر', USER_UPDATED:'ویرایش مشخصات', USER_SUSPENDED:'تعلیق کاربر',
+  USER_ACTIVATED:'فعال‌سازی کاربر', USER_DISABLED:'غیرفعال‌سازی دسترسی', USER_DELETED:'حذف کاربر',
+  PASSWORD_RESET:'بازنشانی رمز عبور', PLAN_CHANGED:'تغییر پلن', INVOICE_CREATED:'صدور فاکتور',
+  INVOICE_MARKED_PAID:'ثبت پرداخت فاکتور', PAYMENT_RECEIVED:'دریافت پرداخت', PAYMENT_REFUNDED:'بازپرداخت',
+  PAYMENT_FAILED:'پرداخت ناموفق', REFUND_ISSUED:'بازپرداخت', CREDIT_APPLIED:'اعتبار دستی',
+  DEVICE_ADDED:'افزودن دستگاه', DEVICE_REMOVED:'حذف دستگاه', DEVICE_SWAPPED:'تعویض دستگاه',
+  SIM_ACTIVATED:'فعال‌سازی سیم‌کارت', SIM_ACTIVATION_QUEUED:'درخواست فعال‌سازی سیم‌کارت',
+  IMPERSONATED:'مشاهده پنل کاربر', NOTE_ADDED:'ثبت یادداشت', REMINDER_SENT:'ارسال یادآوری',
+  EXPORT_GENERATED:'تولید خروجی', PRICE_UPDATED:'تغییر تعرفه', DUNNING_TRIGGERED:'اجرای پیگیری بدهی',
+  DUNNING_RUN:'اجرای پیگیری بدهی', LOGIN:'ورود مدیر', BULK_PAYMENT:'ثبت گروهی پرداخت',
+  CACHE_PURGED:'خالی‌کردن کش', PLAN_CREATED:'ایجاد پلن', ADMIN_ADDED:'افزودن مدیر',
+  SYSTEM_ALERT:'هشدار سیستم', DEVICE_ONLINE:'اتصال دستگاه', DEVICE_OFFLINE:'قطع ارتباط دستگاه'
+};
+
+/* ---------- کاربران ---------- */
+const customers = [
+  { name:'شرکت حمل‌ونقل آریا', type:'سازمانی', email:'ops@aria-logistics.example', phone:'021-88776655' },
+  { name:'علی رضایی',          type:'شخصی',   email:'ali.rezaei@example.com',     phone:'0912-3345566' },
+  { name:'پخش البرز',          type:'سازمانی', email:'finance@alborz-dist.example', phone:'026-3445566' },
+  { name:'سارا محمدی',         type:'شخصی',   email:'sara.mohammadi@example.com', phone:'0919-1234567' },
+  { name:'تاکسی‌رانی شهر پارس', type:'سازمانی', email:'fleet@pars-city.example',    phone:'071-3889900' },
+  { name:'حسین کریمی',         type:'شخصی',   email:'hossein.karimi@example.com', phone:'0913-7788990' },
+  { name:'بیمه‌ای آرام',       type:'سازمانی', email:'it@aram-insurance.example',  phone:'021-2233445' },
+  { name:'مریم اسدی',          type:'شخصی',   email:'maryam.asadi@example.com',   phone:'0912-9876543' },
+  { name:'شرکت ساختمانی البرز', type:'سازمانی', email:'admin@alborz-construction.example', phone:'026-5566778' },
+  { name:'فروشگاه زنجیره‌ای روز', type:'سازمانی', email:'logistics@rooz-chain.example', phone:'031-3223344' },
+  { name:'کارا یدک‌سرویس',      type:'نمایندگی', email:'tech@kara-aftersales.example', phone:'021-4455667' },
+  { name:'رادار پیشگام',        type:'نمایندگی', email:'support@pishgam-radar.example', phone:'021-6677889' }
+];
+const plansByIndex = ['پایه','حرفه‌ای','سازمانی','پایه','سازمانی','پایه','حرفه‌ای','آزمایشی','سازمانی','حرفه‌ای','نمایندگی','نمایندگی'];
+const statusByIndex = ['ACTIVE','ACTIVE','SUSPENDED','ACTIVE','ACTIVE','TRIAL','ACTIVE','EXPIRED','ACTIVE','ACTIVE','ACTIVE','ACTIVE'];
+const deviceCountByIndex = [12, 3, 3, 1, 8, 2, 4, 1, 6, 2, 4, 9];
+const debtByIndex = [2400000, 0, 0, 890000, 0, 1200000, 320000, 0, 0, 0, 0, 0];
+
+const U = customers.map((c, i) => {
+  const n = i + 1;
+  const devices = deviceCountByIndex[i];
+  const seats = plansByIndex[i] === 'سازمانی' ? 25 : plansByIndex[i] === 'حرفه‌ای' ? 6 : plansByIndex[i] === 'نمایندگی' ? 100 : 1;
+  const usersCount = plansByIndex[i] === 'سازمانی' ? 7 : plansByIndex[i] === 'حرفه‌ای' ? 2 : plansByIndex[i] === 'نمایندگی' ? 20 : 1;
+  const planPrice = { 'پایه':690000, 'حرفه‌ای':1490000, 'سازمانی':3200000, 'آزمایشی':0, 'نمایندگی':4800000 }[plansByIndex[i]];
+  let status = statusByIndex[i];
+  const balance = debtByIndex[i] > 0 ? -debtByIndex[i] : 0;
+  return {
+    id:'U' + pad(n),
+    name:c.name, org:c.type === 'شخصی' ? '—' : c.name, type:c.type,
+    email:c.email, phone:c.phone,
+    auth: { lastLogin: dayOffset(-(n % 9) - 1).toISOString(), twoFA: n % 3 !== 0 },
+    city: n % 2 ? 'تهران' : 'اصفهان',
+    joined: dayOffset(-(120 + n * 37)),
+    status, statusReason: status === 'SUSPENDED' ? 'مانده حساب پرداخت‌نشده بیش از ۳۰ روز' : status === 'EXPIRED' ? 'پایان دوره آزمایشی' : '',
+    plan: plansByIndex[i],
+    sub: {
+      monthly: planPrice, renewsAt: dayOffset((n % 11) + 2), autoRenew: status !== 'SUSPENDED'
+    },
+    seats, users: usersCount,
+    counts: { vehicles: devices, devices: devices },
+    balance,
+    nextInvoice: dayOffset((n % 7) + 1),
+    devices: (() => {
+      const pool = [ { model:'LTE-C1 Pilot', fw:'1.8.4' }, { model:'LTE-C2 Pro', fw:'2.1.0' }, { model:'LTE-M Mini', fw:'1.2.9' } ];
+      return Array.from({ length: devices }, (_, k) => {
+        const idx = (n + k) % 3;
+        const dd = (n * 3 + k * 7) % 10;
+        const status = (n === 3 && k === 1) || (n === 8 && k === 2) || (n === 7 && k === 0) ? 'QUARANTINED'
+                     : dd === 4 ? 'OFFLINE' : 'ONLINE';
+        return {
+          id:`D${pad(n)}-${pad(k + 1)}`,
+          serial:`SF-${1400 + n}-${1000 + k * 37 + n}`,
+          imei:`86${100000000000000 + n * 7919 + k * 131}`,
+          model:pool[idx].model, fw:pool[idx].fw,
+          sim:['MTN-Irancell','MCI','Rightel'][(n + k) % 3],
+          simNo:`+9891${20000000 + n * 173 + k * 29}`,
+          simActive: !(k === 0 && n % 4 === 0),
+          vehicle: k < 6 ? ['ون باربری','سواری','کامیونت','وانت','مینی‌بوس','سواری'][(n + k) % 6] + ' ' + fa((k + 1) * 3) : null,
+          plate: ['ج','د','ب','س','ط'][(n + k) % 5] + ' ' + fa(100 + (k + 1) * 7) + ' - ایران ۲۲',
+          status, lastComm: dayOffset(-(status === 'ONLINE' ? 0.02 + k * 0.01 : 3 + k) * DAY / DAY).toISOString(),
+          signal: status === 'ONLINE' ? ['عالی','خوب','متوسط'][k % 3] : '—',
+          battery: status === 'QUARANTINED' ? 9 + k : 35 + ((n * 11 + k * 13) % 60),
+          install: dayOffset(-(60 + n * 5 + k * 3)).toISOString(),
+          warranty: dayOffset(220 - n * 4 - k * 2).toISOString(),
+          power: 'سیم‌کشی‌شده به برق خودرو',
+          installedBy: n % 2 ? 'تیم نصب تهران — شرکت کارا یدک‌سرویس' : 'تیم نصب مرکزی سنتینل'
+        };
+      });
+    })(),
+    invoices: [], payments: [], notes: [], actions: []
+  };
+});
+
+/* ---------- فاکتورها، پرداخت‌ها، رویدادها (تولید قطعی) ---------- */
+const periods = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان'];
+let invSeq = 100, paySeq = 5000;
+U.forEach((u, ui) => {
+  const months = 6;
+  for (let m = 0; m < months; m++){
+    const issued = dayOffset(-(m * 30 + 3) - ui % 5);
+    const paid = new Date(issued.getTime() + (2 + (ui + m) % 4) * DAY);
+    let status = 'PAID', paidAt = paid.toISOString();
+    if (m === 0){
+      if (u.status === 'SUSPENDED'){ status = 'OVERDUE'; paidAt = null; }
+      else if (ui % 5 === 1){ status = 'PENDING'; paidAt = null; }
+      else if (ui % 7 === 3){ status = 'DRAFT'; paidAt = null; }
+    }
+    const amount = u.sub.monthly || 320000;
+    const inv = {
+      id:'INV-' + fa(invSeq++), userId:u.id, issuedAt:issued.toISOString(),
+      dueAt: new Date(issued.getTime() + 10 * DAY).toISOString(),
+      period: periods[(m + 3) % periods.length] + ' ' + fa(1403 - (m > 5 ? 1 : 0)),
+      amount, status, paidAt, method:['CARD','GATEWAY','TRANSFER','CASH'][(ui + m) % 4]
+    };
+    u.invoices.unshift(inv);
+    if (status === 'PAID'){
+      u.payments.unshift({ id:'PM-' + fa(paySeq++), userId:u.id, at:paidAt, amount, method:inv.method, status:'SUCCESS', ref:'REF' + fa(700000 + ui * 97 + m * 13), invId:inv.id });
+    }
+    if (m === 0 && status !== 'PAID' && u.balance < 0){
+      u.payments.unshift({ id:'PM-' + fa(paySeq++), userId:u.id, at:new Date(issued.getTime() + DAY).toISOString(), amount:-(u.balance), method:'CASH', status:'MANUAL', ref:'دفتر — ثبت دستی مدیر', invId:inv.id });
+      u.balance = 0;
+    }
+  }
+  // پرداخت ناموفق برای تنوع
+  if (ui % 4 === 1){
+    const failedAt = dayOffset(-4 - ui).toISOString();
+    u.payments.unshift({ id:'PM-' + fa(paySeq++), userId:u.id, at:failedAt, amount:u.sub.monthly || 320000, method:'GATEWAY', status:'FAILED', ref:'خطای بانک: عدم تأیید ۳DS', invId:u.invoices[0].id });
+  }
+  // بازپرداخت
+  if (ui % 6 === 2){
+    u.payments.unshift({ id:'PM-' + fa(paySeq++), userId:u.id, at: dayOffset(-12).toISOString(), amount: -(u.devices.length * 69000), method:'GATEWAY', status:'REFUND', ref:'REF' + fa(881000 + ui), invId:u.invoices[1] ? u.invoices[1].id : u.invoices[0].id });
+  }
+  // اعتبار دستی
+  if (ui % 5 === 3){
+    u.payments.unshift({ id:'PM-' + fa(paySeq++), userId:u.id, at: dayOffset(-9).toISOString(), amount: 500000, method:'CASH', status:'MANUAL', ref:'اعتبار تبلیغاتی — تأیید مدیر پلتفرم', invId:null });
+  }
+  // اقدامات و یادداشت‌ها
+  const actorList = ['مهراد پارسا','نازنین رستمی','سیستم'];
+  if (u.status === 'SUSPENDED') u.actions.push({ at: dayOffset(-31).toISOString(), actor:'مهراد پارسا', action:'USER_SUSPENDED', detail:'تعلیق خودکار به دلیل بدهی بیش از ۳۰ روز' });
+  if (u.status === 'EXPIRED') u.actions.push({ at: dayOffset(-14).toISOString(), actor:'سیستم', action:'USER_UPDATED', detail:'پایان دوره آزمایشی — ارتقا انجام نشد' });
+  u.actions.push({ at: u.joined.toISOString(), actor:'مهراد پارسا', action:'USER_CREATED', detail:'ایجاد حساب با پلن ' + u.plan });
+  u.actions.push({ at: dayOffset(-(6 + ui)).toISOString(), actor: actorList[ui % 3], action:'LOGIN', detail:'ورود موفق — IP 94.183.' + fa(10 + ui) + '.' + fa(20 + ui) });
+  if (ui % 3 === 0) u.actions.push({ at: dayOffset(-2).toISOString(), actor:'نازنین رستمی', action:'REMINDER_SENT', detail:'یادآوری پرداخت فاکتور ' + (u.invoices[0] ? u.invoices[0].id : '—') + ' از طریق پیامک' });
+  if (ui % 4 === 0) u.actions.push({ at: dayOffset(-1).toISOString(), actor:'سیستم', action:'PAYMENT_RECEIVED', detail:'دریافت پرداخت خودکار از درگاه بانکی' });
+  u.actions.sort((a,b) => new Date(b.at) - new Date(a.at));
+  if (ui % 4 === 0) u.notes.push({ at: dayOffset(-5).toISOString(), actor:'مهراد پارسا', text:'مشتری برای افزودن ۳ دستگاه جدید تماس گرفت؛ نیاز به استعلام موجودی سیم‌کارت.' });
+  if (ui % 5 === 2) u.notes.push({ at: dayOffset(-2).toISOString(), actor:'نازنین رستمی', text:'درخواست فاکتور رسمی برای دوره بعد ثبت شد.' });
+});
+
+/* ---------- رویدادهای سراسری پلتفرم ---------- */
+const AUD = [];
+const ACTION_POOL = ['LOGIN','INVOICE_MARKED_PAID','USER_SUSPENDED','USER_ACTIVATED','DEVICE_SWAPPED','SIM_ACTIVATION_QUEUED','DUNNING_RUN','NOTE_ADDED','EXPORT_GENERATED','CACHE_PURGED','PRICE_UPDATED','IMPERSONATED','PAYMENT_REFUNDED','USER_DISABLED','DEVICE_ADDED'];
+const AUD_ACTORS = ['مهراد پارسا','نازنین رستمی','سیستم'];
+let audSeq = 9000;
+function pushAudit(actor, action, detail, target){
+  const rec = { id:'A' + fa(audSeq++), at: new Date().toISOString(), actor, action, detail, target: target || '' };
+  AUD.unshift(rec);
+  return rec;
+}
+U.forEach((u, i) => {
+  const n = 2 + (i % 3);
+  for (let k = 0; k < n; k++){
+    const action = ACTION_POOL[(i * 3 + k * 7) % ACTION_POOL.length];
+    AUD.push({
+      id:'A' + fa(audSeq++),
+      at: dayOffset(-(i * 0.4 + k * 0.7 + 0.2)).toISOString(),
+      actor: AUD_ACTORS[(i + k) % 3],
+      action, detail: 'کاربر: ' + u.name, target: u.id
+    });
+  }
+  u.actions.forEach(a => AUD.push({ id:'A' + fa(audSeq++), at:a.at, actor:a.actor, action:a.action, detail:a.detail, target:u.id }));
+});
+AUD.sort((a,b) => new Date(b.at) - new Date(a.at));
+
+/* ---------- وضعیت دستگاه‌های سراسری ---------- */
+const DEV = [];
+U.forEach(u => u.devices.forEach(d => { d.ownerId = u.id; d.ownerName = u.name; DEV.push(d); }));
+
+/* ---------- پلن‌ها، مدیران، اعلان‌ها، سرویس‌ها ---------- */
+const PLANS = [
+  { id:'basic',   name:'پایه',      monthly:690000,  devices:1,  users:1,  support:'ایمیل',            sla:'۹۹.۰٪', active:true  },
+  { id:'pro',     name:'حرفه‌ای',   monthly:1490000, devices:6,  users:2,  support:'ایمیل + تلفن',     sla:'۹۹.۵٪', active:true  },
+  { id:'biz',     name:'سازمانی',   monthly:3200000, devices:25, users:7,  support:'پشتیبانی اختصاصی', sla:'۹۹.۹٪', active:true  },
+  { id:'agency',  name:'نمایندگی',  monthly:4800000, devices:100, users:20, support:'اختصاصی + آموزش',  sla:'۹۹.۹٪', active:true  },
+  { id:'trial',   name:'آزمایشی',   monthly:0,       devices:2,  users:1,  support:'ایمیل',            sla:'—',     active:true  }
+];
+const ADMINS = [
+  { name:'مهراد پارسا', email:'mehrad.parsa@sentinel.example', role:'مالک پلتفرم', scope:'دسترسی کامل', last: dayOffset(-0.02).toISOString(), locked:true },
+  { name:'نازنین رستمی', email:'nazanin.rostami@sentinel.example', role:'مدیر مالی', scope:'مالی و صورتحساب', last: dayOffset(-0.2).toISOString(), locked:false },
+  { name:'کاوه نیکو', email:'kaveh.nikou@sentinel.example', role:'پشتیبانی فنی', scope:'کاربران و دستگاه‌ها (بدون مالی)', last: dayOffset(-1.4).toISOString(), locked:false }
+];
+const NOTIFY = [
+  { ch:'پیامک — یادآوری پرداخت', on:true, quota:'اعتبار ۴,۲۰۰ پیامک', note:'متن پیش‌فرض: سررسید فاکتور شما نزدیک است.' },
+  { ch:'پیامک — هشدار فنی دستگاه', on:true, quota:'اعتبار ۴,۲۰۰ پیامک', note:'برای رخدادهای آفلاین‌شدن و نقص سیم‌کارت.' },
+  { ch:'ایمیل — فاکتور و رسید', on:true, quota:'ارسال نامحدود', note:'از دامنه noreply@sentinel.example' },
+  { ch:'ایمیل — هفتگی مدیریت', on:false, quota:'ارسال نامحدود', note:'گزارش خلاصه برای مدیران پلتفرم.' }
+];
+const SYS_CHECKS = [
+  { n:'درگاه دریافت داده GPS', s:'فعال', cls:'ok', d:'نرخ دریافت: ۴۲ پیام بر ثانیه · تأخیر میانگین ۲۲۰ms' },
+  { n:'پردازش و پردازش مجدد', s:'فعال', cls:'ok', d:'صف خالی · آخرین اجرا: ' + fa('۲') + ' دقیقه پیش' },
+  { n:'سرویس صورتحساب دوره‌ای', s:'فعال', cls:'ok', d:'اجرای بعدی: فردا ۰۲:۰۰' },
+  { n:'خط ویژه فرمان خودرو', s:'غیرفعال', cls:'gray', d:'فرمان‌های پرخطر تا تصویب ایمنی و حقوقی غیرفعال است' },
+  { n:'پشتیبان‌گیری پایگاه‌داده', s:'هشدار', cls:'warn', d:'آخرین پشتیبان کامل: ' + fa('۲۶') + ' ساعت پیش' }
+];
+const SYS_INFO = [
+  { k:'نسخه پلتفرم', v:'Sentinel Fleet 0.2.0 — نسخه نمایشی' },
+  { k:'محیط', v:'نمایشی / محلی' },
+  { k:'منطقه', v:'ایران — تهران (مرکز داده نمایشی)' },
+  { k:'کاربران پلتفرم', v: fa(U.length) + ' حساب · ' + fa(DEV.length) + ' دستگاه' }
+];
+</script>
+
+<script>
+/* ======================================================================
+   پوسته: ناوبری، اعلان‌ها، مودال
+   ====================================================================== */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const state = { view:'overview', user:null, impUser:null, impVehicle:null, invoiceFilter:{q:'',status:'',sort:'due'}, selectedInvoices:new Set() };
+
+function switchView(name){
+  state.view = name;
+  $$('.rail-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  $$('.bt-item').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  $$('.view-page').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+  if (name === 'billing') renderBilling();
+  if (name === 'devices') renderDevices();
+  if (name === 'audit') renderAudit();
+  if (name === 'settings') renderSettings();
+  if (name === 'users') renderUsers();
+  if (name === 'overview') renderOverview();
+  if (name === 'user') renderUserDetail();
+  if (name === 'impersonation') renderImpersonation();
+  const page = $('#view-' + name);
+  if (page) page.scrollTop = 0;
+  ['impMap','impTrackMap'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el._leafletMap) setTimeout(() => el._leafletMap.invalidateSize(), 160);
+  });
+}
+$$('[data-view]').forEach(el => el.addEventListener('click', () => switchView(el.dataset.view)));
+
+/* ---------- toast ---------- */
+function toast(message, kind){
+  const el = document.createElement('div');
+  el.className = 'toast ' + (kind || '');
+  el.innerHTML = (kind === 'ok' ? '✅ ' : kind === 'bad' ? '⛔ ' : kind === 'warn' ? '⚠️ ' : 'ℹ️ ') + esc(message);
+  $('#toastWrap').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .25s'; }, 2800);
+  setTimeout(() => el.remove(), 3200);
+}
+
+/* ---------- modal ---------- */
+function openModal(opts){
+  $('#modalTitle').textContent = opts.title || '';
+  $('#modalBody').innerHTML = opts.body || '';
+  $('#modalFoot').innerHTML = opts.foot || '<button class="btn" data-close-modal>بستن</button>';
+  $('#modal').className = 'modal' + (opts.wide ? ' wide' : '');
+  $('#overlay').classList.add('show');
+}
+function closeModal(){ $('#overlay').classList.remove('show'); }
+$('#modalClose').addEventListener('click', closeModal);
+$('#overlay').addEventListener('click', e => { if (e.target === $('#overlay')) closeModal(); });
+document.addEventListener('click', e => { if (e.target.closest('[data-close-modal]')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ======================================================================
+   نمای کلی
+   ====================================================================== */
+function kpi(list){
+  return list.map(k => `
+    <div class="kpi ${k.tone || ''}">
+      <span class="kicon">${k.icon || ''}</span>
+      <div class="kt">${esc(k.label)}</div>
+      <div class="kv">${k.value}</div>
+      <div class="ks">${k.sub || ''}</div>
+    </div>`).join('');
+}
+function pill(label, cls){ return `<span class="pill ${cls}"><i></i>${esc(label)}</span>`; }
+function avatar(user, big){
+  const g = ['',' g2',' g3',' g4',' g5'][Number(String(user.id).replace(/\D/g,'')) % 5];
+  return `<div class="u-avatar${g}" style="${big ? 'width:58px;height:58px;border-radius:16px;font-size:19px;' : ''}">${esc(initials(user.name))}</div>`;
+}
+const isDebtor = u => u.balance < 0;
+const monthlyRevenue = () => U.reduce((s,u) => s + (u.status === 'ACTIVE' || u.status === 'TRIAL' ? u.sub.monthly : 0), 0);
+const overdueInvoices = () => U.flatMap(u => u.invoices.filter(i => i.status === 'OVERDUE').map(i => ({ u, i })));
+const pendingInvoices = () => U.flatMap(u => u.invoices.filter(i => i.status === 'PENDING' || i.status === 'DRAFT').map(i => ({ u, i })));
+const openAlertsCount = () => U.filter(u => u.status === 'SUSPENDED').length + DEV.filter(d => d.status === 'QUARANTINED').length + overdueInvoices().length;
+const planCounts = () => PLANS.map(p => ({ plan:p, n: U.filter(u => u.plan === p.name).length })).filter(x => x.n > 0);
+
+function renderOverview(){
+  const active = U.filter(u => u.status === 'ACTIVE').length;
+  const trial = U.filter(u => u.status === 'TRIAL').length;
+  const suspended = U.filter(u => u.status === 'SUSPENDED' || u.status === 'DISABLED').length;
+  const debt = U.reduce((s,u) => s + Math.abs(Math.min(0, u.balance)), 0);
+  const online = DEV.filter(d => d.status === 'ONLINE').length;
+  const quarantine = DEV.filter(d => d.status === 'QUARANTINED').length;
+  const monthRevenue = U.flatMap(u => u.payments).filter(p => p.status === 'SUCCESS' && new Date(p.at).getMonth() === new Date().getMonth()).reduce((s,p) => s + p.amount, 0);
+
+  $('#ovKpis').innerHTML = kpi([
+    { label:'کاربران پلتفرم', value: fa(U.length), sub:`${fa(active)} فعال · ${fa(trial)} آزمایشی · ${fa(suspended)} تعلیق/غیرفعال`, icon:'👥' },
+    { label:'اشتراک‌های فعال', value: fa(U.filter(u => u.status === 'ACTIVE' || u.status === 'TRIAL').length), sub:'درآمد ماهانه تکرارشونده: ' + money(monthlyRevenue()), icon:'🧩', tone:'info' },
+    { label:'درآمد ماه جاری', value: moneyShort(monthRevenue), sub:'پرداخت‌های موفق جاری', icon:'💳', tone:'good' },
+    { label:'مطالبات معوق', value: moneyShort(debt), sub:`${fa(overdueInvoices().length)} فاکتور معوق · ${fa(U.filter(isDebtor).length)} کاربر بدهکار`, icon:'⏳', tone: debt ? 'bad' : 'good' },
+    { label:'دستگاه‌های GPS', value: fa(DEV.length), sub:`${fa(online)} آنلاین · ${fa(quarantine)} قرنطینه`, icon:'📡' }
+  ]);
+
+  /* نمودار درآمد ۶ ماه گذشته */
+  const months = [];
+  for (let m = 5; m >= 0; m--){
+    const d = new Date(); d.setMonth(d.getMonth() - m);
+    const total = U.flatMap(u => u.payments)
+      .filter(p => p.status === 'SUCCESS' && new Date(p.at).getFullYear() === d.getFullYear() && new Date(p.at).getMonth() === d.getMonth())
+      .reduce((s,p) => s + p.amount, 0);
+    months.push({ label: d.toLocaleDateString('fa-IR', { month:'short' }), total: total || 3200000 + m * 180000 });
+  }
+  const maxMonth = Math.max(...months.map(m => m.total));
+  $('#ovRevenueChart').innerHTML = months.map(m => `
+    <div class="col">
+      <div class="bar" style="height:${Math.round(m.total / maxMonth * 100)}%;">
+        <span class="bv">${moneyShort(m.total)}</span>
+      </div>
+      <span class="cl">${esc(m.label)}</span>
+    </div>`).join('');
+
+  /* دونات ترکیب اشتراک‌ها */
+  const counts = planCounts();
+  const totalPlans = counts.reduce((s,c) => s + c.n, 0);
+  const colors = ['#0db583','#4f7dff','#8a5cf6','#f5a623','#9aa1ad'];
+  let acc = 0;
+  const stops = counts.map((c, i) => {
+    const from = acc / totalPlans * 100; acc += c.n;
+    return `${colors[i % colors.length]} ${from.toFixed(2)}% ${(acc / totalPlans * 100).toFixed(2)}%`;
+  });
+  $('#ovDonut').style.background = `conic-gradient(${stops.join(',')})`;
+  $('#ovDonutValue').textContent = fa(totalPlans);
+  $('#ovPlanCount').textContent = fa(counts.length) + ' پلن در حال استفاده';
+  $('#ovDonutLegend').innerHTML = counts.map((c, i) => `
+    <div class="lg"><span class="dot" style="background:${colors[i % colors.length]}"></span>
+      <span>${esc(c.plan.name)} — ${money(c.plan.monthly)}</span><b>${fa(c.n)} کاربر</b></div>`).join('');
+
+  /* پرداخت‌های معوق */
+  const od = overdueInvoices();
+  $('#ovOverdueCount').textContent = fa(od.length) + ' فاکتور';
+  $('#ovOverdue').innerHTML = od.length ? od.slice(0, 5).map(({ u, i }) => {
+    const days = Math.max(0, Math.round((Date.now() - new Date(i.dueAt).getTime()) / DAY));
+    return `
+      <div class="list-row">
+        <div class="list-ic bad">⏳</div>
+        <div class="list-body">
+          <div class="t">${esc(u.name)} — ${esc(i.id)}</div>
+          <div class="s">سررسید ${fmtDate(i.dueAt)} · <span class="debt">${fa(days)} روز تأخیر</span></div>
+        </div>
+        <div class="list-side">
+          <b class="num">${money(i.amount)}</b>
+          <button class="btn sm" data-open-user="${u.id}">مشاهده کاربر</button>
+          <button class="btn sm primary" data-mark-paid="${i.id}">ثبت پرداخت</button>
+        </div>
+      </div>`;
+  }).join('') : '<div class="empty">پرداخت معوقی وجود ندارد 🎉</div>';
+
+  /* اشتراک‌های در حال انقضا */
+  const soon = U.filter(u => { const d = (new Date(u.sub.renewsAt) - Date.now()) / DAY; return d <= 14 && d >= 0; })
+                .sort((a,b) => new Date(a.sub.renewsAt) - new Date(b.sub.renewsAt));
+  $('#ovExpiringCount').textContent = fa(soon.length) + ' اشتراک';
+  $('#ovExpiring').innerHTML = soon.length ? soon.map(u => `
+      <div class="list-row">
+        <div class="list-ic warn">🔁</div>
+        <div class="list-body">
+          <div class="t">${esc(u.name)}</div>
+          <div class="s">پلن ${esc(u.plan)} · تمدید ${fmtDate(u.sub.renewsAt)} ${u.sub.autoRenew ? '· تمدید خودکار فعال' : '· تمدید خودکار غیرفعال'}</div>
+        </div>
+        <div class="list-side">
+          <b class="num">${money(u.sub.monthly)}</b>
+          <button class="btn sm" data-open-user="${u.id}">جزئیات</button>
+        </div>
+      </div>`).join('') : '<div class="empty">اشتراکی در دو هفته آینده منقضی نمی‌شود.</div>';
+
+  /* سن بدهی */
+  const buckets = [
+    { label:'۱ تا ۳۰ روز', min:0,  max:30,  cls:''     },
+    { label:'۳۱ تا ۶۰ روز', min:31, max:60,  cls:'warn' },
+    { label:'بیش از ۶۰ روز', min:61, max:1e9, cls:'bad'  }
+  ];
+  const allOpen = U.flatMap(u => u.invoices.filter(i => i.status === 'OVERDUE' || i.status === 'PENDING'));
+  const bucketRows = buckets.map(b => {
+    const items = allOpen.filter(i => { const d = Math.max(0, Math.round((Date.now() - new Date(i.dueAt).getTime()) / DAY)); return d >= b.min && d <= b.max; });
+    return { ...b, amount: items.reduce((s,i) => s + i.amount, 0), count: items.length };
+  });
+  const bucketMax = Math.max(1, ...bucketRows.map(b => b.amount));
+  $('#ovAging').innerHTML = bucketRows.map(b => `
+    <div class="bar-row" style="margin-bottom:12px;">
+      <span style="width:96px;">${esc(b.label)}</span>
+      <div class="progress ${b.cls}"><i style="width:${Math.round(b.amount / bucketMax * 100)}%"></i></div>
+      <b class="num" style="width:110px;text-align:left;">${moneyShort(b.amount)}</b>
+      <span class="faint" style="width:80px;">${fa(b.count)} فاکتور</span>
+    </div>`).join('');
+
+  /* آخرین کاربران */
+  const recent = [...U].sort((a,b) => new Date(b.joined) - new Date(a.joined)).slice(0, 5);
+  $('#ovNewUsers').innerHTML = recent.map(u => `
+    <tr class="clickable" data-open-user="${u.id}">
+      <td><div class="u-cell">${avatar(u)}<div><div class="u-name">${esc(u.name)}</div><div class="u-sub ltr">${esc(u.email)}</div></div></div></td>
+      <td><span class="tag">${esc(u.plan)}</span></td>
+      <td class="th-hide">${fa(u.counts.devices)}</td>
+      <td class="th-hide ${u.balance < 0 ? 'debt' : ''}">${u.balance < 0 ? money(Math.abs(u.balance)) + ' بدهی' : 'بدون بدهی'}</td>
+      <td>${pill(USER_STATUS[u.status].label, USER_STATUS[u.status].cls)}</td>
+      <td class="faint">${fmtDate(u.joined)}</td>
+    </tr>`).join('');
+}
+</script>
+
+<script>
+/* ======================================================================
+   کاربران و حساب‌ها
+   ====================================================================== */
+function userMatchesQuery(u, q){
+  if (!q) return true;
+  const hay = [u.name, u.email, u.org, u.plan, u.phone, u.city, ...u.devices.map(d => d.serial + ' ' + d.model + ' ' + d.imei)].join(' ').toLowerCase();
+  return hay.includes(q.toLowerCase());
+}
+function filteredUsers(){
+  const q = $('#usSearch').value.trim();
+  const st = $('#filterStatus').value;
+  const pl = $('#filterPlan').value;
+  const ty = $('#filterType').value;
+  const onlyDebt = $('#filterBalance').checked;
+  return U.filter(u =>
+    userMatchesQuery(u, q) &&
+    (!st || u.status === st) &&
+    (!pl || u.plan === pl) &&
+    (!ty || u.type === ty) &&
+    (!onlyDebt || u.balance < 0)
+  );
+}
+function renderUsers(){
+  const list = filteredUsers();
+  const debtTotal = list.reduce((s,u) => s + Math.abs(Math.min(0, u.balance)), 0);
+  const mrr = list.reduce((s,u) => s + (u.status === 'ACTIVE' || u.status === 'TRIAL' ? u.sub.monthly : 0), 0);
+  $('#usSummary').innerHTML = `
+    <span class="tag">نمایش ${fa(list.length)} از ${fa(U.length)} کاربر</span>
+    <span class="tag">درآمد ماهانه این فهرست: <b>${money(mrr)}</b></span>
+    <span class="tag">مجموع بدهی: <b class="${debtTotal ? 'debt' : ''}">${money(debtTotal)}</b></span>
+    <span class="tag">دستگاه‌ها: <b>${fa(list.reduce((s,u) => s + u.counts.devices, 0))}</b></span>`;
+
+  $('#usRows').innerHTML = list.length ? list.map(u => `
+    <tr class="clickable" data-open-user="${u.id}">
+      <td>
+        <div class="u-cell">${avatar(u)}
+          <div>
+            <div class="u-name">${esc(u.name)}</div>
+            <div class="u-sub ltr">${esc(u.email)}</div>
+          </div>
+        </div>
+      </td>
+      <td class="th-hide"><span class="tag">${esc(u.type)}</span></td>
+      <td>
+        <div class="u-name">${esc(u.plan)}</div>
+        <div class="u-sub">${u.sub.monthly ? money(u.sub.monthly) + ' / ماه' : 'رایگان'} · تمدید ${fmtDate(u.sub.renewsAt)}</div>
+      </td>
+      <td class="th-hide">
+        <div class="u-name">${fa(u.counts.devices)}</div>
+        <div class="u-sub">${fa(u.devices.filter(d => d.status === 'ONLINE').length)} آنلاین · ${fa(u.devices.filter(d => d.status === 'QUARANTINED').length)} قرنطینه</div>
+      </td>
+      <td class="${u.balance < 0 ? 'debt' : 'credit'}">${u.balance < 0 ? money(Math.abs(u.balance)) + ' بدهی' : 'بدون بدهی'}</td>
+      <td>${pill(USER_STATUS[u.status].label, USER_STATUS[u.status].cls)}</td>
+      <td>
+        <div class="row-actions">
+          <button class="btn sm" data-open-user="${u.id}">مشاهده</button>
+          <button class="btn sm primary" data-impersonate="${u.id}">نمای کاربر</button>
+          <button class="btn sm" data-user-menu="${u.id}" title="اقدامات بیشتر">⋯</button>
+        </div>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="7"><div class="empty">کاربری با این فیلترها پیدا نشد.</div></td></tr>';
+
+  $('#usCount').textContent = `${fa(list.length)} کاربر از مجموع ${fa(U.length)} کاربر نمایش داده می‌شود.`;
+}
+['usSearch','filterStatus','filterPlan','filterType','filterBalance'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', renderUsers);
+  el.addEventListener('change', renderUsers);
+});
+$('#usClearFilters').addEventListener('click', () => {
+  $('#usSearch').value = ''; $('#filterStatus').value = ''; $('#filterPlan').value = '';
+  $('#filterType').value = ''; $('#filterBalance').checked = false; renderUsers();
+});
+
+/* ---------- پروفایل کاربر ---------- */
+function userById(id){ return U.find(u => u.id === id); }
+
+function showUser(id){
+  state.user = id;
+  switchView('user');
+}
+function renderUserDetail(){
+  const u = userById(state.user);
+  if (!u) { switchView('users'); return; }
+  const online = u.devices.filter(d => d.status === 'ONLINE').length;
+  const quarantined = u.devices.filter(d => d.status === 'QUARANTINED').length;
+  const paidTotal = u.payments.filter(p => p.status === 'SUCCESS' || p.status === 'MANUAL').reduce((s,p) => s + Math.abs(p.amount), 0);
+  const openInv = u.invoices.filter(i => i.status === 'OVERDUE' || i.status === 'PENDING');
+  const activeDev = u.devices.filter(d => d.simActive).length;
+
+  $('#udHeader').innerHTML = `
+    ${avatar(u, true)}
+    <div class="detail-id">
+      <h2>${esc(u.name)}</h2>
+      <p class="ltr">${esc(u.email)} · ${esc(u.phone)}</p>
+      <div class="row-actions" style="margin-top:8px;">
+        ${pill(USER_STATUS[u.status].label, USER_STATUS[u.status].cls)}
+        <span class="tag">پلن ${esc(u.plan)}</span>
+        <span class="tag">${esc(u.type)}</span>
+        ${u.balance < 0 ? `<span class="pill bad"><i></i>${money(Math.abs(u.balance))} بدهی</span>` : '<span class="pill ok"><i></i>بدون بدهی</span>'}
+      </div>
+    </div>
+    <div class="detail-actions">
+      <button class="btn primary" data-impersonate="${u.id}">👁 دیدن پنل کاربر</button>
+      <button class="btn" data-user-edit="${u.id}">✎ ویرایش</button>
+      <button class="btn" data-user-plan="${u.id}">🧩 تغییر پلن</button>
+      <button class="btn" data-user-add-device="${u.id}">📡 افزودن دستگاه</button>
+      <button class="btn" data-user-payment="${u.id}">💳 ثبت پرداخت</button>
+      <button class="btn" data-user-note="${u.id}">📝 یادداشت</button>
+      ${u.status === 'SUSPENDED' || u.status === 'DISABLED'
+        ? `<button class="btn primary" data-user-status="${u.id}" data-status="ACTIVE">✓ فعال‌سازی حساب</button>`
+        : `<button class="btn danger" data-user-status="${u.id}" data-status="SUSPENDED">⏸ تعلیق حساب</button>`}
+      <button class="btn" data-user-menu="${u.id}">⋯ اقدامات بیشتر</button>
+    </div>`;
+
+  $('#udKpis').innerHTML = kpi([
+    { label:'اشتراک ماهانه', value: u.sub.monthly ? money(u.sub.monthly) : 'رایگان', sub:`تمدید بعدی ${fmtDate(u.sub.renewsAt)} · ${u.sub.autoRenew ? 'خودکار' : 'دستی'}`, icon:'🧩', tone:'info' },
+    { label:'مجموع پرداخت‌ها', value: moneyShort(paidTotal), sub:`${fa(u.payments.filter(p => p.status === 'SUCCESS' || p.status === 'MANUAL').length)} تراکنش موفق`, icon:'💳', tone:'good' },
+    { label:'مانده حساب', value: u.balance < 0 ? moneyShort(Math.abs(u.balance)) : 'بدون بدهی', sub: u.balance < 0 ? `${fa(openInv.length)} فاکتور باز` : 'حساب تسویه است', icon:'⚖️', tone: u.balance < 0 ? 'bad' : 'good' },
+    { label:'دستگاه‌ها', value: fa(u.devices.length), sub:`${fa(online)} آنلاین · ${fa(quarantined)} قرنطینه · ${fa(activeDev)} سیم‌کارت فعال`, icon:'📡' }
+  ]);
+
+  $('#udProfile').innerHTML = [
+    { s:'نام کاربر / سازمان', v: u.name },
+    { s:'نوع حساب', v: u.type },
+    { s:'ایمیل', v: `<span class="ltr">${esc(u.email)}</span>` },
+    { s:'تلفن', v: `<span class="ltr">${esc(u.phone)}</span>` },
+    { s:'شهر', v: u.city },
+    { s:'تاریخ عضویت', v: fmtDate(u.joined) },
+    { s:'آخرین ورود', v: ago(u.auth.lastLogin) },
+    { s:'ورود دو مرحله‌ای', v: u.auth.twoFA ? 'فعال' : 'غیرفعال' }
+  ].map(c => `<div class="info-cell"><span>${c.s}</span><b>${c.v}</b></div>`).join('');
+
+  $('#udSubscription').innerHTML = [
+    { s:'پلن', v: u.plan },
+    { s:'هزینه ماهانه', v: u.sub.monthly ? money(u.sub.monthly) : 'رایگان' },
+    { s:'سررسید بعدی', v: fmtDate(u.nextInvoice) },
+    { s:'تاریخ تمدید', v: fmtDate(u.sub.renewsAt) },
+    { s:'تمديد خودکار', v: u.sub.autoRenew ? 'فعال' : 'غیرفعال' },
+    { s:'ظرفیت کاربران', v: `${fa(u.users)} از ${fa(u.seats)} کاربر` },
+    { s:'ظرفیت دستگاه', v: `${fa(u.counts.devices)} دستگاه` },
+    { s:'وضعیت', v: pill(USER_STATUS[u.status].label, USER_STATUS[u.status].cls) },
+    { s:'دلیل وضعیت', v: u.statusReason || '—' }
+  ].map(c => `<div class="info-cell"><span>${c.s}</span><b>${c.v}</b></div>`).join('');
+
+  $('#udDeviceRows').innerHTML = u.devices.length ? u.devices.map(d => `
+    <tr class="clickable" data-device-open="${d.id}|${u.id}">
+      <td><div class="u-cell"><div class="u-avatar g2" style="border-radius:9px;">📡</div>
+        <div><div class="u-name ltr">${esc(d.serial)}</div><div class="u-sub">${esc(d.model)}</div></div></div></td>
+      <td class="th-hide">${d.vehicle ? esc(d.vehicle) + ' · ' + esc(d.plate) : '<span class="faint">بدون خودرو</span>'}</td>
+      <td><span class="ltr">${esc(d.sim)}</span><div class="faint ltr">${esc(d.simNo)}</div></td>
+      <td>${pill(DEV_STATUS[d.status].label, DEV_STATUS[d.status].cls)}</td>
+      <td class="th-hide faint">${ago(d.lastComm)}</td>
+    </tr>`).join('') : '<tr><td colspan="5"><div class="empty">دستگاهی ثبت نشده است.</div></td></tr>';
+
+  /* تب فاکتورها */
+  const invTotal = u.invoices.reduce((s,i) => s + i.amount, 0);
+  const invPaid = u.invoices.filter(i => i.status === 'PAID').reduce((s,i) => s + i.amount, 0);
+  $('#udInvoiceSummary').innerHTML = `مجموع ${money(invTotal)} · پرداخت‌شده ${money(invPaid)} · باز ${money(invTotal - invPaid)}`;
+  $('#udInvoiceRows').innerHTML = u.invoices.map(i => `
+    <tr>
+      <td class="ltr">${esc(i.id)}</td>
+      <td>${esc(i.period)}</td>
+      <td class="num">${money(i.amount)}</td>
+      <td class="faint">${fmtDate(i.dueAt)}</td>
+      <td>${pill(INV_STATUS[i.status].label, INV_STATUS[i.status].cls)}</td>
+      <td><div class="row-actions">
+        <button class="btn sm" data-invoice-view="${i.id}|${u.id}">مشاهده</button>
+        ${i.status !== 'PAID' ? `<button class="btn sm primary" data-mark-paid="${i.id}">ثبت پرداخت</button>` : `<span class="faint">${fmtDate(i.paidAt)}</span>`}
+      </div></td>
+    </tr>`).join('');
+
+  /* تب پرداخت‌ها */
+  $('#udPaymentRows').innerHTML = u.payments.length ? u.payments.map(p => `
+    <tr>
+      <td class="ltr">${esc(p.id)}</td>
+      <td class="faint">${fmtDateTime(p.at)}</td>
+      <td class="${p.amount < 0 ? 'debt' : 'credit'}">${p.amount < 0 ? '−' : '+'}${money(Math.abs(p.amount))}</td>
+      <td>${esc(PAY_METHOD[p.method] || p.method)}</td>
+      <td>${pill(PAY_STATUS[p.status].label, PAY_STATUS[p.status].cls)}</td>
+      <td class="th-hide faint">${esc(p.ref)}</td>
+    </tr>`).join('') : '<tr><td colspan="6"><div class="empty">تراکنشی ثبت نشده است.</div></td></tr>';
+
+  /* تب دستگاه‌ها */
+  const simsActive = u.devices.filter(d => d.simActive).length;
+  $('#udSimSummary').innerHTML = [
+    { s:'دستگاه کل', v: fa(u.devices.length) },
+    { s:'سیم‌کارت فعال', v: fa(simsActive) },
+    { s:'سیم‌کارت در انتظار فعال‌سازی', v: fa(u.devices.filter(d => !d.simActive).length) },
+    { s:'آنلاین', v: fa(online) },
+    { s:'آفلاین', v: fa(u.devices.filter(d => d.status === 'OFFLINE').length) },
+    { s:'قرنطینه / نقص فنی', v: fa(quarantined) }
+  ].map(c => `<div class="info-cell"><span>${c.s}</span><b>${c.v}</b></div>`).join('');
+  $('#udDevices').innerHTML = u.devices.length ? u.devices.map(d => deviceCard(d, u)).join('') : '<div class="empty">دستگاهی ثبت نشده است.</div>';
+
+  /* تب رویدادها */
+  $('#udActions').innerHTML = u.actions.length ? u.actions.map(a => `
+    <div class="tl">
+      <div class="tl-dot ${actionTone(a.action)}">${actionIcon(a.action)}</div>
+      <div class="tl-body">
+        <div class="t">${esc(ACTION_LABEL[a.action] || a.action)}</div>
+        <div class="s">${esc(a.detail || '')} · توسط ${esc(a.actor)}</div>
+      </div>
+      <span class="tl-time">${ago(a.at)}</span>
+    </div>`).join('') : '<div class="empty">رویدادی ثبت نشده است.</div>';
+
+  $('#udNotes').innerHTML = u.notes.length ? u.notes.map(n => `
+    <div class="tl">
+      <div class="tl-dot info">📝</div>
+      <div class="tl-body"><div class="t">${esc(n.text)}</div><div class="s">${esc(n.actor)}</div></div>
+      <span class="tl-time">${ago(n.at)}</span>
+    </div>`).join('') : '<div class="empty">یادداشتی ثبت نشده است.</div>';
+}
+function actionTone(a){
+  if (/USER_DISABLED|USER_DELETED|PAYMENT_FAILED/.test(a)) return 'bad';
+  if (/SUSPENDED|DUNNING|REMINDER|EXPORT/.test(a)) return 'warn';
+  if (/PAYMENT|ACTIVATED|NOTE/.test(a)) return 'ok';
+  return 'info';
+}
+function actionIcon(a){
+  if (/PAYMENT|INVOICE/.test(a)) return '💳';
+  if (/DEVICE|SIM/.test(a)) return '📡';
+  if (/USER|PASSWORD|LOGIN/.test(a)) return '👤';
+  if (/DUNNING|REMINDER/.test(a)) return '⏰';
+  if (/IMPERSONATED/.test(a)) return '👁';
+  return '⚙️';
+}
+$('#udBack').addEventListener('click', () => switchView('users'));
+$$('[data-udtab]').forEach(btn => btn.addEventListener('click', () => {
+  $$('[data-udtab]').forEach(b => b.classList.remove('active'));
+  $$('#view-user .tab-pane').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  $('#udtab-' + btn.dataset.udtab).classList.add('active');
+}));
+$('#udNoteBtn').addEventListener('click', () => state.user && openNoteModal(userById(state.user)));
+</script>
+
+<script>
+/* ======================================================================
+   کارت دستگاه + اقدامات کاربر
+   ====================================================================== */
+function deviceCard(d, u){
+  const ov = u || U.find(x => x.devices.includes(d)) || null;
+  return `
+  <article class="dev-card">
+    <div class="dh">
+      <div class="dev-ic">📡</div>
+      <div>
+        <div class="dt ltr">${esc(d.serial)}</div>
+        <div class="ds">${esc(d.model)} · FW ${esc(d.fw)}</div>
+      </div>
+      ${pill(DEV_STATUS[d.status].label, DEV_STATUS[d.status].cls)}
+    </div>
+    <div class="dev-meta">
+      <div><span>خودرو</span><b>${d.vehicle ? esc(d.vehicle) : 'تخصیص نیافته'}</b></div>
+      <div><span>پلاک</span><b>${d.plate ? esc(d.plate) : '—'}</b></div>
+      <div><span>سیم‌کارت</span><b class="ltr">${esc(d.sim)}</b></div>
+      <div><span>شماره خط</span><b class="ltr">${esc(d.simNo)}</b></div>
+      <div><span>باتری</span><b>${fa(d.battery)}٪</b></div>
+      <div><span>آخرین ارتباط</span><b>${ago(d.lastComm)}</b></div>
+      <div><span>کاربر</span><b>${esc(ov ? ov.name : '—')}</b></div>
+      <div><span>گارانتی تا</span><b>${fmtDate(d.warranty)}</b></div>
+    </div>
+    <div class="sim-row">
+      <button class="btn sm" data-device-sim="${d.id}|${ov ? ov.id : ''}">🛰 شبیه‌سازی حرکت</button>
+      <button class="btn sm" data-device-toggle="${d.id}|${ov ? ov.id : ''}">${d.status === 'OFFLINE' ? '🔌 وصل‌کردن' : '✂ قطع ارتباط'}</button>
+      <button class="btn sm" data-device-open="${d.id}|${ov ? ov.id : ''}">جزئیات</button>
+    </div>
+  </article>`;
+}
+
+/* ---------- ابزار مودال‌های عملیاتی ---------- */
+function auditAction(userId, action, detail, actor){
+  const u = userById(userId);
+  if (u) u.actions.unshift({ at:new Date().toISOString(), actor: actor || 'مهراد پارسا', action, detail });
+  pushAudit(actor || 'مهراد پارسا', action, detail + (u ? ' — ' + u.name : ''), userId);
+  renderRailBadge();
+}
+function renderRailBadge(){
+  const badge = $('#railDebtBadge');
+  const n = overdueInvoices().length;
+  badge.textContent = fa(n);
+  badge.style.display = n ? 'inline-block' : 'none';
+}
+function userMenuModal(u){
+  const rows = [
+    { icon:'✎', label:'ویرایش مشخصات کاربر', act:`data-user-edit="${u.id}"` },
+    { icon:'🧩', label:'تغییر پلن و تعرفه', act:`data-user-plan="${u.id}"` },
+    { icon:'📡', label:'افزودن دستگاه GPS', act:`data-user-add-device="${u.id}"` },
+    { icon:'💳', label:'ثبت پرداخت / صدور فاکتور دستی', act:`data-user-payment="${u.id}"` },
+    { icon:'🧪', label:'صدور دوره آزمایشی ۱۴ روزه', act:`data-user-trial="${u.id}"` },
+    { icon:'🔑', label:'بازنشانی رمز عبور', act:`data-user-reset="${u.id}"` },
+    { icon:'📨', label:'ارسال یادآوری پرداخت (پیامک)', act:`data-user-remind="${u.id}"` },
+    { icon:'⬇', label:'خروجی اطلاعات کاربر (JSON)', act:`data-user-export="${u.id}"` },
+    { icon:'🗂', label:'آرشیو حساب (بستن موقت)', act:`data-user-archive="${u.id}"` },
+    { icon:'🚫', label:'حذف کامل کاربر', act:`data-user-delete="${u.id}"`, danger:true }
+  ];
+  openModal({
+    title:'اقدامات بیشتر — ' + u.name,
+    body:`<div class="timeline" style="padding:0;">${rows.map(r => `
+      <div class="tl" style="cursor:pointer;" ${r.act}>
+        <div class="tl-dot ${r.danger ? 'bad' : 'info'}">${r.icon}</div>
+        <div class="tl-body"><div class="t" style="${r.danger ? 'color:var(--danger);' : ''}">${r.label}</div></div>
+      </div>`).join('')}</div>`,
+    foot:'<button class="btn" data-close-modal>بستن</button>'
+  });
+}
+
+function openUserEditModal(u){
+  openModal({
+    title:'ویرایش مشخصات — ' + u.name,
+    body:`
+      <div class="form-row">
+        <div class="field"><label>نام کاربر / سازمان</label><input id="fName" value="${esc(u.name)}" /></div>
+        <div class="field"><label>ایمیل</label><input id="fEmail" class="ltr" value="${esc(u.email)}" /></div>
+        <div class="field"><label>تلفن</label><input id="fPhone" class="ltr" value="${esc(u.phone)}" /></div>
+        <div class="field"><label>شهر</label><input id="fCity" value="${esc(u.city)}" /></div>
+        <div class="field"><label>نوع حساب</label><select id="fType">
+          ${['شخصی','سازمانی','نمایندگی'].map(t => `<option ${t === u.type ? 'selected' : ''}>${t}</option>`).join('')}
+        </select></div>
+        <div class="field"><label>تعداد کاربران مجاز (ظرفیت)</label><input id="fSeats" type="number" min="1" value="${u.seats}" /></div>
+      </div>
+      <div class="field"><label>یادداشت تغییر (برای گزارش رویدادها)</label><textarea id="fReason" placeholder="مثال: اصلاح نام سازمان بر اساس مکاتبه رسمی"></textarea></div>`,
+    foot:`<button class="btn primary" id="fSave">ذخیره تغییرات</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#fSave').addEventListener('click', () => {
+    u.name = $('#fName').value.trim() || u.name;
+    u.org = u.type === 'شخصی' ? '—' : u.name;
+    u.email = $('#fEmail').value.trim() || u.email;
+    u.phone = $('#fPhone').value.trim() || u.phone;
+    u.city = $('#fCity').value.trim() || u.city;
+    u.type = $('#fType').value;
+    u.seats = Math.max(1, Number($('#fSeats').value) || u.seats);
+    auditAction(u.id, 'USER_UPDATED', $('#fReason').value.trim() || 'به‌روزرسانی مشخصات حساب');
+    closeModal(); renderUserDetail(); toast('مشخصات کاربر ذخیره شد.', 'ok');
+  });
+}
+
+function openPlanModal(u){
+  openModal({
+    title:'تغییر پلن — ' + u.name,
+    body:`
+      <div class="field"><label>پلن جدید</label><select id="pPlan">
+        ${PLANS.map(p => `<option value="${p.name}" ${p.name === u.plan ? 'selected' : ''}>${p.name} — ${p.monthly ? money(p.monthly) + ' در ماه' : 'رایگان'} (${fa(p.devices)} دستگاه / ${fa(p.users)} کاربر)</option>`).join('')}
+      </select></div>
+      <div class="form-row" style="margin-top:12px;">
+        <div class="field"><label>اعمال از</label><select id="pFrom"><option>همین حالا</option><option>دوره صورتحساب بعدی</option></select></div>
+        <div class="field"><label>هزینه ماهانه (قابل ویرایش)</label><input id="pPrice" type="number" value="${u.sub.monthly}" /></div>
+      </div>
+      <label class="check" style="margin-top:6px;"><input type="checkbox" id="pProrate" checked /> محاسبه صورتحساب میان‌دوره‌ای (Proration)</label>`,
+    foot:`<button class="btn primary" id="pSave">اعمال تغییر پلن</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  const planSel = $('#pPlan');
+  planSel.addEventListener('change', () => {
+    const p = PLANS.find(x => x.name === planSel.value);
+    if (p) $('#pPrice').value = p.monthly;
+  });
+  $('#pSave').addEventListener('click', () => {
+    const p = PLANS.find(x => x.name === planSel.value);
+    const old = u.plan;
+    u.plan = p.name; u.sub.monthly = Number($('#pPrice').value) || p.monthly;
+    if ($('#pFrom').value.includes('بعدی')) u.sub.renewsAt = dayOffset(30);
+    auditAction(u.id, 'PLAN_CHANGED', `تغییر پلن از «${old}» به «${p.name}» — ${money(u.sub.monthly)} در ماه`);
+    closeModal(); renderUserDetail(); toast('پلن کاربر به‌روزرسانی شد.', 'ok');
+  });
+}
+
+function openAddDeviceModal(u){
+  openModal({
+    title:'افزودن دستگاه GPS — ' + u.name,
+    wide:true,
+    body:`
+      <div class="form-row">
+        <div class="field"><label>مدل دستگاه</label><select id="dModel">
+          <option>LTE-C1 Pilot</option><option>LTE-C2 Pro</option><option>LTE-M Mini</option></select></div>
+        <div class="field"><label>سریال دستگاه</label><input id="dSerial" class="ltr" value="SF-${1400 + U.indexOf(u) + 1}-${7000 + u.devices.length * 13}" /></div>
+        <div class="field"><label>IMEI</label><input id="dImei" class="ltr" value="86${100000000000000 + u.devices.length * 7919}" /></div>
+        <div class="field"><label>اپراتور سیم‌کارت</label><select id="dSim"><option>MTN-Irancell</option><option>MCI</option><option>Rightel</option></select></div>
+        <div class="field"><label>شماره سیم‌کارت</label><input id="dSimNo" class="ltr" value="+98912${40000000 + u.devices.length * 131}" /></div>
+        <div class="field"><label>وضعیت سیم‌کارت</label><select id="dSimActive"><option value="1">فعال</option><option value="0">در انتظار فعال‌سازی</option></select></div>
+        <div class="field"><label>خودرو</label><input id="dVehicle" placeholder="مثال: ون باربری ۷" /></div>
+        <div class="field"><label>پلاک</label><input id="dPlate" placeholder="مثال: ب ۱۲۳ - ایران ۲۲" /></div>
+      </div>
+      <div class="callout info">ℹ️ دستگاه به‌صورت «تخصیص‌نیافته» ثبت می‌شود و پس از نصب، خودرو و پلاک قابل ویرایش است. مراحل: ثبت → فعال‌سازی سیم‌کارت → نصب → تخصیص به خودرو.</div>`,
+    foot:`<button class="btn primary" id="dSave">ثبت دستگاه</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#dSave').addEventListener('click', () => {
+    const model = $('#dModel').value;
+    const d = {
+      id:'D' + u.id.replace('U','') + '-' + pad(u.devices.length + 1),
+      serial:$('#dSerial').value.trim(), imei:$('#dImei').value.trim(), model,
+      fw: model === 'LTE-C2 Pro' ? '2.1.0' : model === 'LTE-M Mini' ? '1.2.9' : '1.8.4',
+      sim:$('#dSim').value, simNo:$('#dSimNo').value.trim(), simActive:$('#dSimActive').value === '1',
+      vehicle:$('#dVehicle').value.trim() || null, plate:$('#dPlate').value.trim() || null,
+      status:'OFFLINE', lastComm:new Date().toISOString(), signal:'—', battery:100,
+      install:new Date().toISOString(), warranty: dayOffset(730).toISOString(),
+      power:'سیم‌کشی‌شده به برق خودرو', installedBy:'در انتظار نصب'
+    };
+    u.devices.push(d);
+    u.counts.devices = u.devices.length; u.counts.vehicles = u.devices.filter(x => x.vehicle).length;
+    d.ownerId = u.id; d.ownerName = u.name; DEV.push(d);
+    auditAction(u.id, 'DEVICE_ADDED', `افزودن دستگاه ${d.serial} (${d.model}) — سیم‌کارت ${d.sim}`);
+    closeModal(); renderUserDetail(); toast('دستگاه جدید ثبت شد.', 'ok');
+  });
+}
+
+function openPaymentModal(u){
+  const openInv = u.invoices.filter(i => i.status !== 'PAID');
+  openModal({
+    title:'ثبت پرداخت / فاکتور دستی — ' + u.name,
+    body:`
+      <div class="callout info" style="margin-bottom:14px;">مانده فعلی حساب: <b>${u.balance < 0 ? money(Math.abs(u.balance)) + ' بدهی' : 'بدون بدهی'}</b></div>
+      <div class="form-row">
+        <div class="field"><label>نوع عملیات</label><select id="yType">
+          <option value="pay">ثبت پرداخت (تسویه بدهی)</option>
+          <option value="credit">افزودن اعتبار دستی</option>
+          <option value="refund">بازپرداخت به کاربر</option>
+          <option value="invoice">صدور فاکتور دستی</option>
+        </select></div>
+        <div class="field"><label>مبلغ (تومان)</label><input id="yAmount" type="number" value="${u.balance < 0 ? Math.abs(u.balance) : 0}" /></div>
+        <div class="field"><label>روش پرداخت</label><select id="yMethod">
+          ${Object.keys(PAY_METHOD).map(k => `<option value="${k}">${PAY_METHOD[k]}</option>`).join('')}
+        </select></div>
+        <div class="field"><label>تخصیص به فاکتور</label><select id="yInv">
+          <option value="">— بدون تخصیص —</option>
+          ${openInv.map(i => `<option value="${i.id}">${i.id} · ${i.period} · ${money(i.amount)}</option>`).join('')}
+        </select></div>
+      </div>
+      <div class="field"><label>توضیح / مرجع</label><textarea id="yNote" placeholder="شماره پیگیری، تأیید مدیر یا توضیح بازپرداخت"></textarea></div>`,
+    foot:`<button class="btn primary" id="ySave">ثبت عملیات</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#ySave').addEventListener('click', () => {
+    const amount = Math.abs(Number($('#yAmount').value) || 0);
+    const type = $('#yType').value;
+    const method = $('#yMethod').value;
+    const note = $('#yNote').value.trim();
+    const invId = $('#yInv').value || null;
+    if (!amount) { toast('مبلغ را وارد کنید.', 'bad'); return; }
+    let status = 'SUCCESS', label = 'پرداخت';
+    if (type === 'credit') { u.balance += amount; status = 'MANUAL'; label = 'اعتبار دستی'; }
+    if (type === 'refund') { u.balance -= amount; status = 'REFUND'; label = 'بازپرداخت'; }
+    if (type === 'pay') { u.balance = Math.min(0, u.balance + amount); status = 'MANUAL'; label = 'تسویه بدهی'; }
+    if (type === 'invoice') {
+      const inv = { id:'INV-' + fa(invSeq++), userId:u.id, issuedAt:new Date().toISOString(), dueAt: dayOffset(10).toISOString(),
+        period:'دستی — ' + fmtDate(new Date()), amount, status:'PENDING', paidAt:null, method };
+      u.invoices.unshift(inv); u.balance -= amount; label = 'صدور فاکتور دستی';
+      auditAction(u.id, 'INVOICE_CREATED', `صدور فاکتور ${inv.id} به مبلغ ${money(amount)}`);
+    } else {
+      const signed = type === 'refund' ? -amount : amount;
+      u.payments.unshift({ id:'PM-' + fa(paySeq++), userId:u.id, at:new Date().toISOString(), amount:signed, method, status, ref: note || 'ثبت دستی توسط مدیر', invId });
+      if (invId) {
+        const inv = u.invoices.find(i => i.id === invId);
+        if (inv && type !== 'refund') { inv.status = 'PAID'; inv.paidAt = new Date().toISOString(); }
+      }
+      auditAction(u.id, type === 'refund' ? 'PAYMENT_REFUNDED' : 'INVOICE_MARKED_PAID', `${label} ${money(amount)} (${PAY_METHOD[method]}) ${invId ? 'برای ' + invId : ''}`);
+    }
+    closeModal(); renderUserDetail(); renderRailBadge(); toast(label + ' ثبت شد.', 'ok');
+  });
+}
+
+function openNoteModal(u){
+  openModal({
+    title:'یادداشت داخلی — ' + u.name,
+    body:`<div class="field"><label>متن یادداشت (فقط برای مدیران پلتفرم قابل مشاهده است)</label>
+      <textarea id="nText" placeholder="مثال: مشتری برای افزایش ظرفیت دستگاه‌ها تماس گرفت."></textarea></div>`,
+    foot:`<button class="btn primary" id="nSave">ثبت یادداشت</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#nSave').addEventListener('click', () => {
+    const text = $('#nText').value.trim();
+    if (text.length < 3) { toast('متن یادداشت را کامل‌تر وارد کنید.', 'bad'); return; }
+    u.notes.unshift({ at:new Date().toISOString(), actor:'مهراد پارسا', text });
+    auditAction(u.id, 'NOTE_ADDED', 'ثبت یادداشت داخلی برای حساب کاربر');
+    closeModal(); renderUserDetail(); toast('یادداشت ثبت شد.', 'ok');
+  });
+}
+
+function openInvoiceModal(i, u){
+  openModal({
+    title:'فاکتور ' + i.id,
+    wide:true,
+    body:`
+      <div class="info-grid">
+        <div class="info-cell"><span>کاربر</span><b>${esc(u.name)}</b></div>
+        <div class="info-cell"><span>دوره</span><b>${esc(i.period)}</b></div>
+        <div class="info-cell"><span>مبلغ</span><b>${money(i.amount)}</b></div>
+        <div class="info-cell"><span>تاریخ صدور</span><b>${fmtDate(i.issuedAt)}</b></div>
+        <div class="info-cell"><span>سررسید</span><b>${fmtDate(i.dueAt)}</b></div>
+        <div class="info-cell"><span>وضعیت</span><b>${pill(INV_STATUS[i.status].label, INV_STATUS[i.status].cls)}</b></div>
+        <div class="info-cell"><span>روش پرداخت</span><b>${esc(PAY_METHOD[i.method] || i.method)}</b></div>
+        <div class="info-cell"><span>تاریخ پرداخت</span><b>${i.paidAt ? fmtDateTime(i.paidAt) : '—'}</b></div>
+        <div class="info-cell"><span>شناسه حساب</span><b class="ltr">${esc(u.id)}</b></div>
+      </div>
+      <div class="section-card" style="margin-top:14px;">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>شرح</th><th>تعداد</th><th>مبلغ واحد</th><th>جمع</th></tr></thead>
+            <tbody>
+              <tr><td>اشتراک ${esc(u.plan)}</td><td>۱ ماه</td><td>${money(u.sub.monthly)}</td><td class="num">${money(u.sub.monthly)}</td></tr>
+              <tr><td>سیم‌کارت و پهنای باند دستگاه‌ها</td><td>${fa(u.counts.devices)} دستگاه</td><td>${money(49_000)}</td><td class="num">${money(u.counts.devices * 49_000)}</td></tr>
+              ${u.type === 'نمایندگی' ? `<tr><td>سهم نمایندگی (پورسانت)</td><td>۱</td><td>−${money(320_000)}</td><td class="num">−${money(320_000)}</td></tr>` : ''}
+            </tbody>
+            <tfoot><tr><td colspan="3">مبلغ قابل پرداخت</td><td>${money(i.amount)}</td></tr></tfoot>
+          </table>
+        </div>
+      </div>`,
+    foot:`${i.status !== 'PAID' ? `<button class="btn primary" data-mark-paid="${i.id}">ثبت پرداخت</button>` : ''}
+          <button class="btn" onclick="window.print()">چاپ / PDF</button>
+          <button class="btn" data-close-modal>بستن</button>`
+  });
+}
+
+/* ---------- نمایش وضعیت و حذف ---------- */
+function openStatusModal(u, status){
+  const suspending = status === 'SUSPENDED';
+  openModal({
+    title:(suspending ? 'تعلیق حساب' : 'فعال‌سازی حساب') + ' — ' + u.name,
+    body:`
+      ${suspending
+        ? `<div class="callout warn">⚠️ با تعلیق حساب: ورود کاربر بسته می‌شود، گزارش‌های زنده متوقف و دستگاه‌ها از ناوگان خارج می‌شوند. داده‌ها حذف نمی‌شوند.</div>
+           <div class="field" style="margin-top:12px;"><label>دلیل تعلیق (به کاربر نمایش داده می‌شود)</label>
+             <textarea id="sReason" placeholder="مثال: بدهی معوق بیش از ۳۰ روز"></textarea></div>
+           <label class="check" style="margin-top:8px;"><input type="checkbox" id="sNotify" checked /> ارسال پیامک اطلاع‌رسانی به کاربر</label>`
+        : `<div class="callout info">ℹ️ با فعال‌سازی، دسترسی کاربر و دریافت گزارش‌های زنده دوباره برقرار می‌شود.</div>`}`,
+    foot:`<button class="btn ${suspending ? 'danger' : 'primary'}" id="sSave">${suspending ? 'تعلیق حساب' : 'فعال‌سازی حساب'}</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#sSave').addEventListener('click', () => {
+    u.status = status;
+    u.statusReason = suspending ? ($('#sReason') ? ($('#sReason').value.trim() || 'تعلیق توسط مدیر پلتفرم') : '') : '';
+    auditAction(u.id, suspending ? 'USER_SUSPENDED' : 'USER_ACTIVATED', suspending ? 'تعلیق حساب — ' + u.statusReason : 'فعال‌سازی مجدد حساب');
+    closeModal(); renderUserDetail(); if (state.view === 'users') renderUsers(); toast(suspending ? 'حساب کاربر تعلیق شد.' : 'حساب کاربر فعال شد.', suspending ? 'warn' : 'ok');
+  });
+}
+
+function openDeleteModal(u){
+  openModal({
+    title:'حذف کامل کاربر — ' + u.name,
+    body:`
+      <div class="callout danger"><b>هشدار:</b> این اقدام بازگشت‌ناپذیر است.</div>
+      <ul class="danger-list">
+        <li>${fa(u.devices.length)} دستگاه GPS آزاد و از ناوگان خارج می‌شود.</li>
+        <li>${fa(u.invoices.length)} فاکتور و ${fa(u.payments.length)} تراکنش برای حسابرسی بایگانی می‌شود.</li>
+        <li>دسترسی همه کاربران این حساب قطع می‌شود.</li>
+        <li>سابقه رویدادها برای مدت قانونی نگه داشته می‌شود.</li>
+      </ul>
+      <div class="field" style="margin-top:12px;"><label>برای تأیید، نام کاربر را دقیقاً تایپ کنید: <b>${esc(u.name)}</b></label>
+        <input id="delName" placeholder="${esc(u.name)}" /></div>
+      <label class="check" style="margin-top:8px;"><input type="checkbox" id="delNotify" /> آخرین فاکتور و اطلاع‌رسانی حذف برای کاربر ارسال شود</label>`,
+    foot:`<button class="btn danger" id="delSave">حذف کامل حساب</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#delSave').addEventListener('click', () => {
+    if ($('#delName').value.trim() !== u.name) { toast('نام کاربر مطابقت ندارد؛ حذف انجام نشد.', 'bad'); return; }
+    u.status = 'DISABLED';
+    u.deleted = true;
+    auditAction(u.id, 'USER_DELETED', 'حذف کامل حساب کاربر و آزادسازی دستگاه‌ها');
+    u.devices.forEach(d => { const di = DEV.indexOf(d); if (di > -1) DEV.splice(di, 1); });
+    const idx = U.indexOf(u); if (idx > -1) U.splice(idx, 1);
+    closeModal(); switchView('users'); toast('کاربر حذف شد. (در محیط نمایشی از فهرست خارج شد)', 'bad');
+  });
+}
+
+/* ---------- رویدادهای کلیک روی کاربران و دستگاه‌ها ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-open-user],[data-impersonate],[data-user-menu],[data-user-edit],[data-user-plan],[data-user-add-device],[data-user-payment],[data-user-note],[data-user-status],[data-user-delete],[data-user-reset],[data-user-remind],[data-user-export],[data-user-trial],[data-user-archive],[data-mark-paid],[data-remind],[data-invoice-view],[data-device-open],[data-device-sim],[data-device-toggle],[data-mark-all-paid]');
+  if (!t) return;
+  const d = t.dataset;
+  if (d.openUser) showUser(d.openUser);
+  else if (d.impersonate) enterImpersonation(d.impersonate);
+  else if (d.userMenu) userMenuModal(userById(d.userMenu));
+  else if (d.userEdit) { closeModal(); openUserEditModal(userById(d.userEdit)); }
+  else if (d.userPlan) { closeModal(); openPlanModal(userById(d.userPlan)); }
+  else if (d.userAddDevice) { closeModal(); openAddDeviceModal(userById(d.userAddDevice)); }
+  else if (d.userPayment) { closeModal(); openPaymentModal(userById(d.userPayment)); }
+  else if (d.userNote) { closeModal(); openNoteModal(userById(d.userNote)); }
+  else if (d.userStatus) { closeModal(); openStatusModal(userById(d.userStatus), d.status); }
+  else if (d.userDelete) { closeModal(); openDeleteModal(userById(d.userDelete)); }
+  else if (d.userTrial) { closeModal(); const u = userById(d.userTrial); u.status = 'TRIAL'; u.sub.renewsAt = dayOffset(14); u.sub.monthly = 0; auditAction(u.id, 'PLAN_CHANGED', 'صدور دوره آزمایشی ۱۴ روزه'); renderUserDetail(); toast('دوره آزمایشی ۱۴ روزه صادر شد.', 'ok'); }
+  else if (d.userReset) { closeModal(); const u = userById(d.userReset); auditAction(u.id, 'PASSWORD_RESET', 'بازنشانی رمز عبور و ارسال پیوند تنظیم مجدد'); toast('پیوند بازنشانی رمز برای کاربر ارسال شد (نمایشی).', 'ok'); renderUserDetail(); }
+  else if (d.userRemind) { closeModal(); const u = userById(d.userRemind); auditAction(u.id, 'REMINDER_SENT', 'ارسال یادآوری پرداخت از طریق پیامک'); toast('یادآوری پرداخت ارسال شد (نمایشی).', 'ok'); renderUserDetail(); }
+  else if (d.userExport) {
+    closeModal();
+    const u = userById(d.userExport);
+    const blob = new Blob([JSON.stringify({ user:u.id, name:u.name, email:u.email, plan:u.plan, status:u.status, balance:u.balance, devices:u.counts.devices }, null, 2)], { type:'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = u.id + '-export.json'; a.click(); URL.revokeObjectURL(a.href);
+    auditAction(u.id, 'EXPORT_GENERATED', 'خروجی اطلاعات کاربر (JSON)');
+    toast('خروجی اطلاعات کاربر تولید شد.', 'ok');
+  }
+  else if (d.userArchive) { closeModal(); const u = userById(d.userArchive); auditAction(u.id, 'USER_DISABLED', 'آرشیو حساب — قطع دسترسی موقت'); toast('حساب آرشیو شد (نمایشی).', 'warn'); }
+  else if (d.markPaid) { markInvoicePaid(d.markPaid); }
+  else if (d.remind) { const u = userById(d.remind); auditAction(u.id, 'REMINDER_SENT', 'ارسال یادآوری پرداخت از طریق پیامک'); toast('یادآوری برای ' + u.name + ' ارسال شد (نمایشی).', 'ok'); if (state.view === 'overview') renderOverview(); }
+  else if (d.invoiceView) { const [invId, userId] = d.invoiceView.split('|'); const u = userById(userId); openInvoiceModal(u.invoices.find(i => i.id === invId), u); }
+  else if (d.deviceOpen) { const [devId, userId] = d.deviceOpen.split('|'); openDeviceModal(devId, userId); }
+  else if (d.deviceSim) { const [devId, userId] = d.deviceSim.split('|'); simulateMovement(devId, userId); }
+  else if (d.deviceToggle) { const [devId, userId] = d.deviceToggle.split('|'); toggleDevice(devId, userId); }
+  else if (d.markAllPaid) { U.forEach(u => u.invoices.filter(i => i.status === 'PENDING').forEach(i => { i.status = 'PAID'; i.paidAt = new Date().toISOString(); })); renderBilling(); renderRailBadge(); toast('همه فاکتورهای در انتظار پرداخت تسویه شدند.', 'ok'); }
+});
+
+function markInvoicePaid(invId){
+  for (const u of U){
+    const inv = u.invoices.find(i => i.id === invId);
+    if (!inv) continue;
+    inv.status = 'PAID'; inv.paidAt = new Date().toISOString();
+    u.balance = Math.min(0, u.balance + inv.amount);
+    u.payments.unshift({ id:'PM-' + fa(paySeq++), userId:u.id, at:new Date().toISOString(), amount:inv.amount, method:inv.method, status:'SUCCESS', ref:'ثبت توسط مدیر پلتفرم', invId:inv.id });
+    auditAction(u.id, 'INVOICE_MARKED_PAID', `ثبت پرداخت فاکتور ${inv.id} به مبلغ ${money(inv.amount)}`);
+    toast('فاکتور ' + inv.id + ' پرداخت‌شده ثبت شد.', 'ok');
+    break;
+  }
+  closeModal();
+  renderRailBadge();
+  if (state.view === 'overview') renderOverview();
+  if (state.view === 'billing') renderBilling();
+  if (state.view === 'user') renderUserDetail();
+  if (state.view === 'users') renderUsers();
+}
+
+/* ---------- دستگاه: جزئیات، شبیه‌سازی، قطع ارتباط ---------- */
+function findDevice(devId, userId){
+  const u = userById(userId);
+  return { u, d: u ? u.devices.find(x => x.id === devId) : null };
+}
+function openDeviceModal(devId, userId){
+  const { u, d } = findDevice(devId, userId);
+  if (!d) return;
+  openModal({
+    title:'مشخصات سخت‌افزار — ' + d.serial,
+    wide:true,
+    body:`
+      <div class="info-grid">
+        <div class="info-cell"><span>سریال</span><b class="ltr">${esc(d.serial)}</b></div>
+        <div class="info-cell"><span>IMEI</span><b class="ltr">${esc(d.imei)}</b></div>
+        <div class="info-cell"><span>مدل</span><b>${esc(d.model)}</b></div>
+        <div class="info-cell"><span>نسخه فرم‌ور</span><b class="ltr">FW ${esc(d.fw)}</b></div>
+        <div class="info-cell"><span>منبع تغذیه</span><b>${esc(d.power)}</b></div>
+        <div class="info-cell"><span>باتری داخلی</span><b>${fa(d.battery)}٪</b></div>
+        <div class="info-cell"><span>کیفیت سیگنال</span><b>${esc(d.signal)}</b></div>
+        <div class="info-cell"><span>آخرین ارتباط</span><b>${fmtDateTime(d.lastComm)}</b></div>
+        <div class="info-cell"><span>وضعیت</span><b>${pill(DEV_STATUS[d.status].label, DEV_STATUS[d.status].cls)}</b></div>
+        <div class="info-cell"><span>اپراتور / شماره</span><b><span class="ltr">${esc(d.sim)}</span> · <span class="ltr">${esc(d.simNo)}</span></b></div>
+        <div class="info-cell"><span>وضعیت سیم‌کارت</span><b>${d.simActive ? 'فعال' : 'در انتظار فعال‌سازی'}</b></div>
+        <div class="info-cell"><span>تاریخ نصب</span><b>${fmtDate(d.install)}</b></div>
+        <div class="info-cell"><span>گارانتی تا</span><b>${fmtDate(d.warranty)}</b></div>
+        <div class="info-cell"><span>نصب توسط</span><b>${esc(d.installedBy)}</b></div>
+        <div class="info-cell"><span>خودرو / پلاک</span><b>${d.vehicle ? esc(d.vehicle) + ' · ' + esc(d.plate) : 'تخصیص نیافته'}</b></div>
+      </div>
+      <div class="section-card" style="margin-top:14px;">
+        <div class="section-card-head"><h3>موقعیت گزارش‌شده (نمایشی)</h3><span class="head-sub">آخرین نقطه دریافتی از دستگاه</span></div>
+        <div class="section-card-body">
+          <div class="info-grid">
+            <div class="info-cell"><span>عرض جغرافیایی</span><b class="ltr">${d.lat ? d.lat.toFixed(6) : '—'}</b></div>
+            <div class="info-cell"><span>طول جغرافیایی</span><b class="ltr">${d.lng ? d.lng.toFixed(6) : '—'}</b></div>
+            <div class="info-cell"><span>سرعت</span><b>${d.speed ? fa(d.speed) + ' کیلومتر/ساعت' : '—'}</b></div>
+            <div class="info-cell"><span>جهت حرکت</span><b>${d.heading ? fa(d.heading) + '°' : '—'}</b></div>
+          </div>
+          <div class="callout warn" style="margin-top:10px;">برای دیدن این نقطه روی نقشه، به «نمای کاربر» بروید و در تب مسیر، خودروی مربوطه را انتخاب کنید.</div>
+        </div>
+      </div>`,
+    foot:`<button class="btn" id="dmSim">🛰 شبیه‌سازی حرکت</button>
+          <button class="btn" id="dmSimToggle">${d.simActive ? 'غیرفعال‌کردن سیم‌کارت' : 'فعال‌سازی سیم‌کارت'}</button>
+          <button class="btn" id="dmAssign">${d.vehicle ? 'آزادکردن خودرو' : 'تخصیص به خودرو'}</button>
+          <button class="btn" id="dmRemove" style="color:var(--danger);">حذف دستگاه</button>
+          <button class="btn" data-close-modal>بستن</button>`
+  });
+  $('#dmSim').addEventListener('click', () => { closeModal(); simulateMovement(devId, userId); });
+  $('#dmSimToggle').addEventListener('click', () => {
+    d.simActive = !d.simActive;
+    auditAction(u.id, d.simActive ? 'SIM_ACTIVATED' : 'SIM_ACTIVATION_QUEUED', `${d.simActive ? 'فعال‌سازی' : 'غیرفعال‌سازی'} سیم‌کارت ${d.simNo}`);
+    closeModal(); renderUserDetail(); toast(d.simActive ? 'سیم‌کارت فعال شد.' : 'سیم‌کارت غیرفعال شد.', 'ok');
+  });
+  $('#dmAssign').addEventListener('click', () => {
+    if (d.vehicle){ auditAction(u.id, 'DEVICE_SWAPPED', `آزادکردن خودرو از دستگاه ${d.serial}`); d.vehicle = null; d.plate = null; }
+    else { d.vehicle = 'خودرو جدید'; d.plate = 'ج ۱۰۰ - ایران ۲۲'; auditAction(u.id, 'DEVICE_SWAPPED', `تخصیص دستگاه ${d.serial} به خودروی جدید`); }
+    u.counts.vehicles = u.devices.filter(x => x.vehicle).length;
+    closeModal(); renderUserDetail(); toast('تخصیص خودرو به‌روزرسانی شد.', 'ok');
+  });
+  $('#dmRemove').addEventListener('click', () => {
+    openModal({
+      title:'حذف دستگاه ' + d.serial,
+      body:`<div class="callout danger">دستگاه از ناوگان کاربر حذف می‌شود و دستگاه فیزیکی برای نصب در جای دیگری آزاد خواهد شد.</div>`,
+      foot:`<button class="btn danger" id="dmRemoveGo">حذف دستگاه</button><button class="btn" data-close-modal>انصراف</button>`
+    });
+    $('#dmRemoveGo').addEventListener('click', () => {
+      u.devices.splice(u.devices.indexOf(d), 1);
+      u.counts.devices = u.devices.length; u.counts.vehicles = u.devices.filter(x => x.vehicle).length;
+      const di = DEV.indexOf(DEV.find(x => x.id === d.id && x.ownerId === u.id)); if (di > -1) DEV.splice(di, 1);
+      auditAction(u.id, 'DEVICE_REMOVED', `حذف دستگاه ${d.serial} از حساب کاربر`);
+      closeModal(); renderUserDetail(); renderRailBadge(); toast('دستگاه حذف شد.', 'warn');
+    });
+  });
+}
+
+const BASE = { lat:35.721, lng:51.410 };
+function simulateMovement(devId, userId){
+  const { u, d } = findDevice(devId, userId);
+  if (!d) return;
+  const idx = u.devices.indexOf(d);
+  d.lat = d.lat || BASE.lat + (idx - u.devices.length / 2) * 0.012;
+  d.lng = d.lng || BASE.lng + (idx % 3) * 0.011;
+  d.lat += (Math.random() - 0.5) * 0.008;
+  d.lng += (Math.random() - 0.5) * 0.010;
+  d.speed = Math.max(0, Math.round((d.speed || 20) + (Math.random() - 0.4) * 25));
+  d.heading = Math.round(Math.random() * 360);
+  d.status = 'ONLINE';
+  d.lastComm = new Date().toISOString();
+  d.battery = Math.max(5, d.battery - 1);
+  d.track = d.track || [];
+  d.track.push({ lat:d.lat, lng:d.lng, speed:d.speed, at:d.lastComm });
+  if (d.track.length > 40) d.track.shift();
+  auditAction(u.id, 'DEVICE_ONLINE', `شبیه‌سازی حرکت دستگاه ${d.serial} — موقعیت ${d.lat.toFixed(4)}, ${d.lng.toFixed(4)}`);
+  toast(`موقعیت ${d.serial} به‌روزرسانی شد (نمایشی).`, 'ok');
+  if (state.view === 'impersonation') renderImpersonation();
+  else if (state.view === 'user') renderUserDetail();
+  else if (state.view === 'devices') renderDevices();
+  else renderOverview();
+}
+function toggleDevice(devId, userId){
+  const { u, d } = findDevice(devId, userId);
+  if (!d) return;
+  d.status = d.status === 'OFFLINE' ? 'ONLINE' : 'OFFLINE';
+  d.lastComm = new Date().toISOString();
+  if (d.status === 'OFFLINE') d.signal = '—';
+  auditAction(u.id, d.status === 'ONLINE' ? 'DEVICE_ONLINE' : 'DEVICE_OFFLINE', `${d.status === 'ONLINE' ? 'اتصال مجدد' : 'قطع ارتباط'} دستگاه ${d.serial}`);
+  toast(`دستگاه ${d.serial} ${d.status === 'ONLINE' ? 'وصل شد' : 'قطع شد'}.`, d.status === 'ONLINE' ? 'ok' : 'warn');
+  if (state.view === 'impersonation') renderImpersonation();
+  else if (state.view === 'user') renderUserDetail();
+  else if (state.view === 'devices') renderDevices();
+  else renderOverview();
+}
+</script>
+
+<script>
+/* ======================================================================
+   مالی، اشتراک و پرداخت‌ها
+   ====================================================================== */
+function allInvoices(){ return U.flatMap(u => u.invoices.map(i => ({ u, i }))); }
+function allPayments(){ return U.flatMap(u => u.payments.map(p => ({ u, p }))); }
+const paidSum = list => list.filter(x => x.p.status === 'SUCCESS' || x.p.status === 'MANUAL').reduce((s,x) => s + Math.abs(x.p.amount), 0);
+
+function renderBilling(){
+  const invs = allInvoices();
+  const pays = allPayments();
+  const openInv = invs.filter(x => x.i.status === 'OVERDUE' || x.i.status === 'PENDING');
+  const openAmount = openInv.reduce((s,x) => s + x.i.amount, 0);
+  const overdueAmount = invs.filter(x => x.i.status === 'OVERDUE').reduce((s,x) => s + x.i.amount, 0);
+  const paidAmount = invs.filter(x => x.i.status === 'PAID').reduce((s,x) => s + x.i.amount, 0);
+  const collectRate = paidAmount + overdueAmount ? Math.round(paidAmount / (paidAmount + overdueAmount) * 100) : 100;
+  const arpu = Math.round(monthlyRevenue() / Math.max(1, U.filter(u => u.status === 'ACTIVE' || u.status === 'TRIAL').length));
+  const failed = pays.filter(x => x.p.status === 'FAILED').length;
+
+  $('#blKpis').innerHTML = kpi([
+    { label:'درآمد ماهانه تکرارشونده', value: moneyShort(monthlyRevenue()), sub:`${fa(U.filter(u => u.status === 'ACTIVE' || u.status === 'TRIAL').length)} اشتراک فعال · ARPU ${moneyShort(arpu)}`, icon:'📈', tone:'good' },
+    { label:'مطالبات باز', value: moneyShort(openAmount), sub:`${fa(openInv.length)} فاکتور باز · ${fa(invs.filter(x => x.i.status === 'OVERDUE').length)} معوق`, icon:'⏳', tone: openAmount ? 'bad' : 'good' },
+    { label:'نرخ وصول', value: fa(collectRate) + '٪', sub:'نسبت فاکتورهای پرداخت‌شده به کل صورتحساب‌ها', icon:'🎯', tone: collectRate >= 90 ? 'good' : 'warn' },
+    { label:'تراکنش‌های ناموفق', value: fa(failed), sub:'نیازمند پیگیری یا تلاش مجدد', icon:'⚠️', tone: failed ? 'warn' : 'good' },
+    { label:'مجموع وصول ۶ ماه', value: moneyShort(paidSum(pays)), sub:`${fa(pays.length)} تراکنش ثبت‌شده`, icon:'💳' }
+  ]);
+
+  /* سن بدهی */
+  const buckets = [ { l:'۱ تا ۳۰ روز', min:0, max:30, cls:'' }, { l:'۳۱ تا ۶۰ روز', min:31, max:60, cls:'warn' }, { l:'بیش از ۶۰ روز', min:61, max:1e9, cls:'bad' } ];
+  const rows = buckets.map(b => {
+    const items = openInv.filter(({ i }) => { const d = Math.max(0, Math.round((Date.now() - new Date(i.dueAt).getTime()) / DAY)); return d >= b.min && d <= b.max; });
+    return { ...b, amount: items.reduce((s,x) => s + x.i.amount, 0), count: items.length };
+  });
+  const maxAging = Math.max(1, ...rows.map(r => r.amount));
+  $('#blAging').innerHTML = rows.map(r => `
+    <div class="bar-row" style="margin-bottom:14px;">
+      <span style="width:92px;">${r.l}</span>
+      <div class="progress ${r.cls}"><i style="width:${Math.round(r.amount / maxAging * 100)}%"></i></div>
+      <b class="num" style="width:110px;text-align:left;">${moneyShort(r.amount)}</b>
+      <span class="faint" style="width:78px;">${fa(r.count)} فاکتور</span>
+    </div>`).join('') + `
+    <div class="callout ${overdueAmount ? 'warn' : 'info'}" style="margin-top:6px;">
+      ${overdueAmount ? '⏰ مجموع مبالغ معوق: <b>' + money(overdueAmount) + '</b> — پیشنهاد: اجرای پیگیری خودکار (Dunning) و ارسال یادآوری.' : '✅ بدهی معوقی ثبت نشده است.'}
+    </div>`;
+
+  /* روش‌های پرداخت */
+  const methods = Object.keys(PAY_METHOD).map(k => ({ k, label:PAY_METHOD[k], amount: paidSum(pays.filter(x => x.p.method === k)), n: pays.filter(x => x.p.method === k && (x.p.status === 'SUCCESS' || x.p.status === 'MANUAL')).length }));
+  const mTotal = Math.max(1, methods.reduce((s,m) => s + m.amount, 0));
+  const mColors = ['#0db583','#4f7dff','#8a5cf6','#f5a623','#9aa1ad'];
+  let acc = 0;
+  const stops = methods.map((m, idx) => { const from = acc / mTotal * 100; acc += m.amount; return `${mColors[idx % mColors.length]} ${from.toFixed(2)}% ${(acc / mTotal * 100).toFixed(2)}%`; });
+  $('#blMethods').innerHTML = `
+    <div class="donut-wrap">
+      <div class="donut" style="background:conic-gradient(${stops.join(',')});">
+        <div class="dcenter"><div><strong>${moneyShort(mTotal)}</strong><span>مجموع وصول</span></div></div>
+      </div>
+      <div class="legend">${methods.map((m, idx) => `
+        <div class="lg"><span class="dot" style="background:${mColors[idx % mColors.length]}"></span>
+          <span>${esc(m.label)} <span class="faint">(${fa(m.n)} تراکنش)</span></span><b>${fa(Math.round(m.amount / mTotal * 100))}٪</b></div>`).join('')}</div>
+    </div>`;
+
+  /* درآمد ماهانه به تفکیک پلن */
+  const planNames = PLANS.map(p => p.name);
+  const pColors = { 'پایه':'#0db583', 'حرفه‌ای':'#4f7dff', 'سازمانی':'#8a5cf6', 'نمایندگی':'#f5a623', 'آزمایشی':'#9aa1ad' };
+  const months = [];
+  for (let m = 5; m >= 0; m--){
+    const d = new Date(); d.setMonth(d.getMonth() - m);
+    const perPlan = planNames.map(name => ({
+      name,
+      amount: pays.filter(x => (x.p.status === 'SUCCESS' || x.p.status === 'MANUAL') && new Date(x.p.at).getMonth() === d.getMonth() && new Date(x.p.at).getFullYear() === d.getFullYear() && x.u.plan === name)
+                  .reduce((s,x) => s + Math.abs(x.p.amount), 0)
+    }));
+    months.push({ label:d.toLocaleDateString('fa-IR', { month:'short' }), perPlan, total: perPlan.reduce((s,p) => s + p.amount, 0) || 2400000 + m * 130000 });
+  }
+  const maxTotal = Math.max(...months.map(m => m.total));
+  $('#blChart').innerHTML = months.map(m => `
+    <div class="col">
+      <div class="bar" style="height:${Math.round(m.total / maxTotal * 100)}%;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;">
+        <span class="bv">${moneyShort(m.total)}</span>
+        ${m.perPlan.filter(p => p.amount).map(p => `<span style="display:block;height:${Math.round(p.amount / m.total * 100)}%;background:${pColors[p.name] || '#9aa1ad'};"></span>`).join('')}
+      </div>
+      <span class="cl">${esc(m.label)}</span>
+      <span class="faint">${moneyShort(m.total)}</span>
+    </div>`).join('');
+  $('#blChartLegend').innerHTML = planNames.map(name => `<span class="tag"><span style="display:inline-block;width:9px;height:9px;border-radius:3px;background:${pColors[name]};margin-inline-end:6px;"></span>${esc(name)}</span>`).join('');
+
+  /* جدول صورتحساب‌ها */
+  const q = $('#invSearch').value.trim().toLowerCase();
+  const st = $('#invStatus').value;
+  const sort = $('#invSort').value;
+  let list = invs.filter(({ u, i }) =>
+    (!q || [i.id, u.name, u.org, i.period].join(' ').toLowerCase().includes(q)) &&
+    (!st || i.status === st));
+  if (sort === 'due') list.sort((a,b) => new Date(a.i.dueAt) - new Date(b.i.dueAt));
+  if (sort === 'amount') list.sort((a,b) => b.i.amount - a.i.amount);
+  if (sort === 'user') list.sort((a,b) => a.u.name.localeCompare(b.u.name, 'fa'));
+
+  $('#invRows').innerHTML = list.length ? list.map(({ u, i }) => `
+    <tr>
+      <td><input type="checkbox" data-inv-check="${i.id}" ${state.selectedInvoices.has(i.id) ? 'checked' : ''} /></td>
+      <td class="ltr">${esc(i.id)}</td>
+      <td><div class="u-cell">${avatar(u)}<div><div class="u-name">${esc(u.name)}</div><div class="u-sub">${esc(u.plan)}</div></div></div></td>
+      <td>${esc(i.period)}</td>
+      <td class="num ${i.status === 'OVERDUE' ? 'debt' : ''}">${money(i.amount)}</td>
+      <td class="faint">${fmtDate(i.dueAt)}${i.status === 'OVERDUE' ? `<div class="debt" style="font-size:10.5px;">${fa(Math.max(0, Math.round((Date.now() - new Date(i.dueAt).getTime()) / DAY)))} روز تأخیر</div>` : ''}</td>
+      <td>${pill(INV_STATUS[i.status].label, INV_STATUS[i.status].cls)}</td>
+      <td><div class="row-actions">
+        <button class="btn sm" data-invoice-view="${i.id}|${u.id}">مشاهده</button>
+        ${i.status !== 'PAID' ? `<button class="btn sm primary" data-mark-paid="${i.id}">ثبت پرداخت</button><button class="btn sm" data-remind="${u.id}">یادآوری</button>` : ''}
+      </div></td>
+    </tr>`).join('') : '<tr><td colspan="8"><div class="empty">صورتحسابی با این فیلترها پیدا نشد.</div></td></tr>';
+
+  const shown = list.reduce((s,x) => s + x.i.amount, 0);
+  const shownOpen = list.filter(x => x.i.status !== 'PAID').reduce((s,x) => s + x.i.amount, 0);
+  $('#invFoot').innerHTML = `<tr><td colspan="4">جمع موارد نمایش‌داده‌شده</td><td>${money(shown)}</td><td colspan="3">باز: ${money(shownOpen)}</td></tr>`;
+  $('#invCount').textContent = `${fa(list.length)} فاکتور از ${fa(invs.length)} فاکتور · ${fa(state.selectedInvoices.size)} مورد انتخاب‌شده`;
+  $$('[data-inv-check]').forEach(cb => cb.addEventListener('change', () => {
+    if (cb.checked) state.selectedInvoices.add(cb.dataset.invCheck); else state.selectedInvoices.delete(cb.dataset.invCheck);
+    $('#invCount').textContent = `${fa(filteredInvoiceCount())} فاکتور · ${fa(state.selectedInvoices.size)} مورد انتخاب‌شده`;
+  }));
+}
+function filteredInvoiceCount(){
+  const st = $('#invStatus').value;
+  const q = $('#invSearch').value.trim().toLowerCase();
+  return allInvoices().filter(({ u, i }) => (!q || [i.id, u.name, u.org, i.period].join(' ').toLowerCase().includes(q)) && (!st || i.status === st)).length;
+}
+['invSearch','invStatus','invSort'].forEach(id => { const el = document.getElementById(id); el.addEventListener('input', renderBilling); el.addEventListener('change', renderBilling); });
+$('#invSelectAll').addEventListener('change', e => {
+  const ids = allInvoices().filter(({ i }) => i.status !== 'PAID').map(({ i }) => i.id);
+  if (e.target.checked) ids.forEach(id => state.selectedInvoices.add(id)); else state.selectedInvoices.clear();
+  renderBilling();
+});
+$('#invBulkPaid').addEventListener('click', () => {
+  const ids = [...state.selectedInvoices];
+  if (!ids.length) { toast('ابتدا موارد موردنظر را انتخاب کنید.', 'bad'); return; }
+  ids.forEach(id => markInvoicePaid(id));
+  state.selectedInvoices.clear();
+  toast(`${fa(ids.length)} فاکتور تسویه شد.`, 'ok');
+  renderBilling();
+});
+$('#blRemindBtn').addEventListener('click', () => {
+  const debtors = U.filter(isDebtor);
+  if (!debtors.length) { toast('کاربر بدهکاری وجود ندارد.', 'ok'); return; }
+  openModal({
+    title:'ارسال یادآوری به بدهکاران',
+    body:`<div class="callout info">پیامک یادآوری برای <b>${fa(debtors.length)}</b> کاربر بدهکار ارسال می‌شود (در محیط نمایشی ارسال واقعی انجام نمی‌شود).</div>
+      <div class="timeline" style="padding:0;margin-top:10px;">${debtors.map(u => `
+        <div class="tl"><div class="tl-dot warn">⏰</div>
+        <div class="tl-body"><div class="t">${esc(u.name)}</div><div class="s">مانده: <b>${money(Math.abs(u.balance))}</b> · آخرین فاکتور باز: ${esc((u.invoices.find(i => i.status !== 'PAID') || { id:'—' }).id)}</div></div></div>`).join('')}</div>`,
+    foot:`<button class="btn primary" id="blRemindGo">ارسال یادآوری‌ها</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#blRemindGo').addEventListener('click', () => {
+    debtors.forEach(u => auditAction(u.id, 'REMINDER_SENT', 'ارسال یادآوری پرداخت (اجرای گروهی)'));
+    closeModal(); renderBilling(); toast('یادآوری‌ها ارسال شد (نمایشی).', 'ok');
+  });
+});
+$('#blExportBtn').addEventListener('click', () => exportCsv('invoices', ['شماره','کاربر','دوره','مبلغ','سررسید','وضعیت'], allInvoices().map(({ u, i }) => [i.id, u.name, i.period, i.amount, fmtDate(i.dueAt), INV_STATUS[i.status].label])));
+
+/* ======================================================================
+   دستگاه‌ها و سیم‌کارت‌ها
+   ====================================================================== */
+function renderDevices(){
+  const online = DEV.filter(d => d.status === 'ONLINE').length;
+  const offline = DEV.filter(d => d.status === 'OFFLINE').length;
+  const quarantined = DEV.filter(d => d.status === 'QUARANTINED').length;
+  const simsActive = DEV.filter(d => d.simActive).length;
+  const unassigned = DEV.filter(d => !d.vehicle).length;
+  $('#dvKpis').innerHTML = kpi([
+    { label:'کل دستگاه‌ها', value: fa(DEV.length), sub:`${fa(U.length)} کاربر · ${fa(new Set(DEV.map(d => d.model)).size)} مدل`, icon:'📡' },
+    { label:'آنلاین', value: fa(online), sub:'ارتباط فعال در ۱۰ دقیقه گذشته', icon:'🟢', tone:'good' },
+    { label:'آفلاین', value: fa(offline), sub:'نیازمند بررسی ارتباط یا برق', icon:'⚪', tone: offline ? 'warn' : 'good' },
+    { label:'قرنطینه / نقص فنی', value: fa(quarantined), sub:'نیازمند بازدید فنی یا تعویض', icon:'🛠', tone: quarantined ? 'bad' : 'good' },
+    { label:'سیم‌کارت فعال', value: fa(simsActive), sub:`${fa(DEV.length - simsActive)} در انتظار فعال‌سازی · ${fa(unassigned)} دستگاه بدون خودرو`, icon:'📶', tone:'info' }
+  ]);
+
+  const operators = ['MTN-Irancell','MCI','Rightel'];
+  $('#dvSimRows').innerHTML = operators.map(op => {
+    const lines = DEV.filter(d => d.sim === op);
+    const active = lines.filter(d => d.simActive).length;
+    const avg = lines.length * 0.6 + 0.4;
+    return `
+      <tr>
+        <td><div class="u-cell"><div class="u-avatar g5" style="border-radius:9px;">📶</div><div><div class="u-name">${esc(op)}</div><div class="u-sub">اپراتور سیم‌کارت ماشین‌به‌ماشین</div></div></div></td>
+        <td class="num">${fa(lines.length)}</td>
+        <td class="th-hide"><span class="credit">${fa(active)}</span></td>
+        <td>${lines.length - active}</td>
+        <td class="th-hide">${fa(avg.toFixed(1))} گیگابایت</td>
+        <td>${pill(lines.length - active ? 'در انتظار فعال‌سازی' : 'همه فعال', lines.length - active ? 'warn' : 'ok')}</td>
+      </tr>`;
+  }).join('') + `
+    <tr>
+      <td colspan="6" class="faint">نرخ مصرف کل ماه: ${fa((DEV.length * 0.6).toFixed(1))} گیگابایت · میانگین هر دستگاه ${fa('۰.۶')} گیگابایت</td>
+    </tr>`;
+
+  const q = $('#dvSearch').value.trim().toLowerCase();
+  const st = $('#dvStatus').value;
+  const model = $('#dvModel').value;
+  const assignOnly = $('#dvAssignOnly').checked;
+  const list = DEV.filter(d =>
+    (!q || [d.serial, d.imei, d.model, d.vehicle, d.plate, d.ownerName, d.simNo].filter(Boolean).join(' ').toLowerCase().includes(q)) &&
+    (!st || d.status === st) &&
+    (!model || d.model === model) &&
+    (!assignOnly || d.vehicle));
+  $('#dvGrid').innerHTML = list.length ? list.map(d => deviceCard(d, userById(d.ownerId))).join('') : '<div class="empty">دستگاهی با این فیلترها پیدا نشد.</div>';
+}
+['dvSearch','dvStatus','dvModel','dvAssignOnly'].forEach(id => { const el = document.getElementById(id); el.addEventListener('input', renderDevices); el.addEventListener('change', renderDevices); });
+$('#dvAddBtn').addEventListener('click', () => {
+  if (!U.length) return;
+  openModal({
+    title:'انتخاب کاربر برای افزودن دستگاه',
+    body:`<div class="field"><label>کاربر</label><select id="dvOwner">${U.map(u => `<option value="${u.id}">${esc(u.name)} — ${esc(u.plan)} (${fa(u.counts.devices)} دستگاه)</option>`).join('')}</select></div>`,
+    foot:`<button class="btn primary" id="dvOwnerGo">ادامه</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#dvOwnerGo').addEventListener('click', () => { const u = userById($('#dvOwner').value); closeModal(); openAddDeviceModal(u); });
+});
+$('#dvExportBtn').addEventListener('click', () => exportCsv('devices', ['سریال','IMEI','مدل','کاربر','خودرو','سیم‌کارت','وضعیت'], DEV.map(d => [d.serial, d.imei, d.model, d.ownerName, d.vehicle || '—', d.sim, DEV_STATUS[d.status].label])));
+
+/* ======================================================================
+   گزارش رویدادها
+   ====================================================================== */
+function renderAudit(){
+  if (!$('#auActor').options.length || $('#auActor').options.length <= 1){
+    const actors = [...new Set(AUD.map(a => a.actor))];
+    $('#auActor').innerHTML = '<option value="">همه مدیران و سیستم</option>' + actors.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('');
+    const actions = [...new Set(AUD.map(a => a.action))];
+    $('#auAction').innerHTML = '<option value="">همه انواع رویداد</option>' + actions.map(a => `<option value="${esc(a)}">${esc(ACTION_LABEL[a] || a)}</option>`).join('');
+  }
+  const q = $('#auSearch').value.trim().toLowerCase();
+  const actor = $('#auActor').value;
+  const action = $('#auAction').value;
+  const list = AUD.filter(a =>
+    (!q || [a.actor, a.action, ACTION_LABEL[a.action], a.detail].join(' ').toLowerCase().includes(q)) &&
+    (!actor || a.actor === actor) &&
+    (!action || a.action === action));
+  $('#auRows').innerHTML = list.length ? list.slice(0, 60).map(a => `
+    <div class="tl">
+      <div class="tl-dot ${actionTone(a.action)}">${actionIcon(a.action)}</div>
+      <div class="tl-body">
+        <div class="t">${esc(ACTION_LABEL[a.action] || a.action)}</div>
+        <div class="s">${esc(a.detail || '')} · مدیر/عامل: ${esc(a.actor)}${a.target ? ' · <span class="ltr">' + esc(a.target) + '</span>' : ''}</div>
+      </div>
+      <span class="tl-time">${fmtDateTime(a.at)}</span>
+    </div>`).join('') : '<div class="empty">رویدادی با این فیلترها ثبت نشده است.</div>';
+  $('#auCount').textContent = `${fa(list.length)} رویداد از مجموع ${fa(AUD.length)} — نمایش ۶۰ مورد آخر (خروجی CSV کامل است).`;
+}
+['auSearch','auActor','auAction'].forEach(id => { const el = document.getElementById(id); el.addEventListener('input', renderAudit); el.addEventListener('change', renderAudit); });
+$('#auClear').addEventListener('click', () => { $('#auSearch').value = ''; $('#auActor').value = ''; $('#auAction').value = ''; renderAudit(); });
+$('#auExportBtn').addEventListener('click', () => exportCsv('audit', ['زمان','عامل','رویداد','توضیح','کاربر هدف'], AUD.map(a => [fmtDateTime(a.at), a.actor, ACTION_LABEL[a.action] || a.action, a.detail, a.target])));
+
+function exportCsv(name, header, rows){
+  const csv = '\uFEFF' + [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = `sentinel-${name}-${fmtDate(new Date())}.csv`; a.click(); URL.revokeObjectURL(a.href);
+  pushAudit('مهراد پارسا', 'EXPORT_GENERATED', 'خروجی CSV: ' + name);
+  toast('خروجی CSV آماده شد.', 'ok');
+  if (state.view === 'audit') renderAudit();
+}
+</script>
+
+<script>
+/* ======================================================================
+   تنظیمات پلتفرم
+   ====================================================================== */
+function renderSettings(){
+  $('#planGrid').innerHTML = PLANS.map(p => `
+    <article class="dev-card">
+      <div class="dh">
+        <div class="dev-ic">🧩</div>
+        <div><div class="dt">پلن ${esc(p.name)}</div><div class="ds">${p.monthly ? money(p.monthly) + ' در ماه' : 'رایگان / آزمایشی'}</div></div>
+        ${pill(p.active ? 'فعال' : 'غیرفعال', p.active ? 'ok' : 'gray')}
+      </div>
+      <div class="dev-meta">
+        <div><span>ظرفیت دستگاه</span><b>${fa(p.devices)}</b></div>
+        <div><span>ظرفیت کاربر</span><b>${fa(p.users)}</b></div>
+        <div><span>پشتیبانی</span><b>${esc(p.support)}</b></div>
+        <div><span>سطح سرویس (SLA)</span><b>${esc(p.sla)}</b></div>
+        <div><span>کاربران این پلن</span><b>${fa(U.filter(u => u.plan === p.name).length)}</b></div>
+        <div><span>سهم از درآمد</span><b>${fa(Math.round(U.filter(u => u.plan === p.name).reduce((s,u) => s + u.sub.monthly, 0) / Math.max(1, monthlyRevenue()) * 100))}٪</b></div>
+      </div>
+      <div class="sim-row">
+        <button class="btn sm" data-plan-edit="${p.id}">ویرایش تعرفه</button>
+        <button class="btn sm" data-plan-toggle="${p.id}">${p.active ? 'غیرفعال‌کردن' : 'فعال‌کردن'}</button>
+        <button class="btn sm" data-plan-users="${p.name}">کاربران پلن</button>
+      </div>
+    </article>`).join('');
+
+  $('#adminRows').innerHTML = ADMINS.map(a => `
+    <tr>
+      <td><div class="u-cell"><div class="u-avatar g4">${esc(initials(a.name))}</div>
+        <div><div class="u-name">${esc(a.name)}</div><div class="u-sub ltr">${esc(a.email)}</div></div></div></td>
+      <td><span class="tag">${esc(a.role)}</span></td>
+      <td class="faint">${esc(a.scope)}</td>
+      <td class="th-hide faint">${ago(a.last)}</td>
+      <td><div class="row-actions">
+        ${a.locked ? '<span class="faint">دسترسی کامل</span>' : `
+          <button class="btn sm" data-admin-reset="${esc(a.email)}">بازنشانی رمز</button>
+          <button class="btn sm danger" data-admin-remove="${esc(a.email)}">حذف</button>`}
+      </div></td>
+    </tr>`).join('');
+
+  $('#notifyRows').innerHTML = NOTIFY.map((n, idx) => `
+    <tr>
+      <td><div class="u-name">${esc(n.ch)}</div><div class="u-sub">${esc(n.note)}</div></td>
+      <td>${pill(n.on ? 'فعال' : 'غیرفعال', n.on ? 'ok' : 'gray')}</td>
+      <td class="th-hide faint">${esc(n.quota)}</td>
+      <td><button class="btn sm" data-notify-toggle="${idx}">${n.on ? 'غیرفعال‌کردن' : 'فعال‌کردن'}</button></td>
+    </tr>`).join('');
+
+  $('#sysChecks').innerHTML = SYS_CHECKS.map(c => `
+    <div class="list-row" style="padding-inline:0;">
+      <div class="list-ic ${c.cls === 'ok' ? 'ok' : c.cls === 'warn' ? 'warn' : ''}">${c.cls === 'ok' ? '✅' : c.cls === 'warn' ? '⚠️' : '⛔'}</div>
+      <div class="list-body"><div class="t">${esc(c.n)}</div><div class="s">${esc(c.d)}</div></div>
+      <div class="list-side">${pill(c.s, c.cls)}</div>
+    </div>`).join('');
+  $('#sysInfo').innerHTML = `<div class="info-grid two" style="grid-template-columns:1fr;">${SYS_INFO.map(i => `
+    <div class="info-cell"><span>${esc(i.k)}</span><b>${i.v}</b></div>`).join('')}</div>`;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-plan-edit],[data-plan-toggle],[data-plan-users],[data-admin-reset],[data-admin-remove],[data-notify-toggle]');
+  if (!t) return;
+  const d = t.dataset;
+  if (d.planEdit){
+    const p = PLANS.find(x => x.id === d.planEdit);
+    openModal({
+      title:'ویرایش پلن ' + p.name,
+      body:`<div class="form-row">
+        <div class="field"><label>هزینه ماهانه (تومان)</label><input id="plPrice" type="number" value="${p.monthly}" /></div>
+        <div class="field"><label>ظرفیت دستگاه</label><input id="plDev" type="number" value="${p.devices}" /></div>
+        <div class="field"><label>ظرفیت کاربر</label><input id="plUsers" type="number" value="${p.users}" /></div>
+        <div class="field"><label>سطح سرویس</label><input id="plSla" value="${esc(p.sla)}" /></div>
+      </div>
+      <div class="callout warn">تغییر تعرفه روی صورتحساب‌های صادرشده اثر ندارد و فقط برای دوره‌های بعدی اعمال می‌شود.</div>`,
+      foot:`<button class="btn primary" id="plSave">ذخیره تعرفه</button><button class="btn" data-close-modal>انصراف</button>`
+    });
+    $('#plSave').addEventListener('click', () => {
+      p.monthly = Number($('#plPrice').value) || p.monthly;
+      p.devices = Number($('#plDev').value) || p.devices;
+      p.users = Number($('#plUsers').value) || p.users;
+      p.sla = $('#plSla').value.trim() || p.sla;
+      U.filter(u => u.plan === p.name).forEach(u => { u.sub.monthly = p.monthly; });
+      pushAudit('مهراد پارسا', 'PRICE_UPDATED', `به‌روزرسانی تعرفه پلن ${p.name} — ${money(p.monthly)}`);
+      closeModal(); renderSettings(); toast('تعرفه پلن به‌روزرسانی شد.', 'ok');
+    });
+  }
+  if (d.planToggle){ const p = PLANS.find(x => x.id === d.planToggle); p.active = !p.active; pushAudit('مهراد پارسا', 'PRICE_UPDATED', `تغییر وضعیت پلن ${p.name} به ${p.active ? 'فعال' : 'غیرفعال'}`); renderSettings(); toast('وضعیت پلن تغییر کرد.', 'ok'); }
+  if (d.planUsers){
+    const list = U.filter(u => u.plan === d.planUsers);
+    openModal({ title:'کاربران پلن ' + d.planUsers, body:`<div class="timeline" style="padding:0;">${list.map(u => `
+      <div class="tl"><div class="tl-dot info">👤</div>
+      <div class="tl-body"><div class="t">${esc(u.name)}</div><div class="s">${esc(u.email)} · ${money(u.sub.monthly)} در ماه · ${fa(u.counts.devices)} دستگاه</div></div>
+      <button class="btn sm" data-open-user="${u.id}">مشاهده</button></div>`).join('') || '<div class="empty">کاربری در این پلن نیست.</div>'}</div>`, foot:'<button class="btn" data-close-modal>بستن</button>' });
+  }
+  if (d.adminReset){ pushAudit('مهراد پارسا', 'PASSWORD_RESET', 'بازنشانی رمز مدیر پلتفرم: ' + d.adminReset); toast('پیوند بازنشانی برای مدیر ارسال شد (نمایشی).', 'ok'); }
+  if (d.adminRemove){
+    openModal({
+      title:'حذف مدیر پلتفرم',
+      body:`<div class="callout danger">دسترسی مدیر <b>${esc(d.adminRemove)}</b> به‌طور کامل حذف می‌شود.</div>`,
+      foot:`<button class="btn danger" id="admRemoveGo">حذف مدیر</button><button class="btn" data-close-modal>انصراف</button>`
+    });
+    $('#admRemoveGo').addEventListener('click', () => {
+      const idx = ADMINS.findIndex(a => a.email === d.adminRemove);
+      if (idx > -1) ADMINS.splice(idx, 1);
+      pushAudit('مهراد پارسا', 'USER_DISABLED', 'حذف مدیر پلتفرم: ' + d.adminRemove);
+      closeModal(); renderSettings(); toast('مدیر حذف شد.', 'warn');
+    });
+  }
+  if (d.notifyToggle){ const n = NOTIFY[Number(d.notifyToggle)]; n.on = !n.on; pushAudit('نازنین رستمی', 'PRICE_UPDATED', `${n.on ? 'فعال‌سازی' : 'غیرفعال‌سازی'} کانال: ${n.ch}`); renderSettings(); toast('تنظیم کانال اعلان ذخیره شد.', 'ok'); }
+});
+$('#planNewBtn').addEventListener('click', () => {
+  openModal({
+    title:'ایجاد پلن جدید',
+    body:`<div class="form-row">
+      <div class="field"><label>نام پلن</label><input id="npName" placeholder="مثال: سازمانی پلاس" /></div>
+      <div class="field"><label>هزینه ماهانه (تومان)</label><input id="npPrice" type="number" value="5000000" /></div>
+      <div class="field"><label>ظرفیت دستگاه</label><input id="npDev" type="number" value="50" /></div>
+      <div class="field"><label>ظرفیت کاربر</label><input id="npUsers" type="number" value="15" /></div>
+    </div>
+    <div class="callout info">پس از ایجاد، پلن در فهرست تعرفه‌ها و در فرم تغییر پلن کاربران قابل انتخاب است.</div>`,
+    foot:`<button class="btn primary" id="npSave">ایجاد پلن</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#npSave').addEventListener('click', () => {
+    const name = $('#npName').value.trim();
+    if (!name) { toast('نام پلن را وارد کنید.', 'bad'); return; }
+    PLANS.push({ id:'plan-' + PLANS.length, name, monthly:Number($('#npPrice').value) || 0, devices:Number($('#npDev').value) || 1, users:Number($('#npUsers').value) || 1, support:'ایمیل', sla:'۹۹.۵٪', active:true });
+    pushAudit('مهراد پارسا', 'PLAN_CREATED', 'ایجاد پلن جدید: ' + name);
+    closeModal(); renderSettings(); toast('پلن جدید ایجاد شد.', 'ok');
+  });
+});
+$('#adminNewBtn').addEventListener('click', () => {
+  openModal({
+    title:'افزودن مدیر پلتفرم',
+    body:`<div class="form-row">
+      <div class="field"><label>نام</label><input id="naName" /></div>
+      <div class="field"><label>ایمیل</label><input id="naEmail" class="ltr" placeholder="name@sentinel.example" /></div>
+      <div class="field"><label>نقش</label><select id="naRole"><option>مدیر مالی</option><option>پشتیبانی فنی</option><option>مدیر عملیات</option></select></div>
+      <div class="field"><label>دامنه دسترسی</label><select id="naScope"><option>مالی و صورتحساب</option><option>کاربران و دستگاه‌ها (بدون مالی)</option><option>دسترسی کامل</option></select></div>
+    </div>
+    <div class="callout warn">دسترسی کامل فقط برای مالک پلتفرم قابل اعطا است. عملیات مدیر جدید در گزارش رویدادها ثبت می‌شود.</div>`,
+    foot:`<button class="btn primary" id="naSave">افزودن مدیر</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#naSave').addEventListener('click', () => {
+    const name = $('#naName').value.trim(), email = $('#naEmail').value.trim();
+    if (!name || !email) { toast('نام و ایمیل را وارد کنید.', 'bad'); return; }
+    ADMINS.push({ name, email, role:$('#naRole').value, scope:$('#naScope').value, last:new Date().toISOString(), locked:false });
+    pushAudit('مهراد پارسا', 'ADMIN_ADDED', `افزودن مدیر پلتفرم: ${name} (${email})`);
+    closeModal(); renderSettings(); toast('مدیر جدید افزوده شد.', 'ok');
+  });
+});
+$('#dangerPurge').addEventListener('click', () => {
+  openModal({
+    title:'بازنشانی داده‌های نمایشی',
+    body:`<div class="callout danger"><b>هشدار:</b> همه تغییرات این نشست (کاربران، دستگاه‌ها، فاکتورها و رویدادها) پاک و داده نمایشی اولیه بازسازی می‌شود.</div>`,
+    foot:`<button class="btn danger" id="purgeGo">بازنشانی کامل</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#purgeGo').addEventListener('click', () => { closeModal(); toast('در حال بازنشانی داده نمایشی…', 'warn'); setTimeout(() => location.reload(), 700); });
+});
+$('#dangerImmo').addEventListener('click', () => {
+  openModal({
+    title:'فرمان از راه دور — غیرفعال',
+    body:`<div class="callout danger"><b>این قابلیت در نسخه فعلی وجود ندارد و غیرفعال است.</b></div>
+      <p class="hint" style="font-size:12px;margin-top:10px;">خاموش‌کردن موتور، قطع سوخت و قفل از راه دور به‌دلیل خطر جانی، الزامات قانونی و نیاز به تأیید ایمنی، در این نسخه پیاده‌سازی نشده است. فعال‌سازی آن نیازمند سند تصمیم جداگانه (ایمنی و حقوقی) و تأیید مالک پلتفرم است.</p>
+      <div class="callout info" style="margin-top:10px;">در صورت نیاز، مسیر پیشنهادی: طراحی سند ADR → بازبینی حقوقی → کنترل دومرحله‌ای مدیران → محدودیت زمانی و ثبت کامل رویداد.</div>`,
+    foot:'<button class="btn" data-close-modal>متوجه شدم</button>'
+  });
+  pushAudit('مهراد پارسا', 'SYSTEM_ALERT', 'تلاش برای دسترسی به قابلیت غیرفعال فرمان از راه دور');
+});
+
+/* ======================================================================
+   نمای کاربر (ورود به پنل کاربر)
+   ====================================================================== */
+function enterImpersonation(id){
+  const u = userById(id);
+  if (!u) return;
+  state.impUser = id;
+  state.impVehicle = null;
+  auditAction(u.id, 'IMPERSONATED', 'ورود مدیر پلتفرم به نمای کاربر (مشاهده‌ای)');
+  switchView('impersonation');
+  toast('در حال مشاهده پنل ' + u.name + ' (مشاهده‌ای).', 'warn');
+}
+function exitImpersonation(){
+  const u = userById(state.impUser);
+  if (u) auditAction(u.id, 'IMPERSONATED', 'خروج از نمای کاربر');
+  state.impUser = null;
+  if (u) { state.user = u.id; switchView('user'); } else switchView('users');
+}
+$('#impExitBtn').addEventListener('click', exitImpersonation);
+
+function renderImpersonation(){
+  const u = userById(state.impUser);
+  if (!u) { switchView('users'); return; }
+  $('#impWho').textContent = `${u.name} · ${u.email}`;
+
+  $('#impProfile').innerHTML = `
+    <div class="detail-head" style="margin-bottom:0;">
+      ${avatar(u, true)}
+      <div class="detail-id">
+        <h2>${esc(u.name)}</h2>
+        <p class="ltr">${esc(u.email)} · ${esc(u.phone)} · ${esc(u.city)}</p>
+        <div class="row-actions" style="margin-top:8px;">
+          ${pill(USER_STATUS[u.status].label, USER_STATUS[u.status].cls)}
+          <span class="tag">پلن ${esc(u.plan)}</span>
+          ${u.balance < 0 ? `<span class="pill bad"><i></i>${money(Math.abs(u.balance))} بدهی</span>` : '<span class="pill ok"><i></i>حساب تسویه</span>'}
+          <span class="tag">آخرین ورود: ${ago(u.auth.lastLogin)}</span>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn" data-imp-remind="${u.id}">📨 یادآوری پرداخت</button>
+        <button class="btn" data-user-plan="${u.id}">🧩 تغییر پلن</button>
+        <button class="btn" data-open-user="${u.id}">🗂 پرونده مدیریتی</button>
+      </div>
+    </div>
+    <p class="imp-sub">این همان نمای پنل مشتری است؛ فقط خواندنی. برای بازگشت، از دکمه «خروج از نمای کاربر» در بالای صفحه استفاده کنید.</p>`;
+
+  /* ناوگان */
+  u.devices.forEach((d, idx) => {
+    if (!d.lat){ d.lat = BASE.lat + (idx - u.devices.length / 2) * 0.012; d.lng = BASE.lng + (idx % 3) * 0.011; }
+    if (d.speed === undefined) d.speed = 12 + (idx * 7) % 45;
+  });
+  $('#impFleetRows').innerHTML = u.devices.length ? u.devices.map(d => `
+    <tr>
+      <td><div class="u-cell"><div class="u-avatar g2" style="border-radius:9px;">${d.vehicle && d.vehicle.includes('ون') ? '🚐' : '🚗'}</div>
+        <div><div class="u-name">${esc(d.vehicle || 'بدون خودرو')}</div><div class="u-sub ltr">${esc(d.serial)}</div></div></div></td>
+      <td class="th-hide">${d.plate ? esc(d.plate) : '—'}</td>
+      <td>${pill(DEV_STATUS[d.status].label, DEV_STATUS[d.status].cls)}</td>
+      <td class="th-hide faint">${ago(d.lastComm)}</td>
+      <td class="th-hide">${d.status === 'ONLINE' ? fa(d.speed) + ' کیلومتر/ساعت' : '—'}</td>
+      <td><div class="row-actions">
+        <button class="btn sm" data-device-sim="${d.id}|${u.id}">🛰 شبیه‌سازی حرکت</button>
+        <button class="btn sm" data-device-open="${d.id}|${u.id}">جزئیات</button>
+      </div></td>
+    </tr>`).join('') : '<tr><td colspan="6"><div class="empty">خودرویی در حساب کاربر ثبت نشده است.</div></td></tr>';
+
+  /* آمار کاربر */
+  const online = u.devices.filter(d => d.status === 'ONLINE').length;
+  const openAlerts = u.devices.filter(d => d.status === 'QUARANTINED').length + (u.balance < 0 ? 1 : 0) + (u.status === 'SUSPENDED' ? 1 : 0);
+  $('#impStats').innerHTML = kpi([
+    { label:'خودروها', value: fa(u.devices.length), sub:`${fa(u.devices.filter(d => d.vehicle).length)} خودرو تخصیص‌یافته`, icon:'🚗' },
+    { label:'آنلاین', value: fa(online), sub:`${fa(u.devices.length - online)} آفلاین یا قرنطینه`, icon:'🟢', tone:'good' },
+    { label:'هشدارهای باز', value: fa(openAlerts), sub:'رخدادهای نیازمند بررسی کاربر', icon:'🔔', tone: openAlerts ? 'warn' : 'good' },
+    { label:'صورتحساب ماه', value: u.sub.monthly ? moneyShort(u.sub.monthly) : 'رایگان', sub:`سررسید ${fmtDate(u.nextInvoice)}`, icon:'🧾', tone: u.balance < 0 ? 'bad' : 'info' }
+  ]);
+
+  /* هشدارها */
+  const alerts = [];
+  u.devices.filter(d => d.status === 'QUARANTINED').forEach(d => alerts.push({ ic:'🛠', cls:'bad', t:`دستگاه ${d.serial} در قرنطینه است`, s:`${d.vehicle || 'بدون خودرو'} · نیازمند بازدید فنی · ${ago(d.lastComm)}` }));
+  u.devices.filter(d => d.status === 'OFFLINE').forEach(d => alerts.push({ ic:'📴', cls:'warn', t:`قطع ارتباط دستگاه ${d.serial}`, s:`${d.vehicle || 'بدون خودرو'} · آخرین گزارش ${ago(d.lastComm)}` }));
+  u.devices.filter(d => d.battery < 20).forEach(d => alerts.push({ ic:'🔋', cls:'warn', t:`باتری ضعیف دستگاه ${d.serial}`, s:`${fa(d.battery)}٪ شارژ — بررسی منبع تغذیه` }));
+  if (u.balance < 0) alerts.push({ ic:'💳', cls:'bad', t:'بدهی معوق روی حساب', s:`${money(Math.abs(u.balance))} — ${(u.invoices.find(i => i.status === 'OVERDUE') || { id:'—' }).id}` });
+  if (u.status === 'SUSPENDED') alerts.push({ ic:'⏸', cls:'warn', t:'حساب کاربر تعلیق است', s: u.statusReason || 'تعلیق توسط مدیر پلتفرم' });
+  $('#impAlerts').innerHTML = alerts.length ? alerts.map(a => `
+    <div class="list-row">
+      <div class="list-ic ${a.cls}">${a.ic}</div>
+      <div class="list-body"><div class="t">${esc(a.t)}</div><div class="s">${esc(a.s)}</div></div>
+    </div>`).join('') : '<div class="empty">هشدار بازی برای این کاربر وجود ندارد ✅</div>';
+
+  /* نقشه زنده */
+  const mapEl = document.getElementById('impMap');
+  if (!mapEl._leafletMap){
+    mapEl._leafletMap = L.map('impMap', { zoomControl:false }).setView([BASE.lat, BASE.lng], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom:19, subdomains:'abcd', attribution:'&copy; OpenStreetMap &copy; CARTO' }).addTo(mapEl._leafletMap);
+    mapEl._leafletMap._markers = L.layerGroup().addTo(mapEl._leafletMap);
+  }
+  const map = mapEl._leafletMap;
+  map._markers.clearLayers();
+  const points = [];
+  u.devices.forEach(d => {
+    if (!d.vehicle) return;
+    const offline = d.status !== 'ONLINE';
+    const icon = L.divIcon({
+      className:'',
+      html:`<div class="veh-marker ${offline ? (d.status === 'QUARANTINED' ? 'stale' : 'offline') : ''}"><div class="dot">▲</div><div class="label">${esc(d.vehicle)}</div></div>`,
+      iconSize:[0,0], iconAnchor:[12,12]
+    });
+    const m = L.marker([d.lat, d.lng], { icon });
+    m.bindPopup(`<div class="vp"><strong>${esc(d.vehicle)}</strong><div class="vp-sub">${esc(d.plate || '')} · ${esc(d.serial)}</div>
+      <div>سرعت: <b>${offline ? '—' : fa(d.speed) + ' کیلومتر/ساعت'}</b></div>
+      <div>آخرین گزارش: ${ago(d.lastComm)}</div>
+      <div>وضعیت: ${DEV_STATUS[d.status].label}</div>
+      <div>باتری: ${fa(d.battery)}٪</div></div>`);
+    map._markers.addLayer(m);
+    points.push([d.lat, d.lng]);
+  });
+  setTimeout(() => {
+    map.invalidateSize();
+    if (points.length) map.fitBounds(L.latLngBounds(points), { padding:[40,40], maxZoom:13 });
+  }, 120);
+
+  /* لیست مسیرها */
+  const tracked = u.devices.filter(d => d.vehicle);
+  if (!tracked.some(d => d.id === state.impVehicle)) state.impVehicle = tracked.length ? tracked[0].id : null;
+  $('#impTrackList').innerHTML = tracked.length ? tracked.map(d => `
+    <div class="track-row ${d.id === state.impVehicle ? 'selected' : ''}" data-imp-vehicle="${d.id}">
+      <div class="ti">${d.vehicle.includes('ون') ? '🚐' : '🚗'}</div>
+      <div>
+        <div class="tn">${esc(d.vehicle)}</div>
+        <div class="ts">${esc(d.plate || '')} · ${d.status === 'ONLINE' ? fa(d.speed) + ' کیلومتر/ساعت' : 'آفلاین'}</div>
+      </div>
+      ${pill(DEV_STATUS[d.status].label, DEV_STATUS[d.status].cls)}
+    </div>`).join('') : '<div class="empty">خودرویی برای نمایش مسیر ثبت نشده است.</div>';
+
+  const trackEl = document.getElementById('impTrackMap');
+  if (!trackEl._leafletMap){
+    trackEl._leafletMap = L.map('impTrackMap', { zoomControl:false }).setView([BASE.lat, BASE.lng], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { maxZoom:19, subdomains:'abcd', attribution:'&copy; OpenStreetMap &copy; CARTO' }).addTo(trackEl._leafletMap);
+  }
+  const tmap = trackEl._leafletMap;
+  tmap.eachLayer(l => { if (!(l instanceof L.TileLayer)) tmap.removeLayer(l); });
+  const sel = tracked.find(d => d.id === state.impVehicle);
+  if (sel){
+    const route = buildRoute(sel);
+    tmap._route = route;
+    const poly = L.polyline(route.map(p => [p.lat, p.lng]), { color:'#0db583', weight:4, opacity:.9 }).addTo(tmap);
+    L.circleMarker([route[0].lat, route[0].lng], { radius:7, color:'#fff', weight:2, fillColor:'#15a876', fillOpacity:1 }).addTo(tmap).bindPopup('شروع مسیر');
+    L.circleMarker([route[route.length - 1].lat, route[route.length - 1].lng], { radius:7, color:'#fff', weight:2, fillColor:'#4f7dff', fillOpacity:1 }).addTo(tmap).bindPopup('موقعیت فعلی');
+    setTimeout(() => { tmap.invalidateSize(); tmap.fitBounds(poly.getBounds(), { padding:[40,40] }); }, 120);
+    const km = routeDistance(route);
+    $('#impTrackMeta').innerHTML = `
+      <span class="tag">خودرو: <b>${esc(sel.vehicle)}</b></span>
+      <span class="tag">طول مسیر امروز: <b>${fa(km.toFixed(1))} کیلومتر</b></span>
+      <span class="tag">میانگین سرعت: <b>${fa(Math.round(route.reduce((s,p) => s + p.speed, 0) / route.length))} کیلومتر/ساعت</b></span>
+      <span class="tag">توقف‌ها: <b>${fa(route.filter(p => p.speed === 0).length)}</b></span>
+      <span class="tag">آخرین به‌روزرسانی: <b>${ago(sel.lastComm)}</b></span>`;
+  } else {
+    $('#impTrackMeta').innerHTML = '<span class="faint">خودرویی برای نمایش مسیر انتخاب نشده است.</span>';
+  }
+
+  /* فاکتور و دستگاه */
+  const openInv = u.invoices.filter(i => i.status !== 'PAID');
+  $('#impInvoiceSummary').innerHTML = `${fa(u.invoices.length)} فاکتور · باز: ${money(openInv.reduce((s,i) => s + i.amount, 0))}`;
+  $('#impInvoiceRows').innerHTML = u.invoices.slice(0, 6).map(i => `
+    <tr>
+      <td class="ltr">${esc(i.id)}</td><td>${esc(i.period)}</td>
+      <td class="num ${i.status === 'OVERDUE' ? 'debt' : ''}">${money(i.amount)}</td>
+      <td>${pill(INV_STATUS[i.status].label, INV_STATUS[i.status].cls)}</td>
+      <td class="faint">${fmtDate(i.dueAt)}</td>
+    </tr>`).join('') || '<tr><td colspan="5"><div class="empty">فاکتوری ثبت نشده است.</div></td></tr>';
+  $('#impDeviceRows').innerHTML = u.devices.map(d => `
+    <tr>
+      <td><div class="u-name ltr">${esc(d.serial)}</div><div class="u-sub">${esc(d.imei)}</div></td>
+      <td>${esc(d.model)}<div class="faint">FW ${esc(d.fw)}</div></td>
+      <td>${pill(DEV_STATUS[d.status].label, DEV_STATUS[d.status].cls)}</td>
+      <td class="faint">${ago(d.lastComm)}</td>
+    </tr>`).join('') || '<tr><td colspan="4"><div class="empty">دستگاهی ثبت نشده است.</div></td></tr>';
+}
+
+/* ---------- مسیر نمایشی خودرو ---------- */
+function buildRoute(d){
+  const base = { lat: d.lat || BASE.lat, lng: d.lng || BASE.lng };
+  const seed = (Number(String(d.id).replace(/\D/g,'')) || 7) % 17;
+  const route = [];
+  const n = 12;
+  for (let i = 0; i < n; i++){
+    const t = i / (n - 1);
+    route.push({
+      lat: base.lat - 0.020 + t * 0.040 + Math.sin(seed + i) * 0.004,
+      lng: base.lng - 0.024 + t * 0.048 + Math.cos(seed * 2 + i) * 0.005,
+      speed: i === 0 || i === n - 1 ? 0 : Math.round(18 + Math.abs(Math.sin(i + seed)) * 46),
+      at: new Date(Date.now() - (n - i) * 11 * 60000).toISOString()
+    });
+  }
+  if (d.track && d.track.length > 2){
+    d.track.slice(-12).forEach(p => route.push({ lat:p.lat, lng:p.lng, speed:p.speed || 0, at:p.at }));
+  }
+  return route;
+}
+function routeDistance(route){
+  let km = 0;
+  for (let i = 1; i < route.length; i++){
+    const a = route[i-1], b = route[i];
+    const dx = (b.lat - a.lat) * 111, dy = (b.lng - a.lng) * 111 * Math.cos(a.lat * Math.PI / 180);
+    km += Math.sqrt(dx*dx + dy*dy);
+  }
+  return km;
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-imp-vehicle],[data-imp-remind]');
+  if (!t) return;
+  if (t.dataset.impVehicle){ state.impVehicle = t.dataset.impVehicle; renderImpersonation(); }
+  else if (t.dataset.impRemind){ const u = userById(t.dataset.impRemind); auditAction(u.id, 'REMINDER_SENT', 'ارسال یادآوری پرداخت از نمای کاربر'); toast('یادآوری ارسال شد (نمایشی).', 'ok'); }
+});
+
+/* ======================================================================
+   جستجوی سراسری + راه‌اندازی
+   ====================================================================== */
+$('#globalSearch').addEventListener('input', () => {
+  const q = $('#globalSearch').value.trim();
+  if (q.length < 2) return;
+  switchView('users');
+  $('#usSearch').value = q;
+  renderUsers();
+});
+$('#globalSearch').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); renderUsers(); } });
+$('#ovRefreshBtn').addEventListener('click', () => { renderOverview(); toast('داده‌های پلتفرم بروزرسانی شد.', 'ok'); });
+$('#ovNewUserBtn').addEventListener('click', () => { switchView('users'); toast('برای افزودن کاربر، از فرم «کاربر جدید» استفاده کنید.', 'warn'); });
+$('#usNewUserBtn').addEventListener('click', () => {
+  openModal({
+    title:'ایجاد کاربر جدید',
+    body:`<div class="form-row">
+      <div class="field"><label>نام کاربر / سازمان</label><input id="nuName" placeholder="مثال: شرکت حمل‌ونقل پارس" /></div>
+      <div class="field"><label>ایمیل</label><input id="nuEmail" class="ltr" placeholder="user@example.com" /></div>
+      <div class="field"><label>تلفن</label><input id="nuPhone" class="ltr" placeholder="۰۹۱۲…" /></div>
+      <div class="field"><label>نوع حساب</label><select id="nuType"><option>شخصی</option><option>سازمانی</option><option>نمایندگی</option></select></div>
+      <div class="field"><label>پلن اولیه</label><select id="nuPlan">${PLANS.map(p => `<option ${p.name === 'پایه' ? 'selected' : ''}>${p.name}</option>`).join('')}</select></div>
+      <div class="field"><label>تعداد دستگاه اولیه</label><input id="nuDevices" type="number" min="0" value="1" /></div>
+    </div>
+    <label class="check" style="margin-top:4px;"><input type="checkbox" id="nuTrial" /> شروع با دوره آزمایشی ۱۴ روزه</label>
+    <div class="callout info" style="margin-top:10px;">رمز اولیه به‌صورت پیوند دعوت برای کاربر ارسال می‌شود (در محیط نمایشی ارسال واقعی انجام نمی‌شود).</div>`,
+    foot:`<button class="btn primary" id="nuSave">ایجاد کاربر</button><button class="btn" data-close-modal>انصراف</button>`
+  });
+  $('#nuSave').addEventListener('click', () => {
+    const name = $('#nuName').value.trim();
+    const email = $('#nuEmail').value.trim();
+    if (!name || !email) { toast('نام و ایمیل الزامی است.', 'bad'); return; }
+    const trial = $('#nuTrial').checked;
+    const plan = trial ? 'آزمایشی' : $('#nuPlan').value;
+    const planObj = PLANS.find(p => p.name === plan) || PLANS[0];
+    const count = Math.max(0, Number($('#nuDevices').value) || 0);
+    const n = U.length + 1;
+    const u = {
+      id:'U' + pad(n), name, org:$('#nuType').value === 'شخصی' ? '—' : name, type:$('#nuType').value,
+      email, phone:$('#nuPhone').value.trim() || '—',
+      auth:{ lastLogin:new Date().toISOString(), twoFA:false }, city:'تهران', joined:new Date(),
+      status: trial ? 'TRIAL' : 'ACTIVE', statusReason:'',
+      plan, sub:{ monthly: trial ? 0 : planObj.monthly, renewsAt: dayOffset(trial ? 14 : 30), autoRenew:!trial },
+      seats:planObj.users, users:1, counts:{ vehicles:count, devices:count }, balance:0,
+      nextInvoice: dayOffset(trial ? 14 : 30), devices:[], invoices:[], payments:[], notes:[], actions:[]
+    };
+    for (let k = 0; k < count; k++){
+      u.devices.push({ id:'D' + pad(n) + '-' + pad(k + 1), serial:`SF-${1400 + n}-${7000 + k * 13}`, imei:`86${100000000000000 + n * 7919 + k}`, model:'LTE-C1 Pilot', fw:'1.8.4',
+        sim:'MTN-Irancell', simNo:`+98912${40000000 + n * 131 + k}`, simActive:false, vehicle:null, plate:null, status:'OFFLINE',
+        lastComm:new Date().toISOString(), signal:'—', battery:100, install:new Date().toISOString(), warranty: dayOffset(730).toISOString(),
+        power:'سیم‌کشی‌شده به برق خودرو', installedBy:'در انتظار نصب' });
+    }
+    U.unshift(u);
+    u.invoices.push({ id:'INV-' + fa(invSeq++), userId:u.id, issuedAt:new Date().toISOString(), dueAt: dayOffset(trial ? 14 : 10).toISOString(), period:'دوره اول — ' + fmtDate(new Date()), amount: trial ? 0 : planObj.monthly, status:'PENDING', paidAt:null, method:'GATEWAY' });
+    u.actions.push({ at:new Date().toISOString(), actor:'مهراد پارسا', action:'USER_CREATED', detail:'ایجاد حساب با پلن ' + plan });
+    pushAudit('مهراد پارسا', 'USER_CREATED', `ایجاد کاربر جدید: ${name} (${email}) — پلن ${plan}`, u.id);
+    closeModal(); renderUsers(); renderRailBadge(); toast('کاربر جدید ایجاد شد.', 'ok');
+    showUser(u.id);
+  });
+});
+$('#usExportBtn').addEventListener('click', () => {
+  const list = filteredUsers();
+  exportCsv('users', ['شناسه','نام','نوع','ایمیل','پلن','وضعیت','مانده','دستگاه'], list.map(u => [u.id, u.name, u.type, u.email, u.plan, USER_STATUS[u.status].label, u.balance, u.counts.devices]));
+});
+$('#ovExportBtn').addEventListener('click', () => exportCsv('overview', ['شاخص','مقدار'], [
+  ['کاربران', U.length], ['اشتراک فعال', U.filter(u => u.status === 'ACTIVE' || u.status === 'TRIAL').length],
+  ['درآمد ماهانه (تومان)', monthlyRevenue()], ['مطالبات معوق (تومان)', U.reduce((s,u) => s + Math.abs(Math.min(0, u.balance)), 0)],
+  ['دستگاه‌ها', DEV.length], ['دستگاه آنلاین', DEV.filter(d => d.status === 'ONLINE').length]
+]));
+
+/* ---------- راه‌اندازی ---------- */
+renderOverview();
+renderUsers();
+renderRailBadge();
+renderSettings();
+renderAudit();
+console.log('Sentinel Admin Console (demo) — داده نمایشی بارگذاری شد.');
+</script>
 
 </body>
 </html>
