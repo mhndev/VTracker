@@ -17,16 +17,17 @@ if [ ! -d node_modules ]; then
   npm install
 fi
 
-# The API defaults to PostgreSQL: start it with Docker when available, otherwise
-# fall back to SQLite so the demo still runs on a clean machine.
-if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 && docker compose up -d db; then
+# Start PostgreSQL when Docker is available and wait until it is healthy. Otherwise
+# use the explicit SQLite mode so the demo still runs on a clean machine.
+if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1 && docker compose up -d --wait db; then
   echo "PostgreSQL container is running."
+  DEV_COMMAND=(npm run dev:postgres)
 else
   echo "Docker/PostgreSQL unavailable — running the API on SQLite for this session."
-  export DATABASE_DIALECT=sqlite
+  DEV_COMMAND=(npm run dev:sqlite)
 fi
 
-npm run dev &
+"${DEV_COMMAND[@]}" &
 DEV_PID=$!
 sleep 3
 open "http://localhost:${PORTAL_PORT}"

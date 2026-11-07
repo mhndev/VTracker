@@ -1,0 +1,637 @@
+{
+  "meta": {
+    "url": "https://me.muz.li/khoajak/teaching-lms-classroom-management-dashboard",
+    "title": "Teaching LMS - Classroom Management Dashboard by Khoa (JAK) on Muzli",
+    "description": "This is a design of Classroom Management Dashboard. A powerful tool that helps teachers manage their classrooms easily. It shows real-time student attendance, lesson progress, and student participation. With a simple interface, teachers can see student profiles, track tasks, and manage lessons effectively. This dashboard makes classroom management smooth and organized, enhancing the learning experience for students.",
+    "language": "en",
+    "viewport": "width=device-width, initial-scale=1",
+    "themeColor": "#000000",
+    "ogImage": "https://files.muzli.cloud/a11bb6e0-ad87-4df6-afdf-14132e77b62c-1751428820986.jpg",
+    "ogTitle": "Teaching LMS - Classroom Management Dashboard by Khoa (JAK) on Muzli",
+    "ogDescription": "This is a design of Classroom Management Dashboard. A powerful tool that helps teachers manage their classrooms easily. It shows real-time student attendance, lesson progress, and student participation. With a simple interface, teachers can see student profiles, track tasks, and manage lessons effectively. This dashboard makes classroom management smooth and organized, enhancing the learning experience for students."
+  },
+  "theme": {
+    "mode": "dark",
+    "bodyBackground": "#000000",
+    "isDark": true,
+    "confidence": 0.9
+  },
+  "brand": {
+    "name": "Muzli",
+    "favicon": {
+      "href": "https://me.muz.li/favicon.ico?v=12",
+      "type": null
+    }
+  },
+  "colors": {
+    "dominant": [
+      {
+        "hex": "#ffffff",
+        "ratio": 0.726
+      },
+      {
+        "hex": "#000000",
+        "ratio": 0.134
+      },
+      {
+        "hex": "#404565",
+        "ratio": 0.066
+      },
+      {
+        "hex": "#6c87fb",
+        "ratio": 0.055
+      },
+      {
+        "hex": "#fd1874",
+        "ratio": 0.008
+      },
+      {
+        "hex": "#f2f2f2",
+        "ratio": 0.006
+      },
+      {
+        "hex": "#3a5efb",
+        "ratio": 0.002
+      },
+      {
+        "hex": "#ffb443",
+        "ratio": 0.001
+      },
+      {
+        "hex": "#333333",
+        "ratio": 0.001
+      },
+      {
+        "hex": "#ff9209",
+        "ratio": 0.001
+      }
+    ],
+    "palette": [
+      {
+        "hex": "#000000",
+        "role": "background",
+        "source": "computed"
+      },
+      {
+        "hex": "#ffffff",
+        "role": "foreground",
+        "source": "computed"
+      },
+      {
+        "hex": "#ffb443",
+        "role": "primary",
+        "source": "heuristic"
+      },
+      {
+        "hex": "#ff9209",
+        "role": "secondary",
+        "source": "heuristic"
+      },
+      {
+        "hex": "#fd1874",
+        "role": "accent",
+        "source": "heuristic"
+      }
+    ],
+    "cssVariables": {
+      "--mantine-color-red-9": "#c92a2a",
+      "--mantine-color-lime-1": "#e9fac8",
+      "--mantine-color-dark-5": "#3b3b3b",
+      "--mantine-color-violet-0": "#f3f0ff",
+      "--mantine-color-red-8": "#e03131",
+      "--mantine-color-pink-light": "#e64980",
+      "--bgButtonDim": "#000000",
+      "--mantine-color-dark-9": "#141414",
+      "--mantine-shadow-xs": "#000000",
+      "--mantine-color-violet-filled": "#6741d9",
+      "--mantine-color-indigo-4": "#748ffc",
+      "--mantine-color-indigo-6": "#4c6ef5",
+      "--mantine-color-cyan-light-color": "#66d9e8",
+      "--mantine-color-pink-3": "#faa2c1",
+      "--mantine-color-blue-7": "#1c7ed6",
+      "--mantine-color-teal-2": "#96f2d7",
+      "--mantine-color-green-6": "#40c057",
+      "--mantine-color-grape-0": "#f8f0fc",
+      "--controlsColorDim": "#abf7cf",
+      "--mantine-color-green-filled": "#2f9e44",
+      "--fontColorHighlight": "#000",
+      "--mantine-color-anchor": "#4dabf7",
+      "--mantine-color-red-2": "#ffc9c9",
+      "--mantine-primary-color-light-hover": "#228be6",
+      "--mantine-primary-color-1": "#d0ebff",
+      "--mantine-shadow-sm": "#000000",
+      "--mantine-color-gray-filled-hover": "#212529",
+      "--mantine-color-red-1": "#ffe3e3",
+      "--mantine-color-orange-9": "#d9480f",
+      "--bg": "#fff",
+      "--mantine-color-lime-0": "#f4fce3",
+      "--mantine-color-yellow-6": "#fab005",
+      "--mantine-color-violet-light-hover": "#7950f2",
+      "--mantine-color-lime-6": "#82c91e",
+      "--mantine-color-yellow-filled": "#f08c00",
+      "--mantine-color-indigo-1": "#dbe4ff",
+      "--mantine-color-pink-6": "#e64980",
+      "--mantine-color-dark-filled": "#1f1f1f",
+      "--mantine-color-gray-0": "#f8f9fa",
+      "--mantine-color-red-text": "#ff8787",
+      "--mantine-color-blue-5": "#339af0",
+      "--mantine-color-grape-6": "#be4bdb",
+      "--mantine-color-yellow-0": "#fff9db",
+      "--mantine-color-dark-filled-hover": "#242424",
+      "--mantine-color-orange-1": "#ffe8cc",
+      "--mantine-color-pink-5": "#f06595",
+      "--mantine-color-blue-3": "#74c0fc",
+      "--mantine-color-cyan-outline": "#3bc9db",
+      "--mantine-color-cyan-7": "#1098ad",
+      "--mantine-color-indigo-filled-hover": "#364fc7",
+      "--color-white": "#fff",
+      "--mantine-color-violet-9": "#5f3dc4",
+      "--mantine-color-pink-outline-hover": "#e64980",
+      "--mantine-color-teal-light-color": "#63e6be",
+      "--mantine-color-orange-outline": "#ffa94d",
+      "--mantine-color-red-filled": "#e03131",
+      "--mantine-color-cyan-0": "#e3fafc",
+      "--mantine-color-orange-filled-hover": "#d9480f",
+      "--mantine-color-pink-1": "#ffdeeb",
+      "--mantine-color-orange-light": "#fd7e14",
+      "--mantine-color-lime-5": "#94d82d",
+      "--mantine-primary-color-7": "#1c7ed6",
+      "--mantine-color-orange-light-color": "#ffc078",
+      "--mantine-color-dark-1": "#b8b8b8",
+      "--mantine-color-dark-light-hover": "#383838",
+      "--mantine-color-cyan-filled": "#0c8599",
+      "--mantine-color-indigo-8": "#3b5bdb",
+      "--mantine-color-violet-3": "#b197fc",
+      "--mantine-color-orange-2": "#ffd8a8",
+      "--mantine-color-cyan-6": "#15aabf",
+      "--mantine-color-default-border": "#424242",
+      "--mantine-color-lime-9": "#5c940d",
+      "--mantine-color-yellow-light-hover": "#fab005",
+      "--mantine-color-orange-8": "#e8590c",
+      "--mantine-primary-color-6": "#228be6",
+      "--mantine-shadow-md": "#000000",
+      "--mantine-color-lime-3": "#c0eb75",
+      "--mantine-color-orange-5": "#ff922b",
+      "--mantine-color-error": "#e03131",
+      "--mantine-color-lime-light-color": "#c0eb75",
+      "--mantine-color-green-8": "#2f9e44",
+      "--mantine-primary-color-filled-hover": "#1864ab",
+      "--mantine-color-indigo-9": "#364fc7",
+      "--linkColor": "#6c87fb",
+      "--mantine-color-grape-2": "#eebefa",
+      "--gradient-color-1": "#c408ec",
+      "--mantine-primary-color-contrast": "#fff",
+      "--mantine-color-dimmed": "#828282",
+      "--mantine-color-gray-light-hover": "#868e96",
+      "--mantine-color-red-4": "#ff8787",
+      "--primaryColorDim": "#2e54ff",
+      "--mantine-color-yellow-4": "#ffd43b",
+      "--mantine-color-lime-4": "#a9e34b",
+      "--mantine-primary-color-light-color": "#74c0fc",
+      "--mantine-color-green-4": "#69db7c",
+      "--mantine-color-lime-outline-hover": "#82c91e",
+      "--mantine-shadow-lg": "#000000",
+      "--mantine-color-teal-light": "#12b886",
+      "--mantine-color-green-0": "#ebfbee",
+      "--mantine-color-dark-6": "#2e2e2e",
+      "--mantine-color-lime-7": "#74b816",
+      "--mantine-color-blue-filled": "#1971c2",
+      "--mantine-color-indigo-3": "#91a7ff",
+      "--mantine-color-gray-3": "#dee2e6",
+      "--mantine-color-red-light-color": "#ffa8a8",
+      "--mantine-color-yellow-light": "#fab005",
+      "--mantine-color-pink-2": "#fcc2d7",
+      "--background": "#fff",
+      "--mantine-color-gray-9": "#212529",
+      "--mantine-color-teal-outline": "#38d9a9",
+      "--highlightColor": "#000000",
+      "--mantine-color-green-7": "#37b24d",
+      "--mantine-color-indigo-light-color": "#91a7ff",
+      "--mantine-color-blue-outline-hover": "#228be6",
+      "--mantine-color-cyan-outline-hover": "#15aabf",
+      "--mantine-color-lime-filled-hover": "#5c940d",
+      "--mantine-color-gray-8": "#343a40",
+      "--mantine-color-green-text": "#69db7c",
+      "--mantine-color-indigo-text": "#748ffc",
+      "--mantine-color-green-light-color": "#8ce99a",
+      "--mantine-color-dark-text": "#424242",
+      "--mantine-color-pink-filled": "#c2255c",
+      "--mantine-primary-color-9": "#1864ab",
+      "--mantine-color-blue-9": "#1864ab",
+      "--mantine-color-red-filled-hover": "#c92a2a",
+      "--mantine-color-indigo-5": "#5c7cfa",
+      "--mantine-color-lime-filled": "#66a80f",
+      "--mantine-color-cyan-filled-hover": "#0b7285",
+      "--mantine-color-red-outline": "#ff8787",
+      "--mantine-color-grape-text": "#da77f2",
+      "--bgElevatedDim": "#e8e8e8",
+      "--mantine-color-orange-outline-hover": "#fd7e14",
+      "--mantine-color-violet-light": "#7950f2",
+      "--mantine-color-violet-4": "#9775fa",
+      "--mantine-color-white": "#fff",
+      "--mantine-color-blue-6": "#228be6",
+      "--mantine-color-teal-light-hover": "#12b886",
+      "--mantine-color-green-1": "#d3f9d8",
+      "--mantine-color-teal-8": "#099268",
+      "--mantine-color-indigo-outline-hover": "#4c6ef5",
+      "--mantine-color-yellow-8": "#f08c00",
+      "--mantine-color-cyan-3": "#66d9e8",
+      "--mantine-color-grape-light": "#be4bdb",
+      "--mantine-color-violet-light-color": "#b197fc",
+      "--mantine-color-yellow-2": "#ffec99",
+      "--mantine-color-cyan-1": "#c5f6fa",
+      "--mantine-color-green-outline-hover": "#40c057",
+      "--mantine-color-violet-8": "#6741d9",
+      "--mantine-color-violet-2": "#d0bfff",
+      "--mantine-color-lime-2": "#d8f5a2",
+      "--mantine-color-cyan-4": "#3bc9db",
+      "--mantine-color-default": "#2e2e2e",
+      "--mantine-primary-color-8": "#1971c2",
+      "--mantine-color-grape-outline": "#da77f2",
+      "--mantine-color-cyan-text": "#3bc9db",
+      "--bgElevatedHighlight": "#f4f4f4",
+      "--mantine-color-violet-filled-hover": "#5f3dc4",
+      "--mantine-color-orange-6": "#fd7e14",
+      "--mantine-primary-color-0": "#e7f5ff",
+      "--mantine-color-gray-outline-hover": "#868e96",
+      "--mantine-color-indigo-7": "#4263eb",
+      "--mantine-color-dark-8": "#1f1f1f",
+      "--mantine-color-pink-9": "#a61e4d",
+      "--mantine-color-grape-outline-hover": "#be4bdb",
+      "--mantine-color-cyan-2": "#99e9f2",
+      "--color-bg": "#000",
+      "--mantine-color-body": "#242424",
+      "--mantine-color-orange-light-hover": "#fd7e14",
+      "--mantine-color-violet-1": "#e5dbff",
+      "--mantine-color-grape-9": "#862e9c",
+      "--mantine-color-gray-outline": "#ced4da",
+      "--mantine-color-yellow-light-color": "#ffe066",
+      "--mantine-color-gray-2": "#e9ecef",
+      "--mantine-color-text": "#c9c9c9",
+      "--mantine-color-green-light-hover": "#40c057",
+      "--mantine-color-violet-text": "#9775fa",
+      "--mantine-color-yellow-outline": "#ffd43b",
+      "--mantine-color-green-outline": "#69db7c",
+      "--mantine-color-cyan-9": "#0b7285",
+      "--mantine-color-violet-6": "#7950f2",
+      "--mantine-color-orange-filled": "#e8590c",
+      "--mantine-color-pink-8": "#c2255c",
+      "--mantine-color-teal-1": "#c3fae8",
+      "--mantine-color-lime-8": "#66a80f",
+      "--fontColorDim": "#ffffff",
+      "--mantine-color-dark-2": "#828282",
+      "--color-font-highlight": "#fff",
+      "--mantine-color-orange-0": "#fff4e6",
+      "--mantine-color-blue-1": "#d0ebff",
+      "--mantine-color-lime-light-hover": "#82c91e",
+      "--mantine-color-cyan-light-hover": "#15aabf",
+      "--mantine-color-lime-light": "#82c91e",
+      "--mantine-color-green-3": "#8ce99a",
+      "--tw-ring-offset-color": "#fff",
+      "--mantine-color-teal-filled": "#099268",
+      "--likeColor": "#fd1874",
+      "--mantine-color-gray-6": "#868e96",
+      "--mantine-color-yellow-5": "#fcc419",
+      "--mantine-color-yellow-9": "#e67700",
+      "--mantine-color-violet-5": "#845ef7",
+      "--controlsColor": "#2ce283",
+      "--mantine-color-gray-filled": "#343a40",
+      "--mantine-color-violet-7": "#7048e8",
+      "--mantine-color-dark-0": "#c9c9c9",
+      "--mantine-color-pink-filled-hover": "#a61e4d",
+      "--mantine-color-yellow-7": "#f59f00",
+      "--mantine-color-red-light": "#fa5252",
+      "--mantine-color-blue-2": "#a5d8ff",
+      "--mantine-color-grape-filled": "#9c36b5",
+      "--mantine-color-pink-light-hover": "#e64980",
+      "--mantine-color-cyan-light": "#15aabf",
+      "--mantine-color-yellow-3": "#ffe066",
+      "--mantine-color-gray-light-color": "#dee2e6",
+      "--mantine-color-green-filled-hover": "#2b8a3e",
+      "--mantine-color-teal-outline-hover": "#12b886",
+      "--mantine-color-red-light-hover": "#fa5252",
+      "--mantine-color-grape-8": "#9c36b5",
+      "--mantine-primary-color-2": "#a5d8ff",
+      "--primaryColorHighlight": "#052ee4",
+      "--mantine-color-grape-1": "#f3d9fa",
+      "--mantine-color-grape-7": "#ae3ec9",
+      "--mantine-color-violet-outline-hover": "#7950f2",
+      "--mantine-color-teal-5": "#20c997",
+      "--mantine-color-cyan-5": "#22b8cf",
+      "--mantine-color-blue-text": "#4dabf7",
+      "--mantine-color-gray-text": "#ced4da",
+      "--mantine-shadow-xl": "#000000",
+      "--mantine-color-gray-4": "#ced4da",
+      "--mantine-color-blue-0": "#e7f5ff",
+      "--bgButton": "#f3f3f3",
+      "--mantine-color-teal-3": "#63e6be",
+      "--mantine-primary-color-5": "#339af0",
+      "--mantine-color-red-5": "#ff6b6b",
+      "--mantine-color-dark-outline": "#424242",
+      "--mantine-color-teal-6": "#12b886",
+      "--borderColorHighlight": "#d2d3d3",
+      "--mantine-color-indigo-filled": "#3b5bdb",
+      "--mantine-color-teal-4": "#38d9a9",
+      "--mantine-color-red-6": "#fa5252",
+      "--mantine-color-indigo-outline": "#748ffc",
+      "--mantine-color-grape-light-color": "#e599f7",
+      "--mantine-color-cyan-8": "#0c8599",
+      "--mantine-color-indigo-0": "#edf2ff",
+      "--mantine-color-orange-3": "#ffc078",
+      "--mantine-color-red-0": "#fff5f5",
+      "--mantine-color-green-light": "#40c057",
+      "--mantine-color-default-hover": "#3b3b3b",
+      "--mantine-color-grape-4": "#da77f2",
+      "--mantine-color-lime-outline": "#a9e34b",
+      "--gradient-color-2": "#5d1ffd",
+      "--mantine-color-grape-filled-hover": "#862e9c",
+      "--mantine-color-blue-light": "#228be6",
+      "--mantine-color-blue-light-hover": "#228be6",
+      "--mantine-color-placeholder": "#696969",
+      "--mantine-color-dark-light-color": "#696969",
+      "--mantine-color-yellow-text": "#ffd43b",
+      "--mantine-color-bright": "#fff",
+      "--color-font-dim": "#ffffff",
+      "--mantine-primary-color-4": "#4dabf7",
+      "--mantine-color-black": "#000",
+      "--mantine-primary-color-filled": "#1971c2",
+      "--mantine-color-yellow-1": "#fff3bf",
+      "--mantine-color-blue-8": "#1971c2",
+      "--bgElevated": "#f4f7f8",
+      "--primaryColor": "#3a5efb",
+      "--mantine-color-grape-3": "#e599f7",
+      "--mantine-color-dark-outline-hover": "#383838",
+      "--mantine-color-lime-text": "#a9e34b",
+      "--mantine-color-green-2": "#b2f2bb",
+      "--mantine-color-indigo-light": "#4c6ef5",
+      "--mantine-color-orange-text": "#ffa94d",
+      "--mantine-color-blue-4": "#4dabf7",
+      "--mantine-color-grape-light-hover": "#be4bdb",
+      "--mantine-color-teal-0": "#e6fcf5",
+      "--mantine-color-dark-4": "#424242",
+      "--mantine-color-dark-light": "#383838",
+      "--mantine-color-orange-4": "#ffa94d",
+      "--mantine-color-red-outline-hover": "#fa5252",
+      "--mantine-color-blue-light-color": "#74c0fc",
+      "--mantine-color-dark-7": "#242424",
+      "--mantine-color-yellow-outline-hover": "#fab005",
+      "--mantine-color-violet-outline": "#9775fa",
+      "--mantine-primary-color-light": "#228be6",
+      "--mantine-color-dark-3": "#696969",
+      "--mantine-color-pink-7": "#d6336c",
+      "--mantine-color-green-9": "#2b8a3e",
+      "--mantine-color-red-7": "#f03e3e",
+      "--mantine-color-pink-light-color": "#faa2c1",
+      "--successColor": "#009649",
+      "--mantine-color-teal-filled-hover": "#087f5b",
+      "--mantine-color-teal-9": "#087f5b",
+      "--mantine-color-pink-0": "#fff0f6",
+      "--mantine-color-grape-5": "#cc5de8",
+      "--mantine-color-gray-1": "#f1f3f5",
+      "--mantine-color-indigo-2": "#bac8ff",
+      "--mantine-color-pink-text": "#f783ac",
+      "--mantine-color-gray-light": "#868e96",
+      "--mantine-color-green-5": "#51cf66",
+      "--mantine-color-indigo-light-hover": "#4c6ef5",
+      "--mantine-color-yellow-filled-hover": "#e67700",
+      "--mantine-color-red-3": "#ffa8a8",
+      "--mantine-color-pink-4": "#f783ac",
+      "--mantine-color-blue-outline": "#4dabf7",
+      "--mantine-color-gray-7": "#495057",
+      "--mantine-color-pink-outline": "#f783ac",
+      "--mantine-color-orange-7": "#f76707",
+      "--mantine-color-teal-7": "#0ca678",
+      "--mantine-color-gray-5": "#adb5bd",
+      "--mantine-color-teal-text": "#38d9a9",
+      "--mantine-primary-color-3": "#74c0fc",
+      "--mantine-color-blue-filled-hover": "#1864ab",
+      "--mantine-color-default-color": "#fff",
+      "--bgTransparent": "#ffffff",
+      "--bgButtonHighlight": "#f3f3f3",
+      "--fontColor": "#000000",
+      "--borderColor": "#c2c2c2",
+      "--shade-mask": "#000000"
+    },
+    "gradients": [
+      {
+        "css": "conic-gradient(rgb(255, 180, 67) 0deg, rgb(255, 146, 9) 70deg, rgba(0, 0, 0, 0) 160deg, rgba(0, 0, 0, 0) 290deg, rgb(255, 180, 67) 360deg)",
+        "sampleColors": [
+          "#ffb443",
+          "#ff9209",
+          "#000000"
+        ]
+      },
+      {
+        "css": "conic-gradient(rgba(0, 0, 0, 0) 0deg, rgba(255, 180, 67, 0.55) 40deg, rgba(0, 0, 0, 0) 90deg, rgba(0, 0, 0, 0) 180deg, rgba(255, 146, 9, 0.45) 220deg, rgba(0, 0, 0, 0) 270deg)",
+        "sampleColors": [
+          "#000000",
+          "#ffb443",
+          "#ff9209"
+        ]
+      },
+      {
+        "css": "radial-gradient(rgba(255, 255, 255, 0.055), rgba(0, 0, 0, 0) 72%)",
+        "sampleColors": [
+          "#ffffff",
+          "#000000"
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "status": "confirmed",
+    "reason": null,
+    "best": {
+      "selector": "img.is-hidden",
+      "href": "https://me.muz.li/images/nav/muzli-head.png",
+      "type": "png",
+      "width": 144,
+      "height": 144,
+      "svgContent": null,
+      "colors": [],
+      "isLight": false,
+      "isDark": false,
+      "needsDarkBackground": false,
+      "needsLightBackground": false,
+      "ownership": "first-party",
+      "headerScoped": true,
+      "variant": "color",
+      "brandNameOnLogo": null,
+      "uploadedUrl": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/90faff46-7fc6-4a6d-b5b9-f90d7b55c81e.png"
+    },
+    "candidates": [
+      {
+        "selector": "img.is-hidden",
+        "href": "https://me.muz.li/images/nav/muzli-head.png",
+        "type": "png",
+        "width": 144,
+        "height": 144,
+        "svgContent": null,
+        "colors": [],
+        "isLight": false,
+        "isDark": false,
+        "needsDarkBackground": false,
+        "needsLightBackground": false,
+        "ownership": "first-party",
+        "headerScoped": true
+      }
+    ]
+  },
+  "fonts": {
+    "computed": [
+      {
+        "family": "Inter, \"Inter Fallback\"",
+        "weights": [
+          "400",
+          "600",
+          "500",
+          "300"
+        ],
+        "source": "web"
+      },
+      {
+        "family": "Inter",
+        "weights": [
+          "500",
+          "400"
+        ],
+        "source": "web"
+      }
+    ],
+    "baseSizePx": 16
+  },
+  "confidence": {
+    "colorExtraction": 0.9,
+    "logoDetection": 0.95,
+    "fontDetection": 0.8
+  },
+  "screenshot": {
+    "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/screenshot.png",
+    "width": 1920,
+    "height": 1080,
+    "sizeBytes": 620098,
+    "uploadedAt": "2026-11-01T15:25:14.104Z"
+  },
+  "assets": {
+    "90faff46-7fc6-4a6d-b5b9-f90d7b55c81e": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/90faff46-7fc6-4a6d-b5b9-f90d7b55c81e.png",
+      "name": "muzli-head.png",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "23.36 KB",
+        "mimeType": "image/png",
+        "sizeBytes": 23922,
+        "uploadedAt": "2026-11-01T15:25:14.409Z"
+      }
+    },
+    "74c81fb5-8e38-4038-9c81-8198e283e14f": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/74c81fb5-8e38-4038-9c81-8198e283e14f.jpg",
+      "name": "a11bb6e0-ad87-4df6-afdf-14132e77b62c-1751428820986.jpg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "206.79 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 211749,
+        "uploadedAt": "2026-11-01T15:25:14.930Z"
+      }
+    },
+    "c45214b9-0b9a-411e-82c0-9d6c0942030a": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/c45214b9-0b9a-411e-82c0-9d6c0942030a.jpg",
+      "name": "a11bb6e0-ad87-4df6-afdf-14132e77b62c-1751428823236.jpg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "329.91 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 337824,
+        "uploadedAt": "2026-11-01T15:25:14.610Z"
+      }
+    },
+    "9719c7ac-2ecf-4b87-802f-984e1fe3173f": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/9719c7ac-2ecf-4b87-802f-984e1fe3173f.jpg",
+      "name": "a11bb6e0-ad87-4df6-afdf-14132e77b62c-1751428824775.jpg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "350.56 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 358974,
+        "uploadedAt": "2026-11-01T15:25:14.486Z"
+      }
+    },
+    "d1c6d085-abdf-40d1-918b-8c6789dc719b": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/d1c6d085-abdf-40d1-918b-8c6789dc719b.jpg",
+      "name": "a11bb6e0-ad87-4df6-afdf-14132e77b62c-1751428825893.jpg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "233.48 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 239079,
+        "uploadedAt": "2026-11-01T15:25:14.674Z"
+      }
+    },
+    "7c6ebd32-bca8-49cb-8c03-e9a746212c64": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/7c6ebd32-bca8-49cb-8c03-e9a746212c64.jpg",
+      "name": "a11bb6e0-ad87-4df6-afdf-14132e77b62c-1751428826664.jpg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "233.45 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 239050,
+        "uploadedAt": "2026-11-01T15:25:15.391Z"
+      }
+    },
+    "d213cce7-c9b6-4c9c-afb5-fadb25bdc204": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/d213cce7-c9b6-4c9c-afb5-fadb25bdc204.jpg",
+      "name": "a11bb6e0-ad87-4df6-afdf-14132e77b62c-1751428827476.jpg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "226.27 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 231699,
+        "uploadedAt": "2026-11-01T15:25:15.512Z"
+      }
+    },
+    "f0f91479-8248-4386-adc3-48c29dc64965": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/f0f91479-8248-4386-adc3-48c29dc64965.jpg",
+      "name": "7b1314959107a6360110447299eee5e9_medium.jpeg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "29.14 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 29841,
+        "uploadedAt": "2026-11-01T15:25:15.242Z"
+      }
+    },
+    "ac5fd0d0-f08e-4ed4-88c4-8e7ab2706278": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/ac5fd0d0-f08e-4ed4-88c4-8e7ab2706278.jpg",
+      "name": "bbf2224492a0397f7d53d0d865499257_medium.jpeg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "54.58 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 55893,
+        "uploadedAt": "2026-11-01T15:25:15.122Z"
+      }
+    },
+    "f00d00dd-5f0c-4d78-b7fc-97414cebd6e5": {
+      "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/brand/8994ca5d-6def-441f-8e1e-857b9408b12d/assets/f00d00dd-5f0c-4d78-b7fc-97414cebd6e5.jpg",
+      "name": "9e4a48e61e638d18fd4edaeae0f9268b_medium.jpeg",
+      "type": "image",
+      "description": "",
+      "metadata": {
+        "size": "79.57 KB",
+        "mimeType": "image/jpeg",
+        "sizeBytes": 81484,
+        "uploadedAt": "2026-11-01T15:25:15.334Z"
+      }
+    }
+  }
+}

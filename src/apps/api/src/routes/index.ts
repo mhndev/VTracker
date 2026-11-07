@@ -1,0 +1,23 @@
+import { Router } from 'express';
+import { adminRouter } from './admin.routes.js';
+import { auditRouter } from './audit.routes.js';
+import { customerProvisioningRouter } from './customer-provisioning.routes.js';
+import { dashboardRouter } from './dashboard.routes.js';
+import { deviceAssignmentRouter } from './device-assignment.routes.js';
+import { grantRouter } from './grant.routes.js';
+import { organizationSettingsRouter } from './organization-settings.routes.js';
+import { sessionRouter } from './session.routes.js';
+import { telemetryRouter } from './telemetry.routes.js';
+import { vehicleRouter } from './vehicle.routes.js';
+
+export const apiRouter = Router();
+apiRouter.use('/session', sessionRouter);
+apiRouter.use('/dashboard', dashboardRouter);
+apiRouter.use('/device-assignments', deviceAssignmentRouter);
+apiRouter.use('/admin', adminRouter);
+apiRouter.use('/resellers/:resellerId/customers', customerProvisioningRouter);
+apiRouter.use('/grants', grantRouter);
+apiRouter.use('/organizations', organizationSettingsRouter);
+apiRouter.use('/telemetry', telemetryRouter);
+apiRouter.use('/vehicles', vehicleRouter);
+apiRouter.use('/audit', auditRouter);

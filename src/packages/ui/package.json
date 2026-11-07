@@ -1,0 +1,16 @@
+{
+  "name": "@sentinel/ui",
+  "private": true,
+  "version": "0.2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.tsx",
+    "./styles.css": "./src/styles.css"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "dependencies": {
+    "@fontsource-variable/vazirmatn": "^5.3.0"
+  }
+}

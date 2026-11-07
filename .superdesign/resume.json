@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "marketing-landing": {
+      "targetKind": "new-ui",
+      "projectId": "70823ebf-49f9-48cd-a2c6-40e7fce7c73d",
+      "activeDraftId": "4889e4e4-3f9b-4c45-b0ff-79811074562d",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "4ce7da74-5424-4fc1-a407-5788d2fff495",
+        "7e7f7fca-d676-4e46-b277-033b0bd59672"
+      ],
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "src/apps/portal/src/PortalApp.tsx",
+        "src/apps/portal/src/LiveMap.tsx",
+        "src/packages/ui/src/index.tsx",
+        "src/packages/ui/src/styles.css",
+        "src/apps/admin/src/styles.css",
+        "README.md",
+        "DECISIONS.md"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "3c69c89ea686edc8f756121ab61a825d383a410e929788db5aad0d8199b8cb5a",
+        "src/apps/portal/src/PortalApp.tsx": "f7158efa3dbe7bde819050b4f0353dba4746c4685a72e11716f3e98ee70b6d33",
+        "src/apps/portal/src/LiveMap.tsx": "e30236f587eec3227858b40522c5d545a24fa60453b4ac1e4dfec8dfce9665ba",
+        "src/packages/ui/src/index.tsx": "5dc4379a506cdab933ac923cd002bb6edfac3eb2d40737cbb408e8738c21cb77",
+        "src/packages/ui/src/styles.css": "ccca16fa523a63dc3aa50caad7923f4823e6a35bc93972cd8e1f43a38a230511",
+        "src/apps/admin/src/styles.css": "c233ae25756bb258d64f755728d25a3113b875bdff9f904a29e27ec7e027b5bd",
+        "README.md": "c70da1008515e79914e16b87dea5c0afd9c85449a6aa3a23dca7311e78b9b594",
+        "DECISIONS.md": "208368c157468a04745db4feec39fd1c3549b055d71fec15c49d1cdb0a06e2cf"
+      },
+      "components": [],
+      "drafts": {
+        "4889e4e4-3f9b-4c45-b0ff-79811074562d": {
+          "title": "Sentinel Fleet - Complete Landing Page",
+          "visualDirection": "On-brand product-led marketing page with privacy-first operational storytelling",
+          "currentVersion": 2
+        }
+      },
+      "updatedAt": "2026-11-01T15:22:00Z"
+    },
+    "vehicle-marker-studio": {
+      "targetKind": "existing-ui",
+      "projectId": "5b88c7b0-9f71-407e-ad5a-84f41a4bc367",
+      "baselineDraftId": "7b289b8b-6dac-49d5-ba0f-32f67c8b7acd",
+      "activeDraftId": "7b289b8b-6dac-49d5-ba0f-32f67c8b7acd",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "11e0735b-0b53-4b47-a916-11c12839882e"
+      ],
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "src/apps/portal/src/PortalApp.tsx",
+        "src/apps/portal/src/LiveMap.tsx",
+        "src/apps/portal/src/types.ts",
+        "src/packages/ui/src/index.tsx",
+        "src/packages/ui/src/styles.css"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "3c69c89ea686edc8f756121ab61a825d383a410e929788db5aad0d8199b8cb5a",
+        "src/apps/portal/src/PortalApp.tsx": "a6a257d15e6a70dbbc2205f6deb6c0af94285c9b17906a63085ff230bd33d45f",
+        "src/apps/portal/src/LiveMap.tsx": "e30236f587eec3227858b40522c5d545a24fa60453b4ac1e4dfec8dfce9665ba",
+        "src/apps/portal/src/types.ts": "13c08440657b9469caaae5900fcc51889c01349ae13b87249d60dcbc8acefc87",
+        "src/packages/ui/src/index.tsx": "5dc4379a506cdab933ac923cd002bb6edfac3eb2d40737cbb408e8738c21cb77",
+        "src/packages/ui/src/styles.css": "f7dd6f1b955f01db311edfb636c2d6db45309c0ad5776bd06cb7c4c413a5a917"
+      },
+      "components": [],
+      "drafts": {
+        "7b289b8b-6dac-49d5-ba0f-32f67c8b7acd": {
+          "title": "Sentinel Fleet Vehicles — Marker Studio",
+          "visualDirection": "Existing fleet directory extended with a vehicle-type picker, eight marker styles, and live map preview",
+          "currentVersion": 2
+        }
+      },
+      "updatedAt": "2026-11-01T15:42:42Z"
+    }
+  }
+}

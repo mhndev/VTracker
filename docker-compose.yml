@@ -22,7 +22,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: src/apps/api/Dockerfile
     container_name: sentinel-api
     restart: unless-stopped
     depends_on:
@@ -46,7 +46,7 @@ services:
   portal:
     build:
       context: .
-      dockerfile: apps/portal/Dockerfile
+      dockerfile: src/apps/portal/Dockerfile
     container_name: sentinel-portal
     restart: unless-stopped
     depends_on:
@@ -57,7 +57,7 @@ services:
   admin:
     build:
       context: .
-      dockerfile: apps/admin/Dockerfile
+      dockerfile: src/apps/admin/Dockerfile
     container_name: sentinel-admin
     restart: unless-stopped
     depends_on:

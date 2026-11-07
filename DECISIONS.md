@@ -12,6 +12,8 @@
 - The local demonstrator uses Sequelize with SQLite and an interactive Leaflet/OpenStreetMap map. SQLite and OSM standard tiles are local-demo dependencies; the production database and map provider remain evidence-based decisions.
 - All three applications are TypeScript workspaces. The Express 5 API is modularized into routes, controllers, services, middleware, database setup, and Sequelize models.
 - Platform administration is a physically separate React application and API surface. Its aggregate operations endpoint omits coordinates; customer and reseller workflows live in a separate portal with role-specific navigation.
+- Provisioning roles are scoped as `PLATFORM_SUPPORT` / `PLATFORM_VIEWER`, `RESELLER_ADMIN` / `SUPPORT_AGENT` / `DEVICE_INSTALLER`, and `ORG_ADMIN` / `FLEET_MANAGER` / `PRIVACY_ADMIN` / `VIEWER`. Delegated reseller capabilities never imply customer ownership or location access; the full contract is in `docs/PROVISIONING_POLICY.md`.
+- Organization lifecycle is `ACTIVE | SUSPENDED`; service relationships are `ACTIVE | SUSPENDED | ENDED`. Historical resources and audit evidence are preserved instead of destructively deleting them.
 
 ## Still required before production
 

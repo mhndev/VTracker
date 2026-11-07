@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,102 +14,91 @@
 
 <style>
   :root{
-    --bg:#eef0f3;
-    --panel:#ffffff;
-    --panel-soft:#f6f7f9;
-    --border:#e4e7ec;
-
-    --text:#1a1d23;
-    --text-dim:#6b7280;
-    --text-faint:#9aa1ad;
-
-    --accent:#0db583;
-    --accent-dark:#09946b;
-    --accent-soft:#e3f8f1;
-
-    --select:#4f7dff;
-    --select-soft:#eef3ff;
-
-    --ok:#15a876;
-    --warn:#d97f23;
-    --danger:#e14a4a;
-    --offline:#9aa1ad;
-
-    --radius-lg:14px;
-    --radius-md:10px;
-    --radius-sm:8px;
+    --bg:#eef0f3; --panel:#ffffff; --panel-soft:#f6f7f9; --border:#e4e7ec;
+    --text:#1a1d23; --text-dim:#6b7280; --text-faint:#9aa1ad;
+    --accent:#0db583; --accent-dark:#09946b; --accent-soft:#e3f8f1;
+    --select:#4f7dff; --select-soft:#eef3ff;
+    --gold:#b8862e; --gold-soft:#fbf1dd;
+    --vip:#8a5cf6; --vip-soft:#f2eefe;
+    --ok:#15a876; --warn:#d97f23; --warn-soft:#fff3e4;
+    --danger:#e14a4a; --danger-soft:#fdeaea;
+    --info:#4f7dff; --info-soft:#eef3ff; --offline:#9aa1ad;
+    --radius-lg:14px; --radius-md:10px; --radius-sm:8px;
     --shadow-sm:0 1px 2px rgba(16,24,40,.05);
     --shadow-md:0 4px 14px rgba(16,24,40,.10);
-
     font-family:'Vazirmatn', -apple-system, sans-serif;
+  }
+  html[data-theme="dark"]{
+    --bg:#111318; --panel:#1a1d24; --panel-soft:#20242c; --border:#2b303b;
+    --text:#edf0f5; --text-dim:#9aa1b0; --text-faint:#6c7280;
+    --accent:#17d6a0; --accent-dark:#0fba8b; --accent-soft:rgba(23,214,160,.15);
+    --select:#6f93ff; --select-soft:rgba(111,147,255,.15);
+    --gold:#e3b65a; --gold-soft:rgba(227,182,90,.15);
+    --vip:#a98af7; --vip-soft:rgba(169,138,247,.15);
+    --ok:#2ecf97; --warn:#eab155; --warn-soft:rgba(234,177,85,.15);
+    --danger:#f16a6a; --danger-soft:rgba(241,106,106,.15);
+    --info:#7fa0ff; --info-soft:rgba(127,160,255,.15); --offline:#767c8a;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+    --shadow-md:0 6px 20px rgba(0,0,0,.4);
   }
   *{box-sizing:border-box;}
   html,body{height:100%;}
-  body{margin:0;background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+  body{margin:0;background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s ease,color .25s ease;}
   h1,h2,h3,p{margin:0;}
-  button{font-family:inherit;}
-  select,input{font-family:inherit;}
-  ::selection{background:var(--accent-soft);}
+  button,select,input{font-family:inherit;}
 
   .app{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
 
   /* ================= TOPBAR ================= */
-  .topbar{
-    height:56px;flex-shrink:0;display:flex;align-items:center;gap:14px;
-    padding:0 18px;background:#fff;border-bottom:1px solid var(--border);z-index:50;
-  }
-  .menu-toggle{display:none;}
+  .topbar{height:56px;flex-shrink:0;display:flex;align-items:center;gap:14px;padding:0 18px;background:var(--panel);border-bottom:1px solid var(--border);z-index:50;}
   .brand{display:flex;align-items:center;gap:8px;}
   .brand .logo{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#19d6a0,var(--accent));flex-shrink:0;}
   .brand-name{font-weight:800;font-size:16.5px;color:var(--accent-dark);letter-spacing:-.01em;}
-  .topbar-right{display:flex;align-items:center;gap:14px;margin-inline-start:auto;}
-  .icon-btn-plain{background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;}
-  .avatar-circle{
-    width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7dff,#8a5cf6);
-    display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;
-  }
-  .demo-pill{font-size:10.5px;font-weight:700;color:var(--warn);border:1px dashed #e9c98f;background:#fff8ee;padding:4px 10px;border-radius:999px;}
+  .topbar-right{display:flex;align-items:center;gap:10px;margin-inline-start:auto;}
+  .icon-btn-plain{background:none;border:1px solid transparent;color:var(--text-dim);font-size:16px;cursor:pointer;width:34px;height:34px;border-radius:9px;display:grid;place-items:center;}
+  .icon-btn-plain:hover{background:var(--panel-soft);border-color:var(--border);}
+  .avatar-circle{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#4f7dff,#8a5cf6);display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0;cursor:pointer;}
+  .demo-pill{font-size:10.5px;font-weight:700;color:var(--warn);border:1px dashed #e9c98f;background:var(--warn-soft);padding:4px 10px;border-radius:999px;}
 
-  /* ================= APP SHELL ================= */
   .shell{flex:1;display:flex;min-height:0;}
 
-  /* ----- icon rail ----- */
+  /* ----- collapsible icon rail ----- */
   .icon-rail{
-    width:64px;flex-shrink:0;background:#fff;border-inline-end:1px solid var(--border);
-    display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px;
+    width:64px;flex-shrink:0;background:var(--panel);border-inline-end:1px solid var(--border);
+    display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;
+    transition:width .25s cubic-bezier(.4,0,.2,1);overflow:hidden;
   }
-  .rail-btn{
-    width:42px;height:42px;border-radius:11px;display:grid;place-items:center;
-    color:var(--text-dim);font-size:19px;cursor:pointer;position:relative;flex-shrink:0;
-    transition:background .15s ease,color .15s ease;
+  .icon-rail.expanded{width:206px;align-items:stretch;padding-inline:10px;}
+  .rail-toggle{
+    width:42px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    color:var(--text-faint);cursor:pointer;flex-shrink:0;margin-bottom:6px;font-size:16px;
   }
+  .rail-toggle:hover{background:var(--panel-soft);color:var(--text);}
+  .icon-rail.expanded .rail-toggle{justify-content:flex-start;padding-inline-start:4px;}
+  .rail-div{height:1px;background:var(--border);margin:6px 8px;flex-shrink:0;}
+  .icon-rail.expanded .rail-div{margin:6px 2px;}
+
+  .rail-btn{display:flex;align-items:center;height:42px;border-radius:11px;color:var(--text-dim);cursor:pointer;position:relative;flex-shrink:0;justify-content:center;transition:background .15s ease,color .15s ease;}
   .rail-btn:hover{background:var(--panel-soft);color:var(--text);}
   .rail-btn.active{background:var(--accent);color:#fff;box-shadow:0 4px 10px rgba(13,181,131,.35);}
-  .rail-btn .rail-label{
-    position:absolute;inset-inline-start:52px;background:#1a1d23;color:#fff;
-    font-size:11px;padding:4px 9px;border-radius:7px;white-space:nowrap;
-    opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:80;
-  }
-  .rail-btn:hover .rail-label{opacity:1;}
+  .rail-btn .ri{width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+  .rail-btn .rt{max-width:0;opacity:0;overflow:hidden;white-space:nowrap;font-size:13px;font-weight:600;transition:max-width .25s ease,opacity .2s ease,margin .25s ease;}
+  .icon-rail.expanded .rail-btn{justify-content:flex-start;}
+  .icon-rail.expanded .rail-btn .rt{max-width:140px;opacity:1;margin-inline-start:2px;}
+  .rail-label{position:absolute;inset-inline-start:52px;background:#1a1d23;color:#fff;font-size:11px;padding:4px 9px;border-radius:7px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .12s ease;z-index:80;}
+  .icon-rail:not(.expanded) .rail-btn:hover .rail-label{opacity:1;}
+  .icon-rail.expanded .rail-label{display:none;}
 
-  /* ===== TRACK VIEW (list + map, no detail sidebar) ===== */
+  /* ===== TRACK VIEW ===== */
   .view-track{display:none;flex:1;min-width:0;}
   .view-track.active{display:flex;}
-
-  .list-panel{
-    width:300px;flex-shrink:0;background:#fff;border-inline-end:1px solid var(--border);
-    display:flex;flex-direction:column;min-width:0;
-  }
+  .list-panel{width:300px;flex-shrink:0;background:var(--panel);border-inline-end:1px solid var(--border);display:flex;flex-direction:column;min-width:0;}
   .lp-head{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
   .lp-head-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
   .lp-head-row h2{font-size:15px;font-weight:800;}
-  .lp-actions{font-size:12px;font-weight:700;color:var(--accent-dark);display:flex;align-items:center;gap:4px;cursor:pointer;}
-  .search-box{
-    display:flex;align-items:center;gap:8px;background:var(--panel-soft);border:1px solid var(--border);
-    border-radius:999px;padding:8px 13px;font-size:12px;color:var(--text-faint);margin-bottom:10px;
-  }
+  .search-box{display:flex;align-items:center;gap:8px;background:var(--panel-soft);border:1px solid var(--border);border-radius:999px;padding:8px 13px;font-size:12px;color:var(--text-faint);margin-bottom:10px;}
   .filter-row{display:flex;gap:8px;}
-  .filter-select{flex:1;font-size:11.5px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text-dim);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+  .filter-select{flex:1;font-size:11.5px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text-dim);}
   .assets-label{font-size:10.5px;font-weight:700;color:var(--text-faint);letter-spacing:.04em;padding:12px 16px 4px;}
   .vehicle-list{flex:1;overflow-y:auto;}
   .vehicle-row{display:flex;gap:11px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;border-inline-start:3px solid transparent;}
@@ -122,89 +111,182 @@
   .vr-time{font-size:10.5px;color:var(--text-faint);}
   .vr-signal{display:flex;align-items:flex-end;gap:1.5px;height:11px;flex-shrink:0;}
   .vr-signal span{width:3px;background:var(--text-faint);border-radius:1px;}
-  .vr-signal span:nth-child(1){height:40%;}
-  .vr-signal span:nth-child(2){height:65%;}
-  .vr-signal span:nth-child(3){height:100%;background:var(--ok);}
-  .vr-addr{font-size:11.5px;color:var(--text-dim);margin-top:3px;line-height:1.4;}
+  .vr-signal span:nth-child(1){height:40%;} .vr-signal span:nth-child(2){height:65%;} .vr-signal span:nth-child(3){height:100%;background:var(--ok);}
+  .vr-addr{font-size:11.5px;color:var(--text-dim);margin-top:3px;}
   .vr-speed{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--text-dim);margin-top:4px;font-weight:600;}
   .vr-speed .arrow{color:var(--ok);font-size:10px;}
   .vr-speed.offline{color:var(--text-faint);}
-
   .map-area{flex:1;position:relative;min-width:0;}
   #leafletMap{width:100%;height:100%;}
-
-  /* ----- leaflet shared look ----- */
-  .leaflet-control-attribution{font-size:9.5px !important;}
+  .leaflet-control-attribution{font-size:9.5px !important;background:var(--panel) !important;color:var(--text-dim) !important;}
   .leaflet-control-zoom{display:none;}
-  .leaflet-popup-content-wrapper{border-radius:12px;box-shadow:var(--shadow-md);font-family:'Vazirmatn',sans-serif;}
+  .leaflet-popup-content-wrapper{border-radius:12px;box-shadow:var(--shadow-md);font-family:'Vazirmatn',sans-serif;background:var(--panel);color:var(--text);}
+  .leaflet-popup-tip{background:var(--panel);}
   .leaflet-popup-content{margin:0;}
-  .leaflet-popup-tip{box-shadow:var(--shadow-sm);}
-
   .veh-marker{display:flex;align-items:center;}
-  .veh-marker .dot{width:26px;height:26px;border-radius:50%;background:var(--accent);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.25);display:grid;place-items:center;color:#fff;font-size:11px;}
+  .veh-marker .dot{width:26px;height:26px;border-radius:50%;background:var(--accent);border:3px solid var(--panel);box-shadow:0 2px 8px rgba(0,0,0,.25);display:grid;place-items:center;color:#fff;font-size:11px;}
   .veh-marker .label{background:var(--accent);color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;margin-inline-start:-8px;padding-inline-start:16px;box-shadow:0 2px 6px rgba(0,0,0,.18);white-space:nowrap;}
   .veh-marker.offline .dot,.veh-marker.offline .label{background:var(--offline);}
-
-  /* ----- vehicle popup (replaces side detail panel) ----- */
   .veh-popup{min-width:220px;padding:14px;}
   .vp-head{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
   .vp-thumb{width:38px;height:38px;border-radius:10px;background:var(--panel-soft);display:grid;place-items:center;font-size:18px;flex-shrink:0;}
   .vp-name{font-size:13.5px;font-weight:800;}
   .vp-meta{font-size:10.5px;color:var(--text-faint);margin-top:1px;}
-  .vp-addr{font-size:11px;color:var(--text-dim);margin-bottom:11px;line-height:1.6;padding-bottom:11px;border-bottom:1px solid var(--border);}
+  .vp-addr{font-size:11px;color:var(--text-dim);margin-bottom:11px;padding-bottom:11px;border-bottom:1px solid var(--border);}
   .vp-controls{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
   .pop-ctrl{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;}
-  .pop-ctrl-circle{width:36px;height:36px;border-radius:50%;border:1.6px solid var(--border);display:grid;place-items:center;font-size:15px;color:var(--text);background:#fff;transition:all .15s ease;}
+  .pop-ctrl-circle{width:36px;height:36px;border-radius:50%;border:1.6px solid var(--border);display:grid;place-items:center;font-size:15px;color:var(--text);background:var(--panel);}
   .pop-ctrl:hover .pop-ctrl-circle{border-color:var(--accent);color:var(--accent);}
   .pop-ctrl.on .pop-ctrl-circle{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark);}
   .pop-ctrl-label{font-size:9px;color:var(--text-dim);font-weight:600;text-align:center;}
 
   /* ===== GENERIC PAGE VIEWS ===== */
-  .view-page{display:none;flex:1;overflow-y:auto;padding:22px;min-width:0;}
+  .view-page{display:none;flex:1;overflow-y:auto;padding:26px;min-width:0;}
   .view-page.active{display:block;}
-  .page-head{margin-bottom:18px;}
-  .page-head h2{font-size:17px;font-weight:800;}
-  .page-head p{font-size:12.5px;color:var(--text-dim);margin-top:3px;}
-
-  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-  .stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);padding:15px;}
-  .stat-card .sl{font-size:11px;color:var(--text-dim);font-weight:600;margin-bottom:8px;}
-  .stat-card .sv{font-size:22px;font-weight:800;}
-  .stat-card .st{font-size:11px;color:var(--text-faint);margin-top:4px;}
-
-  .section-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:16px;}
-  .section-card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
-  .section-card-head h3{font-size:13.5px;font-weight:800;}
-  .btn{font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--text);cursor:pointer;}
+  .page-head{margin-bottom:20px;}
+  .page-head h2{font-size:18px;font-weight:800;}
+  .page-head p{font-size:12.5px;color:var(--text-dim);margin-top:4px;}
+  .btn{font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer;}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
-  .btn.danger{background:#fdeaea;border-color:#f3cccc;color:var(--danger);}
+  .btn.danger{background:var(--danger-soft);border-color:var(--danger);color:var(--danger);}
+  .btn.ghost{background:transparent;}
+  .section-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:16px;}
+  .section-card-head{padding:15px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .section-card-head h3{font-size:13.5px;font-weight:800;}
 
-  .alert-item{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);}
-  .alert-item:last-child{border-bottom:none;}
-  .alert-ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:15px;background:#fdeaea;flex-shrink:0;}
-  .alert-item .title{font-size:12.5px;font-weight:700;}
-  .alert-item .sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
-  .pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:#fdeaea;color:var(--danger);margin-inline-start:auto;}
-  .pill.medium{background:#fff3e4;color:var(--warn);}
-  .pill.active{background:var(--accent-soft);color:var(--accent-dark);}
+  /* ===== HOME ===== */
+  .home-welcome{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px;}
+  .home-welcome-text h2{font-size:19px;font-weight:800;}
+  .home-welcome-text p{font-size:12.5px;color:var(--text-dim);margin-top:4px;}
+  .plan-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:999px;font-size:12.5px;font-weight:800;background:var(--gold-soft);color:var(--gold);}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+  .stat-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:17px;}
+  .stat-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .stat-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex-shrink:0;}
+  .stat-ic.green{background:var(--accent-soft);color:var(--accent-dark);}
+  .stat-ic.red{background:var(--danger-soft);color:var(--danger);}
+  .stat-ic.orange{background:var(--warn-soft);color:var(--warn);}
+  .stat-ic.blue{background:var(--info-soft);color:var(--info);}
+  .stat-label{font-size:11px;color:var(--text-dim);font-weight:700;}
+  .stat-value{font-size:23px;font-weight:800;}
+  .stat-sub{font-size:11px;color:var(--text-faint);margin-top:5px;}
+  .stat-sub.warn-text{color:var(--warn);font-weight:700;}
+  .stat-progress{height:5px;border-radius:99px;background:var(--panel-soft);margin-top:10px;overflow:hidden;}
+  .stat-progress-fill{height:100%;background:var(--accent);border-radius:99px;}
+  .sub-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:linear-gradient(90deg,var(--gold-soft),var(--panel));border:1px solid var(--gold-soft);border-radius:var(--radius-md);padding:18px 22px;margin-bottom:20px;}
+  .sub-banner-left{display:flex;align-items:center;gap:14px;}
+  .sub-banner-ic{width:46px;height:46px;border-radius:12px;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;font-size:21px;flex-shrink:0;}
+  .sub-banner-title{font-size:14px;font-weight:800;}
+  .sub-banner-sub{font-size:12px;color:var(--text-dim);margin-top:3px;}
+  .sub-banner-sub b{color:var(--text);font-weight:700;}
+  .home-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;}
+  @media (max-width:980px){.home-grid{grid-template-columns:1fr;}}
+  .vehicle-mini-row{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border);}
+  .vehicle-mini-row:last-child{border-bottom:none;}
+  .vmr-thumb{width:36px;height:36px;border-radius:9px;background:var(--panel-soft);display:grid;place-items:center;font-size:16px;flex-shrink:0;}
+  .vmr-name{font-size:12.5px;font-weight:700;}
+  .vmr-sub{font-size:11px;color:var(--text-dim);margin-top:1px;}
+  .vmr-status{margin-inline-start:auto;font-size:11.5px;}
+  .status-dot-sm{width:8px;height:8px;border-radius:50%;display:inline-block;margin-inline-end:5px;}
+  .status-dot-sm.online{background:var(--ok);} .status-dot-sm.offline{background:var(--offline);}
+  .alert-mini-row{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border);}
+  .alert-mini-row:last-child{border-bottom:none;}
+  .ami-ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:15px;flex-shrink:0;background:var(--danger-soft);}
+  .ami-ic.medium{background:var(--warn-soft);}
+  .ami-title{font-size:12.5px;font-weight:700;}
+  .ami-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
 
+  /* ===== ALERTS ===== */
+  .alerts-summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+  .asum-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 16px;display:flex;align-items:center;gap:12px;}
+  .asum-ic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex-shrink:0;}
+  .asum-ic.all{background:var(--panel-soft);color:var(--text-dim);}
+  .asum-ic.high{background:var(--danger-soft);color:var(--danger);}
+  .asum-ic.medium{background:var(--warn-soft);color:var(--warn);}
+  .asum-ic.info{background:var(--info-soft);color:var(--info);}
+  .asum-value{font-size:19px;font-weight:800;}
+  .asum-label{font-size:10.5px;color:var(--text-dim);font-weight:600;}
+  .alert-filter-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .aft-btn{font-size:12px;font-weight:700;padding:8px 16px;border-radius:999px;border:1px solid var(--border);background:var(--panel);color:var(--text-dim);cursor:pointer;display:flex;align-items:center;gap:7px;}
+  .aft-btn .cnt{background:var(--panel-soft);color:var(--text-dim);font-size:10.5px;padding:1px 7px;border-radius:999px;}
+  .aft-btn.active{background:var(--text);border-color:var(--text);color:var(--bg);}
+  .aft-btn.active .cnt{background:rgba(127,127,127,.3);color:inherit;}
+  .alert-date-label{font-size:11px;font-weight:700;color:var(--text-faint);margin:18px 2px 8px;}
+  .alert-date-label:first-child{margin-top:0;}
+  .alert-card{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:15px 18px;margin-bottom:9px;}
+  .alert-card.read{opacity:.5;}
+  .ac-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:17px;flex-shrink:0;}
+  .ac-ic.high{background:var(--danger-soft);color:var(--danger);}
+  .ac-ic.medium{background:var(--warn-soft);color:var(--warn);}
+  .ac-body{flex:1;min-width:0;}
+  .ac-title{font-size:13px;font-weight:700;}
+  .ac-tags{display:flex;align-items:center;gap:8px;margin-top:4px;}
+  .ac-vehicle-tag{font-size:10.5px;background:var(--panel-soft);color:var(--text-dim);padding:2px 9px;border-radius:999px;font-weight:600;}
+  .ac-time{font-size:10.5px;color:var(--text-faint);}
+  .ac-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .ac-sev{font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:999px;}
+  .ac-sev.high{background:var(--danger-soft);color:var(--danger);}
+  .ac-sev.medium{background:var(--warn-soft);color:var(--warn);}
+  .ac-dismiss{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--panel);color:var(--text-faint);display:grid;place-items:center;cursor:pointer;font-size:12px;flex-shrink:0;}
+  .ac-dismiss:hover{border-color:var(--danger);color:var(--danger);}
+  .ac-map-link{font-size:11px;font-weight:700;color:var(--accent-dark);cursor:pointer;white-space:nowrap;}
+
+  /* ===== SUBSCRIPTION & BILLING ===== */
+  .plan-card{background:linear-gradient(135deg,#1a1d23,#2b2f3a);color:#fff;border-radius:var(--radius-lg);padding:26px;margin-bottom:18px;position:relative;overflow:hidden;}
+  .plan-card::after{content:"";position:absolute;inset-inline-end:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(184,134,46,.35),transparent 70%);}
+  .plan-card-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:20px;position:relative;z-index:1;}
+  .plan-name-row{display:flex;align-items:center;gap:10px;}
+  .plan-crown{width:44px;height:44px;border-radius:12px;background:rgba(184,134,46,.25);color:#e8c074;display:grid;place-items:center;font-size:21px;}
+  .plan-name{font-size:19px;font-weight:800;}
+  .plan-name-sub{font-size:11.5px;color:#aeb4c2;margin-top:2px;}
+  .plan-price{font-size:22px;font-weight:800;}
+  .plan-price span{font-size:11px;font-weight:500;color:#aeb4c2;}
+  .plan-features{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative;z-index:1;}
+  .pf-item{background:rgba(255,255,255,.06);border-radius:10px;padding:12px 14px;}
+  .pf-label{font-size:10.5px;color:#aeb4c2;margin-bottom:5px;}
+  .pf-value{font-size:14.5px;font-weight:700;}
+  .plan-card-actions{display:flex;gap:10px;margin-top:20px;position:relative;z-index:1;}
+  .btn-on-dark{font-size:12px;font-weight:700;padding:9px 18px;border-radius:9px;border:none;cursor:pointer;background:#fff;color:#1a1d23;}
+  .btn-on-dark.ghost{background:rgba(255,255,255,.1);color:#fff;}
+  .payment-row{display:flex;align-items:center;gap:14px;padding:16px 18px;}
+  .pay-card-ic{width:46px;height:30px;border-radius:6px;background:linear-gradient(135deg,#4f7dff,#2c4ed6);display:grid;place-items:center;color:#fff;font-size:13px;flex-shrink:0;}
+  .pay-info{flex:1;}
+  .pay-number{font-size:13px;font-weight:700;direction:ltr;text-align:right;}
+  .pay-expiry{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  table.billing{width:100%;border-collapse:collapse;}
+  table.billing thead th{text-align:right;font-size:10.5px;color:var(--text-faint);padding:11px 18px;border-bottom:1px solid var(--border);background:var(--panel-soft);}
+  table.billing tbody td{padding:13px 18px;border-bottom:1px solid var(--border);font-size:12.5px;}
+  table.billing tbody tr:last-child td{border-bottom:none;}
+  .invoice-status{font-size:10.5px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-dark);}
+  .invoice-link{font-size:11.5px;font-weight:700;color:var(--accent-dark);cursor:pointer;}
+  .plan-tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:4px;}
+  .tier-card{background:var(--panel);border:1.5px solid var(--border);border-radius:var(--radius-md);padding:20px;text-align:center;position:relative;}
+  .tier-card.current{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft);}
+  .tier-current-tag{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;font-size:10px;font-weight:800;padding:3px 12px;border-radius:999px;}
+  .tier-name{font-size:14px;font-weight:800;margin-bottom:6px;}
+  .tier-price{font-size:19px;font-weight:800;margin-bottom:14px;}
+  .tier-price span{font-size:11px;color:var(--text-dim);font-weight:500;}
+  .tier-feature{font-size:11.5px;color:var(--text-dim);padding:6px 0;border-top:1px solid var(--border);}
+  .tier-feature:first-of-type{border-top:none;}
+  .tier-btn{width:100%;margin-top:16px;}
+
+  /* ===== Shared/Setup ===== */
+  .tab-row{display:flex;gap:8px;margin-bottom:14px;}
+  .tab-btn{font-size:12px;font-weight:700;padding:8px 16px;border-radius:999px;border:1px solid var(--border);background:var(--panel);color:var(--text-dim);cursor:pointer;}
+  .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .tab-pane{display:none;} .tab-pane.active{display:block;}
   .grant-row{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
   .grant-row:last-child{border-bottom:none;}
   .grant-av{width:38px;height:38px;border-radius:10px;background:var(--panel-soft);color:var(--text-dim);font-weight:700;font-size:12px;display:grid;place-items:center;flex-shrink:0;}
   .grant-info{flex:1;min-width:150px;}
   .grant-info h4{font-size:13px;font-weight:700;}
   .grant-info p{font-size:11px;color:var(--text-dim);margin-top:2px;}
-
-  .tab-row{display:flex;gap:8px;margin-bottom:14px;}
-  .tab-btn{font-size:12px;font-weight:700;padding:8px 16px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text-dim);cursor:pointer;}
-  .tab-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
-  .tab-pane{display:none;}
-  .tab-pane.active{display:block;}
+  .pill{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--danger-soft);color:var(--danger);}
+  .pill.active{background:var(--accent-soft);color:var(--accent-dark);}
   table{width:100%;border-collapse:collapse;}
   thead th{text-align:right;font-size:10.5px;color:var(--text-faint);padding:10px 18px;border-bottom:1px solid var(--border);background:var(--panel-soft);}
   tbody td{padding:12px 18px;border-bottom:1px solid var(--border);font-size:12px;}
   tbody tr:last-child td{border-bottom:none;}
-
   .member-row{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);}
   .member-row:last-child{border-bottom:none;}
   .member-av{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4f7dff,#8a5cf6);color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center;flex-shrink:0;}
@@ -212,56 +294,51 @@
   .member-row .email{font-size:11px;color:var(--text-dim);direction:ltr;text-align:right;}
 
   /* ===== ACTIVITY & HISTORY (replay) ===== */
-  .activity-toolbar{
-    display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;
-    background:#fff;border:1px solid var(--border);border-radius:var(--radius-md);
-    padding:16px;margin-bottom:14px;
-  }
+  .activity-toolbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:14px;}
   .activity-field{display:flex;flex-direction:column;gap:5px;}
   .activity-field label{font-size:10.5px;color:var(--text-dim);font-weight:700;}
-  .activity-field select, .activity-field input{
-    font-size:12.5px;padding:9px 12px;border-radius:9px;border:1px solid var(--border);
-    background:#fff;color:var(--text);min-width:150px;
-  }
+  .activity-field select, .activity-field input{font-size:12.5px;padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:var(--panel);color:var(--text);min-width:150px;}
   .mode-tabs{display:flex;gap:4px;background:var(--panel-soft);padding:4px;border-radius:999px;}
   .mode-tab{font-size:12px;font-weight:700;padding:8px 16px;border-radius:999px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;}
   .mode-tab.active{background:var(--accent);color:#fff;}
   .activity-toolbar .btn{margin-inline-start:auto;align-self:flex-end;}
-
-  .activity-map-wrap{position:relative;height:440px;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:14px;background:#eef0f3;}
+  .activity-map-wrap{position:relative;height:460px;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:14px;background:var(--panel-soft);}
   #activityMap{width:100%;height:100%;}
-
-  .activity-legend{
-    position:absolute;bottom:12px;inset-inline-start:12px;z-index:450;
-    background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:9px;
-    padding:8px 12px;font-size:11px;color:var(--text-dim);display:flex;gap:14px;
-    box-shadow:var(--shadow-sm);
-  }
+  .activity-legend{position:absolute;bottom:12px;inset-inline-start:12px;z-index:450;background:var(--panel);border:1px solid var(--border);border-radius:9px;padding:8px 12px;font-size:11px;color:var(--text-dim);display:flex;gap:14px;box-shadow:var(--shadow-sm);}
   .legend-dot{display:inline-flex;align-items:center;gap:5px;}
   .legend-dot span{width:9px;height:9px;border-radius:50%;display:inline-block;}
 
-  .playback-bar{
-    display:none;align-items:center;gap:16px;background:#fff;border:1px solid var(--border);
-    border-radius:var(--radius-md);padding:14px 18px;flex-wrap:wrap;
+  .follow-toggle{
+    position:absolute;top:12px;inset-inline-end:12px;z-index:450;display:flex;align-items:center;gap:8px;
+    background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:8px 14px;
+    font-size:11.5px;color:var(--text-dim);box-shadow:var(--shadow-sm);cursor:pointer;user-select:none;
   }
-  .pb-btn{width:40px;height:40px;border-radius:50%;border:1.6px solid var(--border);background:#fff;display:grid;place-items:center;font-size:15px;color:var(--text);cursor:pointer;flex-shrink:0;}
+  .follow-toggle input{accent-color:var(--accent);width:14px;height:14px;cursor:pointer;}
+
+  .playback-bar{display:none;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px 18px;flex-wrap:wrap;}
+  .pb-btn{width:40px;height:40px;border-radius:50%;border:1.6px solid var(--border);background:var(--panel);display:grid;place-items:center;font-size:15px;color:var(--text);cursor:pointer;flex-shrink:0;}
   .pb-btn:hover{border-color:var(--accent);color:var(--accent);}
   .pb-btn.play{border-color:var(--accent);background:var(--accent);color:#fff;}
   .pb-scrubber{flex:1;min-width:140px;}
   .pb-scrubber input[type=range]{width:100%;accent-color:var(--accent);}
-  .pb-time{font-size:11.5px;color:var(--text-dim);min-width:120px;text-align:center;white-space:nowrap;font-weight:600;}
+  .pb-time{font-size:11.5px;color:var(--text-dim);min-width:130px;text-align:center;white-space:nowrap;font-weight:600;font-variant-numeric:tabular-nums;}
   .pb-speed{display:flex;align-items:center;gap:9px;flex-shrink:0;}
-  .pb-speed-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:14px;color:var(--text-dim);}
+  .pb-speed-btn{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:var(--panel);cursor:pointer;font-size:14px;color:var(--text-dim);}
   .pb-speed-btn:hover{border-color:var(--accent);color:var(--accent);}
-  .pb-speed-label{font-size:12px;font-weight:800;min-width:32px;text-align:center;}
+  .pb-speed-label{font-size:12px;font-weight:800;min-width:34px;text-align:center;}
 
-  /* ================= MOBILE BOTTOM TABS ================= */
-  .bottom-tabs{display:none;height:60px;background:#fff;border-top:1px solid var(--border);align-items:center;justify-content:space-around;flex-shrink:0;z-index:60;}
+  /* replay marker */
+  .replay-marker{position:relative;width:34px;height:34px;}
+  .replay-pulse{position:absolute;inset:0;border-radius:50%;background:var(--select);opacity:.4;animation:pulseRing 1.5s ease-out infinite;}
+  @keyframes pulseRing{0%{transform:scale(.55);opacity:.55;}100%{transform:scale(2.1);opacity:0;}}
+  .replay-core{position:absolute;inset:0;border-radius:50%;background:var(--select);border:3px solid var(--panel);box-shadow:0 3px 10px rgba(0,0,0,.35);display:grid;place-items:center;}
+  .replay-arrow{color:#fff;font-size:14px;display:inline-block;will-change:transform;}
+
+  /* ================= MOBILE ================= */
+  .bottom-tabs{display:none;height:60px;background:var(--panel);border-top:1px solid var(--border);align-items:center;justify-content:space-around;flex-shrink:0;z-index:60;}
   .bt-item{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--text-faint);cursor:pointer;font-size:10px;font-weight:600;}
   .bt-item .bi{font-size:19px;}
   .bt-item.active{color:var(--accent);}
-
-  /* ================= MOBILE QUICK-CONTROLS SHEET ================= */
   .mobile-controls{display:none;position:fixed;inset:0;background:#15171c;z-index:900;flex-direction:column;align-items:center;padding:50px 24px 24px;color:#fff;overflow-y:auto;}
   .mobile-controls.show{display:flex;}
   .mc-close{position:absolute;top:18px;inset-inline-end:18px;background:rgba(255,255,255,.1);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer;}
@@ -270,230 +347,250 @@
   .mc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px 34px;width:100%;max-width:260px;}
   .mc-btn{display:flex;flex-direction:column;align-items:center;gap:9px;cursor:pointer;}
   .mc-circle{width:72px;height:72px;border-radius:50%;border:2px solid #3a3d45;display:grid;place-items:center;font-size:26px;color:#fff;}
-  .mc-btn.on .mc-circle{border-color:var(--accent);box-shadow:0 0 0 4px rgba(13,181,131,.25);color:var(--accent);}
+  .mc-btn.on .mc-circle{border-color:#17d6a0;box-shadow:0 0 0 4px rgba(23,214,160,.25);color:#17d6a0;}
   .mc-label{font-size:11.5px;color:#d7d9de;font-weight:600;}
 
-  /* ================================================================ RESPONSIVE */
   @media (max-width: 1024px){
-    .icon-rail{display:none;}
-    .bottom-tabs{display:flex;}
-    .list-panel{display:none;}
+    .icon-rail{display:none;} .bottom-tabs{display:flex;} .list-panel{display:none;}
     .stat-grid{grid-template-columns:repeat(2,1fr);}
-    .activity-toolbar .btn{margin-inline-start:0;}
+    .plan-features{grid-template-columns:repeat(2,1fr);}
+    .plan-tier-grid{grid-template-columns:1fr;}
+    .alerts-summary-row{grid-template-columns:repeat(2,1fr);}
   }
-
   @media (max-width: 680px){
     .view-page{padding:16px;}
-    .activity-field select,.activity-field input{min-width:120px;}
-    .activity-map-wrap{height:340px;}
-    .pb-time{min-width:90px;font-size:10.5px;}
+    .alert-card{flex-wrap:wrap;}
+    .ac-actions{width:100%;justify-content:space-between;}
+    .activity-map-wrap{height:360px;}
+    .follow-toggle{font-size:10.5px;padding:6px 10px;}
   }
 </style>
 </head>
 <body>
 
 <div class="app">
-
   <header class="topbar">
-    <div class="brand">
-      <span class="logo"></span>
-      <span class="brand-name">سنتینل</span>
-    </div>
+    <div class="brand"><span class="logo"></span><span class="brand-name">سنتینل</span></div>
     <div class="topbar-right">
       <span class="demo-pill">نسخه آزمایشی</span>
+      <button class="icon-btn-plain" id="themeToggle" title="تغییر حالت نمایش">🌙</button>
       <div class="avatar-circle">ج.د</div>
     </div>
   </header>
 
   <div class="shell">
-
-    <nav class="icon-rail">
-      <div class="rail-btn" data-view="home">▦<span class="rail-label">خانه</span></div>
-      <div class="rail-btn active" data-view="track">◎<span class="rail-label">ردیابی</span></div>
-      <div class="rail-btn" data-view="activity">⟳<span class="rail-label">فعالیت و تاریخچه</span></div>
-      <div class="rail-btn" data-view="alerts">🔔<span class="rail-label">هشدارها</span></div>
-      <div class="rail-btn" data-view="shared">👥<span class="rail-label">دسترسی‌ها</span></div>
-      <div class="rail-btn" data-view="setup">🔧<span class="rail-label">تنظیمات</span></div>
+    <nav class="icon-rail" id="iconRail">
+      <div class="rail-toggle" id="railToggle"><span class="ri">☰</span></div>
+      <div class="rail-div"></div>
+      <div class="rail-btn active" data-view="home"><span class="ri">▦</span><span class="rt">خانه</span><span class="rail-label">خانه</span></div>
+      <div class="rail-btn" data-view="track"><span class="ri">◎</span><span class="rt">ردیابی</span><span class="rail-label">ردیابی</span></div>
+      <div class="rail-btn" data-view="activity"><span class="ri">⟳</span><span class="rt">فعالیت و تاریخچه</span><span class="rail-label">فعالیت و تاریخچه</span></div>
+      <div class="rail-btn" data-view="alerts"><span class="ri">🔔</span><span class="rt">هشدارها</span><span class="rail-label">هشدارها</span></div>
+      <div class="rail-btn" data-view="shared"><span class="ri">👥</span><span class="rt">دسترسی‌ها</span><span class="rail-label">دسترسی‌ها</span></div>
+      <div class="rail-btn" data-view="billing"><span class="ri">💳</span><span class="rt">اشتراک و صورتحساب</span><span class="rail-label">اشتراک و صورتحساب</span></div>
+      <div class="rail-btn" data-view="setup"><span class="ri">🔧</span><span class="rt">تنظیمات</span><span class="rail-label">تنظیمات</span></div>
     </nav>
 
-    <!-- ============ TRACK VIEW (list + map only) ============ -->
-    <div class="view-track active" id="view-track">
-
+    <!-- ============ TRACK ============ -->
+    <div class="view-track" id="view-track">
       <div class="list-panel">
         <div class="lp-head">
-          <div class="lp-head-row">
-            <h2>نقشه</h2>
-            <span class="lp-actions">عملیات ⌄</span>
-          </div>
+          <div class="lp-head-row"><h2>نقشه</h2><span>عملیات ⌄</span></div>
           <div class="search-box">🔍 جستجو</div>
-          <div class="filter-row">
-            <span class="filter-select">مرتب‌سازی: نام ⌄</span>
-            <span class="filter-select">همه خودروها ⌄</span>
-          </div>
+          <div class="filter-row"><span class="filter-select">مرتب‌سازی: نام ⌄</span><span class="filter-select">همه خودروها ⌄</span></div>
         </div>
         <div class="assets-label">خودروها</div>
         <div class="vehicle-list" id="vehicleList">
           <div class="vehicle-row" data-id="alpha" data-lat="35.700" data-lng="51.398">
             <div class="vr-thumb">🚐</div>
-            <div class="vr-body">
-              <div class="vr-top"><span class="vr-name">آلفا</span><span class="vr-time">۳ دقیقه پیش</span></div>
-              <div class="vr-addr">خیابان ولیعصر، نرسیده به میدان ونک</div>
-              <div class="vr-speed"><span class="arrow">▲</span> ۴۳ کیلومتر/ساعت</div>
-            </div>
+            <div class="vr-body"><div class="vr-top"><span class="vr-name">آلفا</span><span class="vr-time">۳ دقیقه پیش</span></div><div class="vr-addr">خیابان ولیعصر</div><div class="vr-speed"><span class="arrow">▲</span> ۴۳ کیلومتر/ساعت</div></div>
             <div class="vr-signal"><span></span><span></span><span></span></div>
           </div>
-
           <div class="vehicle-row selected" data-id="beta" data-lat="35.730" data-lng="51.420">
             <div class="vr-thumb">🚐</div>
-            <div class="vr-body">
-              <div class="vr-top"><span class="vr-name">بتا</span><span class="vr-time">۳ دقیقه پیش</span></div>
-              <div class="vr-addr">بزرگراه چمران، خروجی پل مدیریت</div>
-              <div class="vr-speed"><span class="arrow">▲</span> ۲۹ کیلومتر/ساعت</div>
-            </div>
+            <div class="vr-body"><div class="vr-top"><span class="vr-name">بتا</span><span class="vr-time">۳ دقیقه پیش</span></div><div class="vr-addr">بزرگراه چمران</div><div class="vr-speed"><span class="arrow">▲</span> ۲۹ کیلومتر/ساعت</div></div>
             <div class="vr-signal"><span></span><span></span><span></span></div>
           </div>
-
           <div class="vehicle-row" data-id="gamma" data-lat="35.745" data-lng="51.389">
             <div class="vr-thumb">🚚</div>
-            <div class="vr-body">
-              <div class="vr-top"><span class="vr-name">گاما</span><span class="vr-time">۳ دقیقه پیش</span></div>
-              <div class="vr-addr">خیابان شریعتی، نبش خیابان ملک</div>
-              <div class="vr-speed offline">متوقف</div>
-            </div>
-            <div class="vr-signal"><span></span><span></span><span></span></div>
-          </div>
-
-          <div class="vehicle-row" data-id="delta" data-lat="35.760" data-lng="51.455">
-            <div class="vr-thumb">🛻</div>
-            <div class="vr-body">
-              <div class="vr-top"><span class="vr-name">دلتا</span><span class="vr-time">۵ دقیقه پیش</span></div>
-              <div class="vr-addr">اتوبان باقری، جنوب به شمال</div>
-              <div class="vr-speed"><span class="arrow">▲</span> ۶۲ کیلومتر/ساعت</div>
-            </div>
+            <div class="vr-body"><div class="vr-top"><span class="vr-name">گاما</span><span class="vr-time">۳ دقیقه پیش</span></div><div class="vr-addr">خیابان شریعتی</div><div class="vr-speed offline">متوقف</div></div>
             <div class="vr-signal"><span></span><span></span><span></span></div>
           </div>
         </div>
       </div>
-
-      <div class="map-area">
-        <div id="leafletMap"></div>
-      </div>
+      <div class="map-area"><div id="leafletMap"></div></div>
     </div>
 
     <!-- ============ HOME ============ -->
-    <div class="view-page" id="view-home">
-      <div class="page-head"><h2>خانه</h2><p>نمای کلی از وضعیت خودروهای شما</p></div>
+    <div class="view-page active" id="view-home">
+      <div class="home-welcome">
+        <div class="home-welcome-text"><h2>سلام، جواد 👋</h2><p>خلاصه‌ای از وضعیت خودروها و حساب کاربری شما</p></div>
+        <span class="plan-badge">👑 پلن طلایی</span>
+      </div>
       <div class="stat-grid">
-        <div class="stat-card"><div class="sl">آنلاین</div><div class="sv">۳ از ۴</div><div class="st">خودرو فعال</div></div>
-        <div class="stat-card"><div class="sl">هشدار فعال</div><div class="sv">۱</div><div class="st">نیاز به بررسی</div></div>
-        <div class="stat-card"><div class="sl">دسترسی‌های اشتراکی</div><div class="sv">۲</div><div class="st">فعال</div></div>
-        <div class="stat-card"><div class="sl">میانگین سرعت</div><div class="sv">۴۵</div><div class="st">کیلومتر/ساعت</div></div>
+        <div class="stat-card"><div class="stat-card-top"><span class="stat-label">آنلاین</span><span class="stat-ic green">📡</span></div><div class="stat-value">۲ از ۳</div><div class="stat-sub">خودرو در حال حاضر متصل</div></div>
+        <div class="stat-card"><div class="stat-card-top"><span class="stat-label">هشدار فعال</span><span class="stat-ic red">⚠️</span></div><div class="stat-value">۱</div><div class="stat-sub warn-text">نیاز به بررسی</div></div>
+        <div class="stat-card"><div class="stat-card-top"><span class="stat-label">پایان اعتبار اشتراک</span><span class="stat-ic orange">📅</span></div><div class="stat-value">۲۴ روز</div><div class="stat-sub">تا ۱۴۰۳/۰۴/۱۵</div></div>
+        <div class="stat-card"><div class="stat-card-top"><span class="stat-label">خودروهای ثبت‌شده</span><span class="stat-ic blue">🚗</span></div><div class="stat-value">۳ از ۵</div><div class="stat-sub">ظرفیت باقی‌مانده پلن شما</div><div class="stat-progress"><div class="stat-progress-fill" style="width:60%;"></div></div></div>
       </div>
-      <div class="section-card">
-        <div class="section-card-head"><h3>آخرین هشدارها</h3><button class="btn">مشاهده همه</button></div>
-        <div class="alert-item"><div class="alert-ic">⚠️</div><div><div class="title">خودرو گاما متوقف شده</div><div class="sub">۱۲ دقیقه پیش</div></div><span class="pill">بحرانی</span></div>
-        <div class="alert-item"><div class="alert-ic" style="background:#fff3e4;">🔋</div><div><div class="title">باتری ضعیف — دلتا</div><div class="sub">۱ ساعت پیش</div></div><span class="pill medium">متوسط</span></div>
+      <div class="sub-banner">
+        <div class="sub-banner-left"><div class="sub-banner-ic">👑</div><div><div class="sub-banner-title">اشتراک طلایی شما فعال است</div><div class="sub-banner-sub">تمدید بعدی در <b>۱۴۰۳/۰۴/۱۵</b> · ۲۴ روز باقی‌مانده</div></div></div>
+        <button class="btn primary" onclick="activateView('billing')">مدیریت اشتراک</button>
       </div>
-    </div>
-
-    <!-- ============ فعالیت و تاریخچه (REPLAY) ============ -->
-    <div class="view-page" id="view-activity">
-      <div class="page-head"><h2>فعالیت و تاریخچه</h2><p>مسیر حرکت گذشته خودرو را در یک بازه زمانی مشخص مرور کنید</p></div>
-
-      <div class="activity-toolbar">
-        <div class="activity-field">
-          <label>خودرو</label>
-          <select id="actVehicleSelect">
-            <option value="alpha">آلفا</option>
-            <option value="beta" selected>بتا</option>
-            <option value="gamma">گاما</option>
-            <option value="delta">دلتا</option>
-          </select>
+      <div class="home-grid">
+        <div class="section-card">
+          <div class="section-card-head"><h3>وضعیت خودروها</h3><button class="btn" onclick="activateView('track')">مشاهده نقشه</button></div>
+          <div class="vehicle-mini-row"><div class="vmr-thumb">🚗</div><div><div class="vmr-name">تسلا مدل ۳</div><div class="vmr-sub">۲ دقیقه پیش · ۴۸ کیلومتر/ساعت</div></div><div class="vmr-status"><span class="status-dot-sm online"></span>آنلاین</div></div>
+          <div class="vehicle-mini-row"><div class="vmr-thumb">🚙</div><div><div class="vmr-name">هوندا CR-V</div><div class="vmr-sub">۱ دقیقه پیش · ۲۹ کیلومتر/ساعت</div></div><div class="vmr-status"><span class="status-dot-sm online"></span>آنلاین</div></div>
+          <div class="vehicle-mini-row"><div class="vmr-thumb">🛻</div><div><div class="vmr-name">فورد F-150</div><div class="vmr-sub">۳ ساعت پیش</div></div><div class="vmr-status"><span class="status-dot-sm offline"></span>آفلاین</div></div>
         </div>
-        <div class="activity-field">
-          <label>از تاریخ و زمان</label>
-          <input type="datetime-local" id="actFrom" value="2024-06-10T08:00">
-        </div>
-        <div class="activity-field">
-          <label>تا تاریخ و زمان</label>
-          <input type="datetime-local" id="actTo" value="2024-06-10T09:00">
-        </div>
-
-        <div class="activity-field">
-          <label>نحوه نمایش</label>
-          <div class="mode-tabs">
-            <button class="mode-tab active" data-mode="trace">فقط مسیر</button>
-            <button class="mode-tab" data-mode="replay">پخش زنده</button>
-          </div>
-        </div>
-
-        <button class="btn primary" id="actLoadBtn">رسم مسیر</button>
-      </div>
-
-      <div class="activity-map-wrap">
-        <div id="activityMap"></div>
-        <div class="activity-legend">
-          <span class="legend-dot"><span style="background:#15a876;"></span> شروع</span>
-          <span class="legend-dot"><span style="background:#e14a4a;"></span> پایان</span>
-          <span class="legend-dot"><span style="background:#4f7dff;"></span> موقعیت فعلی پخش</span>
-        </div>
-      </div>
-
-      <div class="playback-bar" id="playbackBar">
-        <button class="pb-btn" id="pbRestart">⟲</button>
-        <button class="pb-btn play" id="pbPlayPause">▶</button>
-        <div class="pb-scrubber"><input type="range" id="pbScrubber" min="0" max="10" value="0" step="1"></div>
-        <div class="pb-time" id="pbTimeLabel">۰۸:۰۰ · ۰ کیلومتر/ساعت</div>
-        <div class="pb-speed">
-          <button class="pb-speed-btn" id="pbSpeedMinus">−</button>
-          <span class="pb-speed-label" id="pbSpeedLabel">×۱</span>
-          <button class="pb-speed-btn" id="pbSpeedPlus">+</button>
+        <div class="section-card">
+          <div class="section-card-head"><h3>آخرین هشدارها</h3><button class="btn" onclick="activateView('alerts')">مشاهده همه</button></div>
+          <div class="alert-mini-row"><div class="ami-ic">⚠️</div><div><div class="ami-title">قطع ارتباط — فورد F-150</div><div class="ami-sub">۱۲ دقیقه پیش</div></div></div>
+          <div class="alert-mini-row"><div class="ami-ic medium">🔋</div><div><div class="ami-title">باتری ضعیف — هوندا CR-V</div><div class="ami-sub">۱ ساعت پیش</div></div></div>
         </div>
       </div>
     </div>
 
     <!-- ============ ALERTS ============ -->
     <div class="view-page" id="view-alerts">
-      <div class="page-head"><h2>هشدارها</h2><p>اعلان‌های فعال مربوط به خودروهای شما</p></div>
-      <div class="section-card">
-        <div class="alert-item"><div class="alert-ic">⚠️</div><div><div class="title">خودرو گاما متوقف شده</div><div class="sub">۱۲ دقیقه پیش</div></div><span class="pill">بحرانی</span></div>
-        <div class="alert-item"><div class="alert-ic" style="background:#fff3e4;">🔋</div><div><div class="title">باتری ضعیف — دلتا</div><div class="sub">۱ ساعت پیش</div></div><span class="pill medium">متوسط</span></div>
-        <div class="alert-item"><div class="alert-ic" style="background:#fff3e4;">🚧</div><div><div class="title">خروج از محدوده — آلفا</div><div class="sub">۳ ساعت پیش</div></div><span class="pill medium">متوسط</span></div>
+      <div class="page-head"><h2>هشدارها</h2><p>اعلان‌های مربوط به خودروهای شما در یک نگاه</p></div>
+      <div class="alerts-summary-row">
+        <div class="asum-card"><div class="asum-ic all">🔔</div><div><div class="asum-value">۳</div><div class="asum-label">کل هشدارها</div></div></div>
+        <div class="asum-card"><div class="asum-ic high">⚠️</div><div><div class="asum-value">۱</div><div class="asum-label">بحرانی</div></div></div>
+        <div class="asum-card"><div class="asum-ic medium">🔶</div><div><div class="asum-value">۲</div><div class="asum-label">متوسط</div></div></div>
+        <div class="asum-card"><div class="asum-ic info">ℹ️</div><div><div class="asum-value">۰</div><div class="asum-label">اطلاعاتی</div></div></div>
+      </div>
+      <div class="alert-filter-tabs">
+        <button class="aft-btn active" data-filter="all">همه <span class="cnt">۳</span></button>
+        <button class="aft-btn" data-filter="high">بحرانی <span class="cnt">۱</span></button>
+        <button class="aft-btn" data-filter="medium">متوسط <span class="cnt">۲</span></button>
+      </div>
+      <div class="alert-date-label">امروز</div>
+      <div class="alert-card" data-sev="high">
+        <div class="ac-ic high">⚠️</div>
+        <div class="ac-body"><div class="ac-title">قطع ارتباط دستگاه</div><div class="ac-tags"><span class="ac-vehicle-tag">فورد F-150</span><span class="ac-time">۱۲ دقیقه پیش</span></div></div>
+        <div class="ac-actions"><span class="ac-sev high">بحرانی</span><span class="ac-map-link" onclick="viewOnMap('gamma')">مشاهده روی نقشه</span><button class="ac-dismiss">✕</button></div>
+      </div>
+      <div class="alert-card" data-sev="medium">
+        <div class="ac-ic medium">🔋</div>
+        <div class="ac-body"><div class="ac-title">باتری ضعیف</div><div class="ac-tags"><span class="ac-vehicle-tag">هوندا CR-V</span><span class="ac-time">۱ ساعت پیش</span></div></div>
+        <div class="ac-actions"><span class="ac-sev medium">متوسط</span><span class="ac-map-link" onclick="viewOnMap('beta')">مشاهده روی نقشه</span><button class="ac-dismiss">✕</button></div>
+      </div>
+      <div class="alert-date-label">دیروز</div>
+      <div class="alert-card" data-sev="medium">
+        <div class="ac-ic medium">🚧</div>
+        <div class="ac-body"><div class="ac-title">خروج از محدوده مجاز</div><div class="ac-tags"><span class="ac-vehicle-tag">تسلا مدل ۳</span><span class="ac-time">دیروز، ۱۸:۴۰</span></div></div>
+        <div class="ac-actions"><span class="ac-sev medium">متوسط</span><span class="ac-map-link" onclick="viewOnMap('alpha')">مشاهده روی نقشه</span><button class="ac-dismiss">✕</button></div>
       </div>
     </div>
 
-    <!-- ============ SHARED ACCESS ============ -->
+    <!-- ============ فعالیت و تاریخچه (ANIMATED REPLAY) ============ -->
+    <div class="view-page" id="view-activity">
+      <div class="page-head"><h2>فعالیت و تاریخچه</h2><p>مسیر حرکت گذشته خودرو را در یک بازه زمانی مشخص مرور کنید</p></div>
+      <div class="activity-toolbar">
+        <div class="activity-field"><label>خودرو</label>
+          <select id="actVehicleSelect"><option value="alpha">آلفا</option><option value="beta" selected>بتا</option><option value="gamma">گاما</option></select>
+        </div>
+        <div class="activity-field"><label>از تاریخ و زمان</label><input type="datetime-local" id="actFrom" value="2024-06-10T08:00"></div>
+        <div class="activity-field"><label>تا تاریخ و زمان</label><input type="datetime-local" id="actTo" value="2024-06-10T09:00"></div>
+        <div class="activity-field"><label>نحوه نمایش</label>
+          <div class="mode-tabs"><button class="mode-tab active" data-mode="trace">فقط مسیر</button><button class="mode-tab" data-mode="replay">پخش زنده</button></div>
+        </div>
+        <button class="btn primary" id="actLoadBtn">رسم مسیر</button>
+      </div>
+      <div class="activity-map-wrap">
+        <div id="activityMap"></div>
+        <div class="activity-legend"><span class="legend-dot"><span style="background:#15a876;"></span> شروع</span><span class="legend-dot"><span style="background:#e14a4a;"></span> پایان</span><span class="legend-dot"><span style="background:#4f7dff;"></span> موقعیت فعلی</span></div>
+        <label class="follow-toggle" id="followWrap" style="display:none;">
+          <input type="checkbox" id="followCheckbox" checked>
+          دنبال کردن خودرو روی نقشه
+        </label>
+      </div>
+      <div class="playback-bar" id="playbackBar">
+        <button class="pb-btn" id="pbRestart">⟲</button>
+        <button class="pb-btn play" id="pbPlayPause">▶</button>
+        <div class="pb-scrubber"><input type="range" id="pbScrubber" min="0" max="1000" value="0" step="1"></div>
+        <div class="pb-time" id="pbTimeLabel">۰۸:۰۰ · ۰ کیلومتر/ساعت</div>
+        <div class="pb-speed"><button class="pb-speed-btn" id="pbSpeedMinus">−</button><span class="pb-speed-label" id="pbSpeedLabel">×۱</span><button class="pb-speed-btn" id="pbSpeedPlus">+</button></div>
+      </div>
+    </div>
+
+    <!-- ============ SHARED ============ -->
     <div class="view-page" id="view-shared">
       <div class="page-head"><h2>دسترسی و حریم خصوصی</h2><p>افرادی که به موقعیت خودروهای شما دسترسی دارند</p></div>
-      <div class="tab-row">
-        <button class="tab-btn active" data-tab="grants">دسترسی‌های فعال</button>
-        <button class="tab-btn" data-tab="log">گزارش بازدیدها</button>
-      </div>
+      <div class="tab-row"><button class="tab-btn active" data-tab="grants">دسترسی‌های فعال</button><button class="tab-btn" data-tab="log">گزارش بازدیدها</button></div>
       <div class="tab-pane active" id="tab-grants">
-        <div class="section-card">
-          <div class="grant-row">
-            <div class="grant-av">ع.م</div>
-            <div class="grant-info"><h4>علی مرادی (همسر)</h4><p>تمام خودروها · دسترسی کامل</p></div>
-            <span class="pill active">فعال</span>
-            <button class="btn danger">لغو</button>
-          </div>
-          <div class="grant-row">
-            <div class="grant-av">ت.آ</div>
-            <div class="grant-info"><h4>تعمیرگاه آریا</h4><p>فقط گاما · دسترسی عیب‌یابی</p></div>
-            <span class="pill medium">انقضا تا ۴ ساعت</span>
-            <button class="btn danger">لغو</button>
-          </div>
-        </div>
+        <div class="section-card"><div class="grant-row"><div class="grant-av">ع.م</div><div class="grant-info"><h4>علی مرادی (همسر)</h4><p>تمام خودروها</p></div><span class="pill active">فعال</span><button class="btn danger">لغو</button></div></div>
       </div>
       <div class="tab-pane" id="tab-log">
-        <div class="section-card">
-          <table>
-            <thead><tr><th>زمان</th><th>بازدیدکننده</th><th>محدوده</th></tr></thead>
-            <tbody>
-              <tr><td style="direction:ltr;text-align:right;">امروز، ۱۴:۰۲</td><td>علی مرادی</td><td>تمام خودروها</td></tr>
-              <tr><td style="direction:ltr;text-align:right;">امروز، ۰۹:۱۵</td><td>تعمیرگاه آریا</td><td>گاما</td></tr>
-            </tbody>
-          </table>
+        <div class="section-card"><table><thead><tr><th>زمان</th><th>بازدیدکننده</th><th>محدوده</th></tr></thead><tbody><tr><td style="direction:ltr;text-align:right;">امروز، ۱۴:۰۲</td><td>علی مرادی</td><td>تمام خودروها</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ============ SUBSCRIPTION & BILLING (UPDATED PRICING) ============ -->
+    <div class="view-page" id="view-billing">
+      <div class="page-head"><h2>اشتراک و صورتحساب</h2><p>مدیریت پلن، روش پرداخت و تاریخچه صورتحساب‌های شما</p></div>
+
+      <div class="plan-card">
+        <div class="plan-card-top">
+          <div class="plan-name-row"><div class="plan-crown">👑</div><div><div class="plan-name">پلن طلایی</div><div class="plan-name-sub">تمدید بعدی: ۱۴۰۳/۰۴/۱۵ · ۲۴ روز مانده</div></div></div>
+          <div class="plan-price">۱,۰۰۰,۰۰۰ تومان <span>/ ماهانه</span></div>
+        </div>
+        <div class="plan-features">
+          <div class="pf-item"><div class="pf-label">حداکثر خودرو</div><div class="pf-value">۵ خودرو</div></div>
+          <div class="pf-item"><div class="pf-label">تاریخچه مسیر</div><div class="pf-value">۹۰ روز</div></div>
+          <div class="pf-item"><div class="pf-label">دسترسی اشتراکی</div><div class="pf-value">نامحدود</div></div>
+          <div class="pf-item"><div class="pf-label">پشتیبانی</div><div class="pf-value">اختصاصی ۲۴/۷</div></div>
+        </div>
+        <div class="plan-card-actions"><button class="btn-on-dark">ارتقا به الماس</button><button class="btn-on-dark ghost">لغو اشتراک</button></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><h3>روش پرداخت</h3><button class="btn">تغییر کارت</button></div>
+        <div class="payment-row"><div class="pay-card-ic">VISA</div><div class="pay-info"><div class="pay-number">•••• •••• •••• ۴۲۴۲</div><div class="pay-expiry">تاریخ انقضا: ۰۸/۲۷</div></div></div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-head"><h3>تاریخچه صورتحساب</h3></div>
+        <table class="billing">
+          <thead><tr><th>تاریخ</th><th>شرح</th><th>مبلغ</th><th>وضعیت</th><th></th></tr></thead>
+          <tbody>
+            <tr><td style="direction:ltr;text-align:right;">۱۴۰۳/۰۳/۱۵</td><td>تمدید پلن طلایی</td><td>۱,۰۰۰,۰۰۰ تومان</td><td><span class="invoice-status">پرداخت‌شده</span></td><td><span class="invoice-link">دانلود فاکتور</span></td></tr>
+            <tr><td style="direction:ltr;text-align:right;">۱۴۰۳/۰۲/۱۵</td><td>تمدید پلن طلایی</td><td>۱,۰۰۰,۰۰۰ تومان</td><td><span class="invoice-status">پرداخت‌شده</span></td><td><span class="invoice-link">دانلود فاکتور</span></td></tr>
+            <tr><td style="direction:ltr;text-align:right;">۱۴۰۳/۰۱/۱۵</td><td>ارتقا از پلن پایه</td><td>۳۰۰,۰۰۰ تومان</td><td><span class="invoice-status">پرداخت‌شده</span></td><td><span class="invoice-link">دانلود فاکتور</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-card" style="padding:20px;">
+        <h3 style="font-size:13.5px;font-weight:800;margin-bottom:16px;">مقایسه پلن‌ها</h3>
+        <div class="plan-tier-grid">
+          <div class="tier-card">
+            <div class="tier-name">پایه</div>
+            <div class="tier-price">۷۰۰,۰۰۰ <span>/ ماه</span></div>
+            <div class="tier-feature">۲ خودرو</div>
+            <div class="tier-feature">تاریخچه ۳۰ روزه</div>
+            <div class="tier-feature">پشتیبانی ایمیلی</div>
+            <button class="btn ghost tier-btn">تنزل پلن</button>
+          </div>
+          <div class="tier-card current">
+            <div class="tier-current-tag">پلن فعلی</div>
+            <div class="tier-name">طلایی 👑</div>
+            <div class="tier-price">۱,۰۰۰,۰۰۰ <span>/ ماه</span></div>
+            <div class="tier-feature">۵ خودرو</div>
+            <div class="tier-feature">تاریخچه ۹۰ روزه</div>
+            <div class="tier-feature">پشتیبانی ۲۴/۷</div>
+            <button class="btn primary tier-btn">پلن انتخابی شما</button>
+          </div>
+          <div class="tier-card">
+            <div class="tier-name">الماس 💎</div>
+            <div class="tier-price">۲,۰۰۰,۰۰۰ <span>/ ماه</span></div>
+            <div class="tier-feature">خودرو نامحدود</div>
+            <div class="tier-feature">تاریخچه نامحدود</div>
+            <div class="tier-feature">مدیر حساب اختصاصی</div>
+            <button class="btn tier-btn">ارتقا</button>
+          </div>
         </div>
       </div>
     </div>
@@ -501,39 +598,65 @@
     <!-- ============ SETUP ============ -->
     <div class="view-page" id="view-setup">
       <div class="page-head"><h2>تنظیمات</h2><p>مدیریت حساب و کاربران</p></div>
-      <div class="section-card">
-        <div class="member-row"><div class="member-av">ج.د</div><div><div class="name">جواد درخشان</div><div class="email">javad@email.com</div></div><span class="pill active" style="margin-inline-start:auto;">مالک</span></div>
-        <div class="member-row"><div class="member-av">ع.م</div><div><div class="name">علی مرادی</div><div class="email">ali@email.com</div></div><span class="pill" style="margin-inline-start:auto;background:#f1f2f4;color:#6b7280;">مهمان</span></div>
-      </div>
+      <div class="section-card"><div class="member-row"><div class="member-av">ج.د</div><div><div class="name">جواد درخشان</div><div class="email">javad@email.com</div></div><span class="pill active" style="margin-inline-start:auto;">مالک</span></div></div>
     </div>
-
   </div>
 
   <nav class="bottom-tabs">
-    <div class="bt-item" data-view="home"><span class="bi">🏠</span>خانه</div>
-    <div class="bt-item active" data-view="track"><span class="bi">📍</span>ردیابی</div>
+    <div class="bt-item active" data-view="home"><span class="bi">🏠</span>خانه</div>
+    <div class="bt-item" data-view="track"><span class="bi">📍</span>ردیابی</div>
     <div class="bt-item" id="btControls"><span class="bi">🎛️</span>کنترل‌ها</div>
-    <div class="bt-item" data-view="activity"><span class="bi">⟳</span>فعالیت</div>
-    <div class="bt-item" data-view="setup"><span class="bi">⚙️</span>تنظیمات</div>
+    <div class="bt-item" data-view="alerts"><span class="bi">🔔</span>هشدار</div>
+    <div class="bt-item" data-view="billing"><span class="bi">💳</span>اشتراک</div>
   </nav>
-
 </div>
 
 <div class="mobile-controls" id="mobileControls">
   <button class="mc-close" id="mcClose">✕</button>
   <div class="mc-photo">🚐</div>
-  <div class="mc-name" id="mcName">بتا</div>
+  <div class="mc-name">بتا</div>
   <div class="mc-grid">
-    <div class="mc-btn on" data-mctype="power"><div class="mc-circle">⏻</div><div class="mc-label">روشن/خاموش</div></div>
-    <div class="mc-btn" data-mctype="lock"><div class="mc-circle">🔒</div><div class="mc-label">قفل</div></div>
-    <div class="mc-btn" data-mctype="unlock"><div class="mc-circle">🔓</div><div class="mc-label">باز کردن</div></div>
-    <div class="mc-btn" data-mctype="trunk"><div class="mc-circle">🚪</div><div class="mc-label">صندوق</div></div>
+    <div class="mc-btn on"><div class="mc-circle">⏻</div><div class="mc-label">روشن/خاموش</div></div>
+    <div class="mc-btn"><div class="mc-circle">🔒</div><div class="mc-label">قفل</div></div>
+    <div class="mc-btn"><div class="mc-circle">🔓</div><div class="mc-label">باز کردن</div></div>
+    <div class="mc-btn"><div class="mc-circle">🚪</div><div class="mc-label">صندوق</div></div>
   </div>
 </div>
 
 <script>
+  /* ============== THEME TOGGLE (persisted, swaps map tiles too) ============== */
+  const themeToggle = document.getElementById('themeToggle');
+  const LIGHT_TILE = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  const DARK_TILE  = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  let trackTileLayer = null, activityTileLayer = null;
+
+  function applyTheme(theme){
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sentinel-theme', theme);
+    themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    const url = theme === 'dark' ? DARK_TILE : LIGHT_TILE;
+    if (trackTileLayer) trackTileLayer.setUrl(url);
+    if (activityTileLayer) activityTileLayer.setUrl(url);
+  }
+  themeToggle.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+  });
+  const savedTheme = localStorage.getItem('sentinel-theme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+  /* ============== COLLAPSIBLE SIDEBAR ============== */
+  const iconRail = document.getElementById('iconRail');
+  const railToggle = document.getElementById('railToggle');
+  function setRailExpanded(exp){
+    iconRail.classList.toggle('expanded', exp);
+    localStorage.setItem('sentinel-rail-expanded', exp ? '1' : '0');
+  }
+  railToggle.addEventListener('click', () => setRailExpanded(!iconRail.classList.contains('expanded')));
+  setRailExpanded(localStorage.getItem('sentinel-rail-expanded') === '1');
+
   /* ============== VIEW SWITCHING ============== */
-  const railBtns = document.querySelectorAll('.rail-btn');
+  const railBtns = document.querySelectorAll('.rail-btn[data-view]');
   const tabBtns = document.querySelectorAll('.bt-item[data-view]');
   const trackView = document.getElementById('view-track');
   const pageViews = document.querySelectorAll('.view-page');
@@ -544,21 +667,14 @@
     tabBtns.forEach(b => b.classList.toggle('active', b.dataset.view === key));
     trackView.classList.toggle('active', key === 'track');
     pageViews.forEach(v => v.classList.toggle('active', v.id === 'view-' + key));
-
-    if (key === 'track' && window.leafletMap) {
-      setTimeout(() => window.leafletMap.invalidateSize(), 180);
-    }
+    if (key === 'track' && window.leafletMap) setTimeout(() => window.leafletMap.invalidateSize(), 180);
     if (key === 'activity') {
       ensureActivityMap();
-      setTimeout(() => {
-        activityMap.invalidateSize();
-        if (!activityInitialized) { activityInitialized = true; actLoadBtn.click(); }
-      }, 180);
+      setTimeout(() => { activityMap.invalidateSize(); if (!activityInitialized){ activityInitialized = true; actLoadBtn.click(); } }, 180);
     }
   }
   document.querySelectorAll('[data-view]').forEach(el => el.addEventListener('click', () => activateView(el.dataset.view)));
 
-  /* ============== TABS (shared access page) ============== */
   document.querySelectorAll('.tab-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -568,298 +684,246 @@
     });
   });
 
-  /* ============== PERSIAN DIGIT HELPER ============== */
+  document.querySelectorAll('.aft-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.aft-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const f = btn.dataset.filter;
+      document.querySelectorAll('.alert-card').forEach(card=>{
+        card.style.display = (f === 'all' || card.dataset.sev === f) ? 'flex' : 'none';
+      });
+    });
+  });
+  document.querySelectorAll('.ac-dismiss').forEach(btn=>{
+    btn.addEventListener('click', ()=> btn.closest('.alert-card').classList.toggle('read'));
+  });
+
   function fa(n){
     const map = {'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹'};
     return String(n).split('').map(c => map[c] !== undefined ? map[c] : c).join('');
   }
 
-  /* ============== TRACK MAP + POPUPS (controls live here now) ============== */
+  /* ============== TRACK MAP ============== */
   const map = L.map('leafletMap', { zoomControl:false, attributionControl:true }).setView([35.730, 51.420], 12);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19, subdomains: 'abcd', attribution: '&copy; OpenStreetMap &copy; CARTO'
-  }).addTo(map);
+  trackTileLayer = L.tileLayer(LIGHT_TILE, { maxZoom:19, subdomains:'abcd', attribution:'&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
   window.leafletMap = map;
 
-  const vehiclesData = [];
-  const vehicleState = {};
-  const vehicleMarkers = {};
-
+  const vehiclesData = []; const vehicleState = {}; const vehicleMarkers = {};
   document.querySelectorAll('.vehicle-row').forEach(row => {
-    const id = row.dataset.id;
-    const lat = parseFloat(row.dataset.lat);
-    const lng = parseFloat(row.dataset.lng);
+    const id = row.dataset.id, lat = parseFloat(row.dataset.lat), lng = parseFloat(row.dataset.lng);
     const icon = row.querySelector('.vr-thumb').textContent.trim();
     const name = row.querySelector('.vr-name').textContent.trim();
     const time = row.querySelector('.vr-time').textContent.trim();
     const addr = row.querySelector('.vr-addr').textContent.trim();
     const offline = row.querySelector('.vr-speed').classList.contains('offline');
-
     vehiclesData.push({ id, name, lat, lng, icon, time, addr, offline });
     vehicleState[id] = { power: !offline, locked: true, trunk: false };
   });
-
-  function controlBtn(vid, type, icon, label, isOn){
-    return `<div class="pop-ctrl ${isOn?'on':''}" onclick="toggleControl('${vid}','${type}')">
-      <div class="pop-ctrl-circle">${icon}</div>
-      <div class="pop-ctrl-label">${label}</div>
-    </div>`;
-  }
-
+  function controlBtn(vid,type,icon,label,isOn){ return `<div class="pop-ctrl ${isOn?'on':''}" onclick="toggleControl('${vid}','${type}')"><div class="pop-ctrl-circle">${icon}</div><div class="pop-ctrl-label">${label}</div></div>`; }
   function popupHTML(v){
     const s = vehicleState[v.id];
-    return `
-      <div class="veh-popup">
-        <div class="vp-head">
-          <div class="vp-thumb">${v.icon}</div>
-          <div>
-            <div class="vp-name">${v.name}</div>
-            <div class="vp-meta">آخرین بروزرسانی: ${v.time}</div>
-          </div>
-        </div>
-        <div class="vp-addr">${v.addr}</div>
-        <div class="vp-controls">
-          ${controlBtn(v.id,'power','⏻','روشن/خاموش', s.power)}
-          ${controlBtn(v.id,'lock','🔒','قفل', s.locked)}
-          ${controlBtn(v.id,'unlock','🔓','باز کردن', !s.locked)}
-          ${controlBtn(v.id,'trunk','🚪','صندوق', s.trunk)}
-        </div>
-      </div>`;
+    return `<div class="veh-popup"><div class="vp-head"><div class="vp-thumb">${v.icon}</div><div><div class="vp-name">${v.name}</div><div class="vp-meta">آخرین بروزرسانی: ${v.time}</div></div></div><div class="vp-addr">${v.addr}</div><div class="vp-controls">${controlBtn(v.id,'power','⏻','روشن/خاموش',s.power)}${controlBtn(v.id,'lock','🔒','قفل',s.locked)}${controlBtn(v.id,'unlock','🔓','باز کردن',!s.locked)}${controlBtn(v.id,'trunk','🚪','صندوق',s.trunk)}</div></div>`;
   }
-
-  function makeMarkerIcon(label, offline){
-    return L.divIcon({
-      className: '',
-      html: `<div class="veh-marker ${offline?'offline':''}"><div class="dot">▲</div><div class="label">${label}</div></div>`,
-      iconSize: [0,0], iconAnchor: [13,13]
-    });
-  }
-
+  function makeMarkerIcon(label, offline){ return L.divIcon({ className:'', html:`<div class="veh-marker ${offline?'offline':''}"><div class="dot">▲</div><div class="label">${label}</div></div>`, iconSize:[0,0], iconAnchor:[13,13] }); }
   vehiclesData.forEach(v => {
     const marker = L.marker([v.lat, v.lng], { icon: makeMarkerIcon(v.name, v.offline) }).addTo(map);
-    marker.bindPopup(popupHTML(v), { minWidth: 230, closeButton: true });
+    marker.bindPopup(popupHTML(v), { minWidth:230 });
     vehicleMarkers[v.id] = marker;
-
-    marker.on('click', () => {
-      document.querySelectorAll('.vehicle-row').forEach(r => r.classList.toggle('selected', r.dataset.id === v.id));
-    });
   });
-
   window.toggleControl = function(vid, type){
-    const s = vehicleState[vid];
-    const v = vehiclesData.find(x => x.id === vid);
-    const marker = vehicleMarkers[vid];
-
-    if (type === 'trunk') {
-      s.trunk = true;
-      marker.setPopupContent(popupHTML(v));
-      setTimeout(() => { s.trunk = false; marker.setPopupContent(popupHTML(v)); }, 1100);
-      return;
-    }
-    if (type === 'power') s.power = !s.power;
-    if (type === 'lock') s.locked = true;
-    if (type === 'unlock') s.locked = false;
+    const s = vehicleState[vid]; const v = vehiclesData.find(x=>x.id===vid); const marker = vehicleMarkers[vid];
+    if (type==='trunk'){ s.trunk=true; marker.setPopupContent(popupHTML(v)); setTimeout(()=>{s.trunk=false; marker.setPopupContent(popupHTML(v));},1100); return; }
+    if (type==='power') s.power=!s.power;
+    if (type==='lock') s.locked=true;
+    if (type==='unlock') s.locked=false;
     marker.setPopupContent(popupHTML(v));
   };
-
+  window.viewOnMap = function(id){
+    activateView('track');
+    setTimeout(()=>{ const v=vehiclesData.find(x=>x.id===id); if(v){ map.setView([v.lat,v.lng],14); vehicleMarkers[id].openPopup(); } },300);
+  };
   document.querySelectorAll('.vehicle-row').forEach(row => {
     row.addEventListener('click', () => {
       document.querySelectorAll('.vehicle-row').forEach(r => r.classList.remove('selected'));
       row.classList.add('selected');
-      const id = row.dataset.id;
-      const v = vehiclesData.find(x => x.id === id);
-      map.setView([v.lat, v.lng], 14, { animate: true });
+      const id = row.dataset.id, v = vehiclesData.find(x=>x.id===id);
+      map.setView([v.lat, v.lng], 14, { animate:true });
       vehicleMarkers[id].openPopup();
     });
   });
-
   window.addEventListener('resize', () => map.invalidateSize());
 
-  /* ============== MOBILE QUICK CONTROLS SHEET ============== */
   const mobileControls = document.getElementById('mobileControls');
   document.getElementById('btControls').addEventListener('click', () => mobileControls.classList.add('show'));
   document.getElementById('mcClose').addEventListener('click', () => mobileControls.classList.remove('show'));
-  document.querySelectorAll('.mc-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      if (btn.dataset.mctype === 'trunk'){
-        btn.classList.add('on');
-        setTimeout(()=>btn.classList.remove('on'), 1000);
-        return;
-      }
-      if (btn.dataset.mctype === 'lock'){
-        document.querySelector('.mc-btn[data-mctype="unlock"]').classList.remove('on');
-        btn.classList.add('on');
-        return;
-      }
-      if (btn.dataset.mctype === 'unlock'){
-        document.querySelector('.mc-btn[data-mctype="lock"]').classList.remove('on');
-        btn.classList.add('on');
-        setTimeout(()=>btn.classList.remove('on'), 800);
-        return;
-      }
-      btn.classList.toggle('on');
-    });
-  });
 
   /* ======================================================================
-     ACTIVITY & HISTORY — map, time range, trace vs replay, playback speed
+     ACTIVITY & HISTORY — smooth animated replay
      ====================================================================== */
   let activityMap = null;
-  let activityPolyline = null, activityStartMarker = null, activityEndMarker = null;
-  let activityFullPath = null, activityTravelled = null, activityReplayMarker = null;
+  let traceLayer=null, traceStart=null, traceEnd=null;
+  let fullPathLayer=null, travelledLayer=null, replayMarker=null;
 
   function ensureActivityMap(){
     if (activityMap) return;
     activityMap = L.map('activityMap', { zoomControl:false, attributionControl:true }).setView([35.72, 51.42], 12);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19, subdomains: 'abcd', attribution: '&copy; OpenStreetMap &copy; CARTO'
-    }).addTo(activityMap);
+    const theme = document.documentElement.getAttribute('data-theme');
+    activityTileLayer = L.tileLayer(theme === 'dark' ? DARK_TILE : LIGHT_TILE, { maxZoom:19, subdomains:'abcd', attribution:'&copy; OpenStreetMap &copy; CARTO' }).addTo(activityMap);
   }
 
-  // sample historical route (base path near Tehran) — in production this comes from the telemetry API
   const baseRoute = [
-    { lat:35.700, lng:51.398, time:'۰۸:۰۰', speed:0  },
-    { lat:35.704, lng:51.402, time:'۰۸:۰۶', speed:22 },
-    { lat:35.709, lng:51.408, time:'۰۸:۱۲', speed:38 },
-    { lat:35.714, lng:51.413, time:'۰۸:۱۸', speed:45 },
-    { lat:35.719, lng:51.418, time:'۰۸:۲۴', speed:52 },
-    { lat:35.723, lng:51.423, time:'۰۸:۳۰', speed:40 },
-    { lat:35.727, lng:51.428, time:'۰۸:۳۶', speed:35 },
-    { lat:35.731, lng:51.433, time:'۰۸:۴۲', speed:48 },
-    { lat:35.735, lng:51.438, time:'۰۸:۴۸', speed:30 },
-    { lat:35.739, lng:51.442, time:'۰۸:۵۴', speed:15 },
-    { lat:35.742, lng:51.446, time:'۰۹:۰۰', speed:0  }
+    {lat:35.700,lng:51.398,time:'۰۸:۰۰',speed:0},{lat:35.704,lng:51.402,time:'۰۸:۰۶',speed:22},
+    {lat:35.709,lng:51.408,time:'۰۸:۱۲',speed:38},{lat:35.714,lng:51.413,time:'۰۸:۱۸',speed:45},
+    {lat:35.719,lng:51.418,time:'۰۸:۲۴',speed:52},{lat:35.723,lng:51.423,time:'۰۸:۳۰',speed:40},
+    {lat:35.727,lng:51.428,time:'۰۸:۳۶',speed:35},{lat:35.731,lng:51.433,time:'۰۸:۴۲',speed:48},
+    {lat:35.735,lng:51.438,time:'۰۸:۴۸',speed:30},{lat:35.739,lng:51.442,time:'۰۸:۵۴',speed:15},
+    {lat:35.742,lng:51.446,time:'۰۹:۰۰',speed:0}
   ];
+  const vehicleOffsets = { alpha:[0,0], beta:[0,0], gamma:[-0.015,0.012] };
+  function buildRoute(k){ const off=vehicleOffsets[k]||[0,0]; return baseRoute.map(p=>({lat:p.lat+off[0],lng:p.lng+off[1],time:p.time,speed:p.speed})); }
 
-  const vehicleOffsets = { alpha:[0,0], beta:[0,0], gamma:[-0.015, 0.012], delta:[0.018, -0.01] };
-
-  function buildRoute(vehicleKey){
-    const off = vehicleOffsets[vehicleKey] || [0,0];
-    return baseRoute.map(p => ({ lat: p.lat + off[0], lng: p.lng + off[1], time: p.time, speed: p.speed }));
+  function bearingBetween(a,b){
+    const toRad=d=>d*Math.PI/180, toDeg=r=>r*180/Math.PI;
+    const lat1=toRad(a.lat), lat2=toRad(b.lat), dLon=toRad(b.lng-a.lng);
+    const y=Math.sin(dLon)*Math.cos(lat2);
+    const x=Math.cos(lat1)*Math.sin(lat2)-Math.sin(lat1)*Math.cos(lat2)*Math.cos(dLon);
+    return (toDeg(Math.atan2(y,x))+360)%360;
   }
 
   function clearActivityLayers(){
-    [activityPolyline, activityStartMarker, activityEndMarker, activityFullPath, activityTravelled, activityReplayMarker]
-      .forEach(l => { if (l) activityMap.removeLayer(l); });
-    activityPolyline = activityStartMarker = activityEndMarker = activityFullPath = activityTravelled = activityReplayMarker = null;
-    stopTicking(); playing = false; pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
+    [traceLayer,traceStart,traceEnd,fullPathLayer,travelledLayer,replayMarker].forEach(l=>{ if(l) activityMap.removeLayer(l); });
+    traceLayer=traceStart=traceEnd=fullPathLayer=travelledLayer=replayMarker=null;
+    if (replayRafId) cancelAnimationFrame(replayRafId);
+    replayRafId=null; playing=false; lastTs=null;
+    pbPlayPause.textContent='▶'; pbPlayPause.classList.remove('play');
+    document.getElementById('followWrap').style.display='none';
   }
 
   function drawTrace(route){
     clearActivityLayers();
-    const latlngs = route.map(p => [p.lat, p.lng]);
-    activityPolyline = L.polyline(latlngs, { color:'#0db583', weight:4, opacity:.85 }).addTo(activityMap);
-    activityStartMarker = L.circleMarker(latlngs[0], { radius:7, color:'#fff', weight:2, fillColor:'#15a876', fillOpacity:1 }).addTo(activityMap);
-    activityEndMarker = L.circleMarker(latlngs[latlngs.length-1], { radius:7, color:'#fff', weight:2, fillColor:'#e14a4a', fillOpacity:1 }).addTo(activityMap);
-    activityMap.fitBounds(activityPolyline.getBounds(), { padding:[40,40] });
+    const latlngs = route.map(p=>[p.lat,p.lng]);
+    traceLayer = L.polyline(latlngs,{color:'#0db583',weight:4,opacity:.85}).addTo(activityMap);
+    traceStart = L.circleMarker(latlngs[0],{radius:7,color:'#fff',weight:2,fillColor:'#15a876',fillOpacity:1}).addTo(activityMap);
+    traceEnd = L.circleMarker(latlngs[latlngs.length-1],{radius:7,color:'#fff',weight:2,fillColor:'#e14a4a',fillOpacity:1}).addTo(activityMap);
+    activityMap.flyToBounds(traceLayer.getBounds(),{padding:[40,40],duration:.6});
   }
 
-  let currentRoute = [];
-  let currentIndex = 0;
-  let playing = false;
-  let playTimer = null;
-  const speedLevels = [0.5, 1, 2, 4, 8];
-  let speedIndex = 1;
+  let currentRoute = [], totalSegments = 0;
+  let playhead = 0, playing = false, lastTs = null, replayRafId = null;
+  const speedLevels=[0.5,1,2,4,8]; let speedIndex=1;
+  const SEGMENT_DURATION_MS = 1700; // base duration per segment at x1 speed
+
+  function makeReplayIcon(){
+    return L.divIcon({
+      className:'',
+      html:`<div class="replay-marker">
+              <div class="replay-pulse"></div>
+              <div class="replay-core"><span class="replay-arrow">▲</span></div>
+            </div>`,
+      iconSize:[34,34], iconAnchor:[17,17]
+    });
+  }
 
   function prepareReplay(route){
     clearActivityLayers();
-    currentRoute = route;
-    currentIndex = 0;
-    const latlngs = route.map(p => [p.lat, p.lng]);
-    activityFullPath = L.polyline(latlngs, { color:'#d8dce3', weight:4, opacity:.7 }).addTo(activityMap);
-    activityTravelled = L.polyline([latlngs[0]], { color:'#0db583', weight:4 }).addTo(activityMap);
-    activityReplayMarker = L.circleMarker(latlngs[0], { radius:8, color:'#fff', weight:2, fillColor:'#4f7dff', fillOpacity:1 }).addTo(activityMap);
-    activityMap.fitBounds(activityFullPath.getBounds(), { padding:[40,40] });
-    pbScrubber.max = route.length - 1;
-    renderIndex();
+    currentRoute = route; totalSegments = route.length - 1; playhead = 0;
+    const latlngs = route.map(p=>[p.lat,p.lng]);
+    fullPathLayer = L.polyline(latlngs,{color:'#9aa4b2',weight:4,opacity:.45,dashArray:'1,8'}).addTo(activityMap);
+    travelledLayer = L.polyline([latlngs[0]],{color:'#0db583',weight:4}).addTo(activityMap);
+    replayMarker = L.marker(latlngs[0], { icon: makeReplayIcon() }).addTo(activityMap);
+    activityMap.flyToBounds(fullPathLayer.getBounds(),{padding:[50,50],duration:.6});
+    pbScrubber.value = 0;
+    document.getElementById('followWrap').style.display = 'flex';
+    renderAtPlayhead(0);
+    startLoop();
   }
 
-  function renderIndex(){
-    const idx = Math.max(0, Math.min(currentRoute.length - 1, Math.floor(currentIndex)));
-    const point = currentRoute[idx];
-    if (!point) return;
-    activityReplayMarker.setLatLng([point.lat, point.lng]);
-    activityTravelled.setLatLngs(currentRoute.slice(0, idx + 1).map(p => [p.lat, p.lng]));
-    pbScrubber.value = idx;
-    pbTimeLabel.textContent = `${point.time} · ${fa(point.speed)} کیلومتر/ساعت`;
+  function renderAtPlayhead(ph){
+    const idx = Math.min(totalSegments - 1, Math.floor(ph));
+    const frac = ph - idx;
+    const p0 = currentRoute[idx], p1 = currentRoute[idx+1] || p0;
+    const lat = p0.lat + (p1.lat - p0.lat) * frac;
+    const lng = p0.lng + (p1.lng - p0.lng) * frac;
+    const speed = Math.round(p0.speed + (p1.speed - p0.speed) * frac);
+
+    replayMarker.setLatLng([lat, lng]);
+    const arrowEl = replayMarker.getElement()?.querySelector('.replay-arrow');
+    if (arrowEl && p1 !== p0) {
+      const brng = bearingBetween(p0, p1);
+      arrowEl.style.transform = `rotate(${brng}deg)`;
+    }
+    const travelled = currentRoute.slice(0, idx + 1).map(p => [p.lat, p.lng]);
+    travelled.push([lat, lng]);
+    travelledLayer.setLatLngs(travelled);
+
+    if (!scrubDragging) pbScrubber.value = Math.round((ph / totalSegments) * 1000);
+    pbTimeLabel.textContent = `${p0.time} · ${fa(speed)} کیلومتر/ساعت`;
+
+    if (playing && followCheckbox.checked) {
+      activityMap.panTo([lat, lng], { animate:false });
+    }
   }
 
-  function startTicking(){
-    playTimer = setInterval(() => {
-      currentIndex += speedLevels[speedIndex];
-      if (currentIndex >= currentRoute.length - 1) {
-        currentIndex = currentRoute.length - 1;
-        stopTicking(); playing = false;
-        pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
+  function startLoop(){
+    if (replayRafId) return;
+    function loop(ts){
+      if (lastTs == null) lastTs = ts;
+      const dt = ts - lastTs; lastTs = ts;
+      if (playing) {
+        playhead += (dt * speedLevels[speedIndex]) / SEGMENT_DURATION_MS;
+        if (playhead >= totalSegments) {
+          playhead = totalSegments;
+          playing = false;
+          pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
+        }
+        renderAtPlayhead(playhead);
       }
-      renderIndex();
-    }, 450);
+      replayRafId = requestAnimationFrame(loop);
+    }
+    replayRafId = requestAnimationFrame(loop);
   }
-  function stopTicking(){ clearInterval(playTimer); }
 
-  const actVehicleSelect = document.getElementById('actVehicleSelect');
-  const actLoadBtn = document.getElementById('actLoadBtn');
-  const playbackBar = document.getElementById('playbackBar');
-  const pbPlayPause = document.getElementById('pbPlayPause');
-  const pbRestart = document.getElementById('pbRestart');
-  const pbScrubber = document.getElementById('pbScrubber');
-  const pbTimeLabel = document.getElementById('pbTimeLabel');
-  const pbSpeedLabel = document.getElementById('pbSpeedLabel');
-  const pbSpeedMinus = document.getElementById('pbSpeedMinus');
-  const pbSpeedPlus = document.getElementById('pbSpeedPlus');
+  const actVehicleSelect=document.getElementById('actVehicleSelect'), actLoadBtn=document.getElementById('actLoadBtn'), playbackBar=document.getElementById('playbackBar');
+  const pbPlayPause=document.getElementById('pbPlayPause'), pbRestart=document.getElementById('pbRestart'), pbScrubber=document.getElementById('pbScrubber');
+  const pbTimeLabel=document.getElementById('pbTimeLabel'), pbSpeedLabel=document.getElementById('pbSpeedLabel'), pbSpeedMinus=document.getElementById('pbSpeedMinus'), pbSpeedPlus=document.getElementById('pbSpeedPlus');
+  const followCheckbox = document.getElementById('followCheckbox');
+  let scrubDragging = false, activeMode='trace';
 
-  let activeMode = 'trace';
-
-  document.querySelectorAll('.mode-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+  document.querySelectorAll('.mode-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.mode-tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
       activeMode = btn.dataset.mode;
-      actLoadBtn.textContent = activeMode === 'trace' ? 'رسم مسیر' : 'آماده‌سازی پخش';
-      playbackBar.style.display = activeMode === 'replay' ? 'flex' : 'none';
+      actLoadBtn.textContent = activeMode==='trace' ? 'رسم مسیر' : 'شروع پخش';
+      playbackBar.style.display = activeMode==='replay' ? 'flex' : 'none';
     });
   });
+  actLoadBtn.addEventListener('click', ()=>{
+    ensureActivityMap(); const route = buildRoute(actVehicleSelect.value);
+    if (activeMode==='trace'){ playbackBar.style.display='none'; drawTrace(route); }
+    else { playbackBar.style.display='flex'; prepareReplay(route); }
+  });
+  pbPlayPause.addEventListener('click', ()=>{
+    playing=!playing; lastTs=null;
+    pbPlayPause.textContent=playing?'⏸':'▶'; pbPlayPause.classList.toggle('play',playing);
+  });
+  pbRestart.addEventListener('click', ()=>{
+    playing=false; lastTs=null; pbPlayPause.textContent='▶'; pbPlayPause.classList.remove('play');
+    playhead=0; renderAtPlayhead(0);
+  });
+  pbScrubber.addEventListener('mousedown', ()=> scrubDragging = true);
+  pbScrubber.addEventListener('touchstart', ()=> scrubDragging = true);
+  pbScrubber.addEventListener('input', (e)=>{
+    playing=false; lastTs=null; pbPlayPause.textContent='▶'; pbPlayPause.classList.remove('play');
+    playhead = (parseInt(e.target.value,10)/1000) * totalSegments;
+    renderAtPlayhead(playhead);
+  });
+  window.addEventListener('mouseup', ()=> scrubDragging = false);
+  window.addEventListener('touchend', ()=> scrubDragging = false);
+  pbSpeedMinus.addEventListener('click', ()=>{ speedIndex=Math.max(0,speedIndex-1); pbSpeedLabel.textContent='×'+fa(speedLevels[speedIndex]); });
+  pbSpeedPlus.addEventListener('click', ()=>{ speedIndex=Math.min(speedLevels.length-1,speedIndex+1); pbSpeedLabel.textContent='×'+fa(speedLevels[speedIndex]); });
 
-  actLoadBtn.addEventListener('click', () => {
-    ensureActivityMap();
-    const route = buildRoute(actVehicleSelect.value);
-    if (activeMode === 'trace') {
-      playbackBar.style.display = 'none';
-      drawTrace(route);
-    } else {
-      playbackBar.style.display = 'flex';
-      prepareReplay(route);
-    }
-  });
-
-  pbPlayPause.addEventListener('click', () => {
-    playing = !playing;
-    pbPlayPause.textContent = playing ? '⏸' : '▶';
-    pbPlayPause.classList.toggle('play', playing);
-    if (playing) startTicking(); else stopTicking();
-  });
-
-  pbRestart.addEventListener('click', () => {
-    stopTicking(); playing = false;
-    pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
-    currentIndex = 0; renderIndex();
-  });
-
-  pbScrubber.addEventListener('input', (e) => {
-    stopTicking(); playing = false;
-    pbPlayPause.textContent = '▶'; pbPlayPause.classList.remove('play');
-    currentIndex = parseInt(e.target.value, 10);
-    renderIndex();
-  });
-
-  pbSpeedMinus.addEventListener('click', () => {
-    speedIndex = Math.max(0, speedIndex - 1);
-    pbSpeedLabel.textContent = '×' + fa(speedLevels[speedIndex]);
-  });
-  pbSpeedPlus.addEventListener('click', () => {
-    speedIndex = Math.min(speedLevels.length - 1, speedIndex + 1);
-    pbSpeedLabel.textContent = '×' + fa(speedLevels[speedIndex]);
-  });
+  /* init theme now that map objects exist */
+  applyTheme(savedTheme);
 </script>
 
 </body>

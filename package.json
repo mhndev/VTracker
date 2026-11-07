@@ -4,10 +4,14 @@
   "version": "0.2.0",
   "type": "module",
   "workspaces": [
-    "apps/*"
+    "src/apps/*",
+    "src/packages/*"
   ],
   "scripts": {
-    "dev": "concurrently -k -n API,PORTAL,ADMIN -c cyan,blue,magenta \"npm:dev:api\" \"npm:dev:portal\" \"npm:dev:admin\"",
+    "dev": "node scripts/dev.mjs",
+    "dev:services": "concurrently -k -n API,PORTAL,ADMIN -c cyan,blue,magenta \"npm:dev:api\" \"npm:dev:portal\" \"npm:dev:admin\"",
+    "dev:postgres": "node scripts/dev.mjs --database=postgres",
+    "dev:sqlite": "node scripts/dev.mjs --database=sqlite",
     "dev:api": "npm --workspace @sentinel/api run dev",
     "dev:portal": "npm --workspace @sentinel/portal run dev",
     "dev:admin": "npm --workspace @sentinel/admin run dev",
@@ -18,12 +22,12 @@
     "start": "npm --workspace @sentinel/api run start",
     "test": "npm --workspace @sentinel/api run test"
   },
-  "dependencies": {
-    "concurrently": "latest",
-    "express": "latest"
-  },
   "devDependencies": {
-    "@types/express": "latest",
-    "@types/node": "latest"
+    "concurrently": "10.0.6"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "sqlite3@6.0.1": true,
+    "fsevents@2.3.3": true
   }
 }
