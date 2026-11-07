@@ -80,6 +80,11 @@ export async function canSimulateTelemetry(actorId: string, organizationId: stri
   return Boolean(membership && ['ORG_ADMIN', 'FLEET_MANAGER'].includes(membership.role));
 }
 
+export async function canControlVehicle(actorId: string, organizationId: string): Promise<boolean> {
+  const membership = await getMembership(actorId, organizationId);
+  return Boolean(membership && ['ORG_ADMIN', 'FLEET_MANAGER'].includes(membership.role));
+}
+
 export async function canManageVehicles(actorId: string, organizationId: string): Promise<boolean> {
   return (await getProvisioningCapabilities(actorId)).manageVehiclesForCustomerIds.includes(organizationId);
 }

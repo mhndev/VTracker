@@ -37,6 +37,7 @@ export const env = {
   port: Number(process.env.API_PORT ?? process.env.PORT ?? 8787),
   portalPort: Number(process.env.PORTAL_PORT ?? 5173),
   adminPort: Number(process.env.ADMIN_PORT ?? 5174),
+  telematicsPort: Number(process.env.TELEMATICS_PORT ?? 8090),
   host: process.env.HOST ?? '0.0.0.0',
   corsOrigin: parseCors(process.env.CORS_ORIGIN),
   databaseDialect: dialect,

@@ -1,6 +1,7 @@
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { initializeDatabase } from './database/index.js';
+import { startTelematicsServer } from './telematics/server.js';
 
 function describeError(error: unknown): string {
   if (!error || typeof error !== 'object') return String(error);
@@ -20,6 +21,7 @@ function describeError(error: unknown): string {
 async function start(): Promise<void> {
   await initializeDatabase();
   const host = env.host || '0.0.0.0';
+  startTelematicsServer(env.telematicsPort, host);
   createApp().listen(env.port, host, () => {
     console.log(`Sentinel API listening on http://${host}:${env.port} (env: ${env.nodeEnv}, dialect: ${env.databaseDialect})`);
     console.log(`Interfaces: portal http://localhost:${env.portalPort}, admin console http://localhost:${env.adminPort}`);

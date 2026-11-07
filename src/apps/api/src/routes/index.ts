@@ -8,6 +8,7 @@ import { grantRouter } from './grant.routes.js';
 import { organizationSettingsRouter } from './organization-settings.routes.js';
 import { sessionRouter } from './session.routes.js';
 import { telemetryRouter } from './telemetry.routes.js';
+import { telematicsRouter } from './telematics.routes.js';
 import { vehicleRouter } from './vehicle.routes.js';
 
 export const apiRouter = Router();
@@ -19,5 +20,6 @@ apiRouter.use('/resellers/:resellerId/customers', customerProvisioningRouter);
 apiRouter.use('/grants', grantRouter);
 apiRouter.use('/organizations', organizationSettingsRouter);
 apiRouter.use('/telemetry', telemetryRouter);
+apiRouter.use('/telematics', telematicsRouter);
 apiRouter.use('/vehicles', vehicleRouter);
 apiRouter.use('/audit', auditRouter);

@@ -6,6 +6,7 @@ import {
   Signal, UserRound, UsersRound, X, Plus, Check, ArrowLeft, LoaderCircle, Building2, Pencil, AlertTriangle, LockKeyholeOpen, Archive, RotateCcw, Link2, Unlink, History
 } from 'lucide-react';
 import LiveMap from './LiveMap';
+import { VehicleTelematicsDialog } from './VehicleTelematicsDialog';
 import type { AlertItem, CustomerLifecycle, Dashboard, DeviceAssignmentHistory, DeviceInventoryItem, Grant, ManagedCustomer, ManagedCustomerInput, MarkerColor, MarkerSize, MarkerStyle, NewVehicleInput, PortalView, Session, Vehicle, VehicleKind, VehicleUpdateInput } from './types';
 import { MARKER_COLORS, MARKER_SIZES, MARKER_STYLES, VEHICLE_TYPES, markerColorHex, vehicleType } from './vehicleAppearance';
 
@@ -117,7 +118,7 @@ function WorkspaceRail({ isCustomer, view }: { isCustomer: boolean; view: Portal
   );
 }
 
-function VehicleList({ vehicles, isCustomer = true, archived = false, onEdit, onLifecycle }: { vehicles: Vehicle[]; isCustomer?: boolean; archived?: boolean; onEdit?: (vehicle: Vehicle) => void; onLifecycle?: (vehicle: Vehicle) => void }) {
+function VehicleList({ vehicles, isCustomer = true, archived = false, onEdit, onLifecycle, onTelematics }: { vehicles: Vehicle[]; isCustomer?: boolean; archived?: boolean; onEdit?: (vehicle: Vehicle) => void; onLifecycle?: (vehicle: Vehicle) => void; onTelematics?: (vehicle: Vehicle) => void }) {
   const { t, formatDateTime, formatNumber, formatRelativeTime } = useI18n();
   if (vehicles.length === 0) {
     return (
@@ -143,7 +144,7 @@ function VehicleList({ vehicles, isCustomer = true, archived = false, onEdit, on
           ? formatRelativeTime(vehicle.device.lastCommunicationAt)
           : t('common.never');
         return (
-          <article className={`vehicle-line${onLifecycle ? ' manageable' : ''}`} id={`vehicle-${vehicle.id}`} tabIndex={-1} key={vehicle.id}>
+          <article className={`vehicle-line${onLifecycle || onTelematics ? ' manageable' : ''}`} id={`vehicle-${vehicle.id}`} tabIndex={-1} key={vehicle.id}>
             <div className="vehicle-photo"><Icon /></div>
             <div className="vehicle-name"><strong>{vehicle.name}</strong><span><LtrText>{vehicle.plate}</LtrText> · {kindLabel}</span></div>
             <StatusPill value={archived ? 'ARCHIVED' : vehicle.device?.status || 'UNASSIGNED'} />
@@ -151,10 +152,16 @@ function VehicleList({ vehicles, isCustomer = true, archived = false, onEdit, on
             <div className="vehicle-reading"><span>{t('portal.vehicles.battery')}</span><strong>{batteryText}</strong></div>
             <div className="vehicle-reading"><span>{t('portal.vehicles.lastReport')}</span><strong>{lastReportText}</strong></div>
             {archived && vehicle.archivedAt && <div className="vehicle-archived-at">{t('portal.vehicles.archivedAt', { date: formatDateTime(vehicle.archivedAt) })}</div>}
-            {onLifecycle && (
+            {(onLifecycle || onTelematics) && (
               <div className="vehicle-actions">
+                {!archived && vehicle.device && onTelematics && (
+                  <button className="outline" onClick={() => onTelematics(vehicle)} title="Coban GPS 303FG Controls">
+                    <Radio />
+                    Telematics
+                  </button>
+                )}
                 {!archived && onEdit && <button className="outline" onClick={() => onEdit(vehicle)}><Pencil />{t('portal.vehicles.editButton')}</button>}
-                <button className="outline" onClick={() => onLifecycle(vehicle)}>{archived ? <RotateCcw /> : <Archive />}{t(archived ? 'portal.vehicles.restoreButton' : 'portal.vehicles.archiveButton')}</button>
+                {onLifecycle && <button className="outline" onClick={() => onLifecycle(vehicle)}>{archived ? <RotateCcw /> : <Archive />}{t(archived ? 'portal.vehicles.restoreButton' : 'portal.vehicles.archiveButton')}</button>}
               </div>
             )}
           </article>
@@ -456,7 +463,7 @@ function AlertList({ alerts, isCustomer = true }: { alerts: AlertItem[]; isCusto
   );
 }
 
-function Overview({ data, isCustomer, actorName }: { data: Dashboard; isCustomer: boolean; actorName: string }) {
+function Overview({ data, isCustomer, actorName, onTelematics }: { data: Dashboard; isCustomer: boolean; actorName: string; onTelematics?: (vehicle: Vehicle) => void }) {
   const { t, formatNumber, formatRelativeTime } = useI18n();
   const featured = data.vehicles.find(vehicle => vehicle.location) || data.vehicles[0];
   return (
@@ -542,7 +549,7 @@ function Overview({ data, isCustomer, actorName }: { data: Dashboard; isCustomer
           eyebrow={t('portal.overview.fleetStatusEyebrow')}
           title={isCustomer ? t('portal.overview.vehiclesTitle') : t('portal.overview.resellerVehiclesTitle')}
         />
-        <VehicleList vehicles={data.vehicles} isCustomer={isCustomer} />
+        <VehicleList vehicles={data.vehicles} isCustomer={isCustomer} onTelematics={onTelematics} />
       </section>
       <section className="surface">
         <SectionTitle
@@ -855,6 +862,7 @@ export default function PortalApp() {
   const [customerMutationState, setCustomerMutationState] = useState<MutationState>('idle');
   const [customerErrorKey, setCustomerErrorKey] = useState<MessageKey | null>(null);
   const [customerToast, setCustomerToast] = useState<CustomerToast | null>(null);
+  const [telematicsVehicle, setTelematicsVehicle] = useState<Vehicle | null>(null);
   const [message, setMessage] = useState('');
   const [menu, setMenu] = useState(false);
   const [vehicleStudio, setVehicleStudio] = useState(false);
@@ -883,6 +891,77 @@ export default function PortalApp() {
     setDeviceHistory(history);
     setSelectedDeviceId(current => inventory.some(device => device.id === current) ? current : inventory[0]?.id ?? null);
   };
+
+  useEffect(() => {
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource('/api/telematics/stream');
+      es.addEventListener('location:update', (event: MessageEvent) => {
+        try {
+          const payload = JSON.parse(event.data);
+          setData(current => {
+            if (!current) return current;
+            const updated = current.vehicles.map(v => {
+              if (v.id === payload.vehicleId) {
+                return {
+                  ...v,
+                  location: {
+                    latitude: payload.latitude,
+                    longitude: payload.longitude,
+                    speedKph: payload.speedKph,
+                    heading: payload.heading,
+                    occurredAt: payload.occurredAt,
+                    quality: 'VALID'
+                  },
+                  device: v.device ? {
+                    ...v.device,
+                    status: 'ACTIVE',
+                    lastCommunicationAt: payload.occurredAt
+                  } : undefined
+                };
+              }
+              return v;
+            });
+            return { ...current, vehicles: updated };
+          });
+        } catch {
+          // Ignore parse errors
+        }
+      });
+
+      es.addEventListener('alarm:triggered', (event: MessageEvent) => {
+        try {
+          const payload = JSON.parse(event.data);
+          setData(current => {
+            if (!current) return current;
+            const newAlert: AlertItem = {
+              id: payload.alertId,
+              vehicleId: payload.vehicleId,
+              vehicleName: payload.vehicleName,
+              type: payload.alarmType,
+              severity: payload.severity,
+              status: 'TRIGGERED',
+              occurredAt: payload.occurredAt,
+              summary: payload.summary
+            };
+            return {
+              ...current,
+              alerts: [newAlert, ...current.alerts],
+              stats: { ...current.stats, activeAlerts: current.stats.activeAlerts + 1 }
+            };
+          });
+        } catch {
+          // Ignore parse errors
+        }
+      });
+    } catch {
+      // EventSource not supported
+    }
+
+    return () => {
+      es?.close();
+    };
+  }, []);
 
   useEffect(() => {
     setSession(null);
@@ -1292,7 +1371,7 @@ export default function PortalApp() {
             <div className="loading"><Activity className="spin" />{t('portal.notices.loadingWorkspace')}</div>
           ) : (
             <>
-              {view === 'overview' && <Overview data={data} isCustomer={isCustomer} actorName={session?.actor.name ?? ''} />}
+              {view === 'overview' && <Overview data={data} isCustomer={isCustomer} actorName={session?.actor.name ?? ''} onTelematics={isCustomer ? vehicle => setTelematicsVehicle(vehicle) : undefined} />}
               {view === 'map' && (
                 <section className="surface map-page">
                   <SectionTitle
@@ -1301,7 +1380,7 @@ export default function PortalApp() {
                     action={<span className="map-note">{t('portal.map.mapAttribution')}</span>}
                   />
                   <LiveMap vehicles={data.vehicles} tall isCustomer={isCustomer} />
-                  <VehicleList vehicles={data.vehicles} isCustomer={isCustomer} />
+                  <VehicleList vehicles={data.vehicles} isCustomer={isCustomer} onTelematics={isCustomer ? vehicle => setTelematicsVehicle(vehicle) : undefined} />
                 </section>
               )}
               {view === 'vehicles' && (
@@ -1324,6 +1403,7 @@ export default function PortalApp() {
                         archived={vehicleFilter === 'ARCHIVED'}
                         onEdit={canManageVehicles && vehicleFilter === 'ACTIVE' ? vehicle => { setVehicleManagementState('idle'); setVehicleManagementErrorKey(null); setEditingVehicle(vehicle); } : undefined}
                         onLifecycle={canManageVehicles ? vehicle => { setVehicleManagementState('idle'); setLifecycleVehicle(vehicle); } : undefined}
+                        onTelematics={isCustomer && vehicleFilter === 'ACTIVE' ? vehicle => setTelematicsVehicle(vehicle) : undefined}
                       />}
                 </section>
               )}
@@ -1469,6 +1549,13 @@ export default function PortalApp() {
         onCreate={createVehicle}
         onClearError={() => { setVehicleCreateError(null); setVehicleCreateState('idle'); }}
       />
+      {telematicsVehicle && (
+        <VehicleTelematicsDialog
+          vehicle={telematicsVehicle}
+          actorId={actorId}
+          onClose={() => setTelematicsVehicle(null)}
+        />
+      )}
     </div>
   );
 }
