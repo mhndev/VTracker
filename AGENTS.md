@@ -54,7 +54,8 @@ shots/          Reference screenshots of the running UIs — not part of the bui
 | Task | Command | Notes |
 | --- | --- | --- |
 | Install | `npm install` | npm workspaces; native `sqlite3` build (see §9) |
-| Everything (dev) | `npm run dev` | API + portal + admin + simulator; PostgreSQL when reachable, otherwise SQLite |
+| Start locally | `npm start` | Complete stack; PostgreSQL when reachable, otherwise clean in-memory SQLite |
+| Everything (dev) | `npm run dev` | Same automatic database selection as `npm start` |
 | Strict DB dev | `npm run dev:postgres` / `npm run dev:sqlite` | Require one backend; no automatic fallback |
 | API only | `npm run dev:api` | One API process; exits immediately on startup failure |
 | API with reload | `npm --workspace @sentinel/api run dev:watch` | Optional watcher while editing backend code |
@@ -65,9 +66,15 @@ shots/          Reference screenshots of the running UIs — not part of the bui
 | DB (Postgres) | `docker compose up -d db` | Required for `npm run dev` unless SQLite fallback |
 | No-Docker dev | `npm run dev:sqlite` | Creates `.data/sentinel.sqlite` |
 | Full stack | `docker compose up --build` | Node 24 images, nginx-fronted SPAs |
+| Ensure ngrok TCP | `npm run tunnel:tcp` | Reuse a tunnel to `TELEMATICS_PORT` or start an attached ngrok agent |
+
+`npm run start:api` is the strict compiled API-only command. It does not start the web applications
+or perform database fallback and therefore requires a completed API build plus a reachable configured database.
 
 `npm test && npm run build` is the project's definition of verified (README "Verify"). The root
-`scripts/dev.mjs` performs the database reachability preflight used by `npm run dev`; keep its
+`scripts/dev.mjs` performs the database reachability preflight used by `npm start` and `npm run dev`;
+the automatic fallback is in-memory to avoid stale-schema failures, while explicit `npm run dev:sqlite`
+uses the persistent file. Keep its
 strict `dev:postgres` and `dev:sqlite` modes working when changing startup configuration.
 
 ### Ports and origin wiring

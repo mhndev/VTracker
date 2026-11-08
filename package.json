@@ -21,12 +21,14 @@
     "build:admin": "npm --workspace @sentinel/admin run build",
     "build:simulator": "npm --workspace @sentinel/device-simulator run build",
     "build:api": "npm --workspace @sentinel/api run build",
-    "start": "npm --workspace @sentinel/api run start",
+    "start": "node scripts/dev.mjs",
+    "start:api": "npm --workspace @sentinel/api run start",
     "test": "npm --workspace @sentinel/api run test && npm --workspace @sentinel/device-simulator run test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "onboarding:videos": "node scripts/onboarding/generate-videos.mjs",
-    "tunnel:tcp": "ngrok tcp 8090",
+    "tunnel:tcp": "node scripts/ensure-ngrok.mjs",
+    "tunnel:check": "node scripts/ensure-ngrok.mjs --dry-run",
     "tunnel:status": "node scripts/telematics-tunnel.mjs"
   },
   "devDependencies": {

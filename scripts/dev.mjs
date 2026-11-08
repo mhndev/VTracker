@@ -60,6 +60,7 @@ if (requestedDatabase && !['postgres', 'sqlite'].includes(requestedDatabase)) {
 
 let database = requestedDatabase || environment.DATABASE_DIALECT || 'postgres';
 const explicitShellDatabase = !requestedDatabase && process.env.DATABASE_DIALECT;
+let automaticSqliteFallback = false;
 
 if (!['postgres', 'sqlite'].includes(database)) {
   console.error(`Invalid DATABASE_DIALECT "${database}". Use postgres or sqlite.`);
@@ -73,8 +74,10 @@ if (database === 'postgres' && !requestedDatabase && !explicitShellDatabase) {
     : false;
   if (!reachable) {
     database = 'sqlite';
-    console.warn('PostgreSQL is not reachable; using the local SQLite database for this development session.');
+    automaticSqliteFallback = true;
+    console.warn('PostgreSQL is not reachable; using an in-memory SQLite database for this development session.');
     console.warn('Use "npm run dev:postgres" for a strict PostgreSQL startup.');
+    console.warn('Use "npm run dev:sqlite" when the demo data should persist between restarts.');
   }
 }
 
@@ -82,15 +85,32 @@ const childEnvironment = {
   ...process.env,
   DATABASE_DIALECT: database
 };
-if (database === 'sqlite') childEnvironment.DATABASE_URL = '';
+if (database === 'sqlite') {
+  childEnvironment.DATABASE_URL = '';
+  if (automaticSqliteFallback && !process.env.DATABASE_STORAGE) childEnvironment.DATABASE_STORAGE = ':memory:';
+}
 
-console.log(`Starting Sentinel Fleet with ${database === 'sqlite' ? 'SQLite' : 'PostgreSQL'}...`);
+console.log(`Starting Sentinel Fleet with ${database === 'sqlite' ? (automaticSqliteFallback ? 'in-memory SQLite' : 'SQLite') : 'PostgreSQL'}...`);
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
 const child = spawn(npmCommand, ['run', 'dev:services'], {
   cwd: repositoryRoot,
   env: childEnvironment,
+  detached: process.platform !== 'win32',
   stdio: 'inherit'
 });
+
+function stopChild(signal) {
+  if (!child.pid || child.killed) return;
+  try {
+    if (process.platform === 'win32') child.kill(signal);
+    else process.kill(-child.pid, signal);
+  } catch (error) {
+    if (error.code !== 'ESRCH') throw error;
+  }
+}
+
+process.once('SIGINT', () => stopChild('SIGINT'));
+process.once('SIGTERM', () => stopChild('SIGTERM'));
 
 child.once('error', error => {
   console.error(`Could not start the development services: ${error.message}`);

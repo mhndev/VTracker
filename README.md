@@ -10,11 +10,12 @@ Requirements: Node.js 24+ and npm. Docker is optional.
 
 ```bash
 npm install
-npm run dev
+npm start
 ```
 
-`npm run dev` checks the PostgreSQL address from `.env`. If it is reachable, the API uses it; if
-not, development automatically continues with SQLite at `.data/sentinel.sqlite`. Open:
+`npm start` and `npm run dev` both check the PostgreSQL address from `.env`. If it is reachable, the API uses it; if
+not, development automatically continues with a clean in-memory SQLite database. Use `npm run dev:sqlite`
+when demo changes should persist in `.data/sentinel.sqlite`. Open:
 
 - Portal: `http://localhost:5173`
 - Admin: `http://localhost:5174`
@@ -89,14 +90,35 @@ family. Its SMS console implements the documented device command vocabulary with
 acknowledgements. Light and dark themes are included.
 
 ```bash
-npm run dev:sqlite
+# Terminal 1: start the complete local stack (PostgreSQL when available, otherwise SQLite)
+npm start
+
+# Terminal 2: reuse the existing ngrok TCP endpoint or start one when absent
 npm run tunnel:tcp
+
+# Terminal 3, or after an existing tunnel was reused: print endpoint and tracker SMS commands
 npm run tunnel:status
 ```
 
-Open `http://localhost:5175`, enter the ngrok hostname and port, then select **Connect**. The public
-test path is `simulator -> ngrok -> localhost:8090 -> Sentinel telematics gateway`. ngrok does not
-forward UDP; UDP hardware testing requires a UDP-capable relay, VPN, or router port-forward.
+`npm run tunnel:tcp` checks ngrok's local agent API at `127.0.0.1:4040`. If a TCP tunnel already
+forwards to `TELEMATICS_PORT` (`8090` by default), it prints and reuses that endpoint. Otherwise it
+starts `ngrok tcp 8090` and remains attached to the terminal; use `Control-C` to close the public
+endpoint. Run `npm run tunnel:check` to perform the same check without starting ngrok.
+
+The public hardware path is `Coban tracker -> public ngrok TCP hostname:port -> ngrok agent on this
+Mac -> localhost:8090 -> Sentinel telematics gateway -> database and portal`. `npm run tunnel:status`
+reads the active endpoint and prints the ordered `begin`, APN, GPRS, TCP, server, interval, and status
+SMS commands. The randomly assigned public hostname/port can change after ngrok restarts unless the
+account uses a reserved TCP address, so rerun the status command before programming a tracker.
+
+ngrok must be installed and authenticated once with `ngrok config add-authtoken <token>`. Public TCP
+endpoints may require account verification or a valid payment method even on a free plan. The tunnel
+exposes only raw TCP traffic to the telematics port; it does not publish the portal, admin, or API web
+ports. ngrok does not forward UDP, so UDP hardware testing requires a UDP-capable relay, VPN, or
+router port-forward.
+
+For simulator-only testing, open `http://localhost:5175`. Connect directly to `localhost:8090`, or
+enter the ngrok hostname and port to exercise the same public TCP path as physical hardware.
 
 Each browser session receives isolated device state, traffic history, transport socket, and route.
 The first four concurrent sessions map to the four seeded customer vehicles and use IMEIs
@@ -424,9 +446,10 @@ table values using observed production traffic and index/backup overhead.
 
 ## Database configuration
 
-PostgreSQL is the configured default backend; `npm run dev` automatically falls back to SQLite
-when the configured PostgreSQL address is unreachable. `npm run dev:postgres` and
-`npm run dev:sqlite` are strict, explicit alternatives.
+PostgreSQL is the configured default backend; `npm start` and `npm run dev` automatically fall back to
+clean in-memory SQLite when the configured PostgreSQL address is unreachable. `npm run dev:postgres`
+is strict. `npm run dev:sqlite` explicitly uses the persistent `.data/sentinel.sqlite` database;
+because this demo has no migrations, remove or rename that file after model/column changes.
 
 `DATABASE_DIALECT` selects the backend (`postgres` default, or `sqlite` with the file at
 `DATABASE_STORAGE`). When `DATABASE_URL` is present it takes precedence over
@@ -450,8 +473,12 @@ never needs a database server.
 
 ## Troubleshooting
 
-- `SequelizeConnectionRefusedError`: use `npm run dev` for automatic SQLite fallback, or start
+- `SequelizeConnectionRefusedError`: use `npm start` or `npm run dev` for automatic SQLite fallback. `npm run start:api`
+  is the strict compiled-API command and expects the configured database to be reachable. Alternatively, start
   PostgreSQL with `docker compose up -d --wait db` before `npm run dev:postgres`.
+- `SQLITE_ERROR: no such column`: the persistent demo database predates the current models. Rename
+  `.data/sentinel.sqlite` to keep a backup, then run `npm run dev:sqlite` again, or use `npm start`
+  for a clean in-memory session.
 - A port is already in use: stop the other process or change `API_PORT`, `PORTAL_PORT`, and
   `ADMIN_PORT` in `.env`; keep `CORS_ORIGIN` and `VITE_API_BASE` in sync.
 - Seed edits do not appear: remove `.data/sentinel.sqlite` for SQLite, or recreate the Docker

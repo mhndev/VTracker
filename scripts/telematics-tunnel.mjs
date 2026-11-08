@@ -8,8 +8,15 @@
  * provision the Coban 303FG hardware.
  */
 
-const NGROK_API = 'http://127.0.0.1:4040/api/tunnels';
-const DEFAULT_LOCAL_PORT = parseInt(process.env.TELEMATICS_PORT || '8090', 10);
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const NGROK_API = process.env.NGROK_API_URL || 'http://127.0.0.1:4040/api/tunnels';
+const envText = fs.existsSync(path.join(repositoryRoot, '.env')) ? fs.readFileSync(path.join(repositoryRoot, '.env'), 'utf8') : '';
+const configuredPort = envText.match(/^TELEMATICS_PORT=(\d+)\s*$/m)?.[1];
+const DEFAULT_LOCAL_PORT = parseInt(process.env.TELEMATICS_PORT || configuredPort || '8090', 10);
 const DEFAULT_PASSWORD = process.env.TRACKER_PASSWORD || '123456';
 const DEFAULT_APN = process.env.TRACKER_APN || 'internet';
 
@@ -34,20 +41,25 @@ async function main() {
   if (!tunnels) {
     console.log('⚠️  ngrok is not currently running or its local API (port 4040) is unreachable.\n');
     console.log('To start an ngrok TCP tunnel for the telematics gateway, run:');
-    console.log(`\n    ngrok tcp ${DEFAULT_LOCAL_PORT}\n`);
+    console.log('\n    npm run tunnel:tcp\n');
     console.log('Once ngrok is running, run this script again:\n');
     console.log('    node scripts/telematics-tunnel.mjs\n');
     process.exit(0);
   }
 
-  // Look for a tcp tunnel
-  const tcpTunnel = tunnels.find(t => t.proto === 'tcp' || t.public_url.startsWith('tcp://'));
+  // Match the TCP tunnel that forwards to this repository's configured gateway port.
+  const tcpTunnel = tunnels.find(tunnel => {
+    if (tunnel.proto !== 'tcp' && !String(tunnel.public_url || '').startsWith('tcp://')) return false;
+    const address = String(tunnel.config?.addr || '');
+    const port = address.match(/(?:^|:)(\d+)\/?$/)?.[1];
+    return Number(port) === DEFAULT_LOCAL_PORT;
+  });
 
   if (!tcpTunnel) {
     console.log('⚠️  ngrok is running, but no TCP tunnel was found.');
     console.log(`Active tunnels: ${tunnels.map(t => t.public_url).join(', ')}\n`);
-    console.log('Please start a TCP tunnel with:');
-    console.log(`\n    ngrok tcp ${DEFAULT_LOCAL_PORT}\n`);
+    console.log(`No tunnel forwards to TELEMATICS_PORT ${DEFAULT_LOCAL_PORT}.`);
+    console.log('Run "npm run tunnel:tcp" after stopping a conflicting ngrok agent.\n');
     process.exit(0);
   }
 
