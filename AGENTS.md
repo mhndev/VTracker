@@ -12,9 +12,11 @@ and what is deliberately out of scope). If a change contradicts `DECISIONS.md`, 
 ## 1. What this project is
 
 **Sentinel Fleet** is a runnable multi-tenant GPS / vehicle-telematics MVP: a customer &
-reseller portal, an isolated platform-admin console, and a policy-enforced Express API.
-It is a *demonstrator*, not a production system: demo authentication, no billing, no device
-protocol, and remote vehicle commands are intentionally impossible.
+reseller portal, an isolated platform-admin console, an isolated Coban device simulator, a TCP/UDP
+telematics gateway, and a policy-enforced Express API. It is a *demonstrator*, not a production
+system: authentication is simulated, billing is absent, the protocol implementation is based on
+published/manual evidence rather than certified hardware captures, and production remote vehicle
+control remains outside the locked product scope.
 
 The domain model in one paragraph: an `Organization` (PLATFORM / RESELLER / CUSTOMER) is the
 isolation boundary. Customers own `Vehicle`s; `Device`s are assigned to vehicles through
@@ -35,6 +37,7 @@ Start Sentinel Fleet.command    macOS double-click launcher (not part of the bui
 src/apps/api/       Express 5 + TypeScript + Sequelize API  (API_PORT,    default 8787)
 src/apps/portal/    Customer/reseller React + TS portal      (PORTAL_PORT, default 5173)
 src/apps/admin/     Platform-admin React + TS console        (ADMIN_PORT,  default 5174)
+src/apps/device-simulator/ React device lab + TCP/UDP bridge  (SIMULATOR_PORT, default 5175)
 src/packages/ui/    Shared React UI components and styles
 
 html/           Orphaned standalone RTL (Persian) prototype mockups — not built, not served
@@ -48,13 +51,13 @@ shots/          Reference screenshots of the running UIs — not part of the bui
 | Task | Command | Notes |
 | --- | --- | --- |
 | Install | `npm install` | npm workspaces; native `sqlite3` build (see §9) |
-| Everything (dev) | `npm run dev` | API + portal + admin; PostgreSQL when reachable, otherwise SQLite |
+| Everything (dev) | `npm run dev` | API + portal + admin + simulator; PostgreSQL when reachable, otherwise SQLite |
 | Strict DB dev | `npm run dev:postgres` / `npm run dev:sqlite` | Require one backend; no automatic fallback |
 | API only | `npm run dev:api` | One API process; exits immediately on startup failure |
 | API with reload | `npm --workspace @sentinel/api run dev:watch` | Optional watcher while editing backend code |
-| Portal / admin only | `npm run dev:portal` / `npm run dev:admin` | Vite dev servers |
-| Test | `npm test` | `node:test` + `supertest`, in-memory SQLite, no DB server needed |
-| Build / typecheck | `npm run build` | portal `tsc --noEmit` + vite, admin same, API `tsc` |
+| Portal / admin / simulator only | `npm run dev:portal` / `npm run dev:admin` / `npm run dev:simulator` | Vite dev servers |
+| Test | `npm test` | API integration plus simulator protocol/route tests; SQLite is in-memory |
+| Build / typecheck | `npm run build` | portal, admin, simulator Vite builds plus API `tsc` |
 | Typecheck only | `npm run build:api` / `:portal` / `:admin` | Fastest gate while iterating |
 | DB (Postgres) | `docker compose up -d db` | Required for `npm run dev` unless SQLite fallback |
 | No-Docker dev | `npm run dev:sqlite` | Creates `.data/sentinel.sqlite` |
@@ -71,8 +74,8 @@ interface the Vite dev servers bind (`127.0.0.1` locally; use `0.0.0.0` inside c
 sandboxes, or when the dev server is reached through a tunnel/proxy — `strictPort: true` means a
 bad port fails loudly instead of silently shifting).
 
-`CORS_ORIGIN` must list the exact portal/admin browser origins and stay in sync with
-`PORTAL_PORT`/`ADMIN_PORT`; changing a port in one place and not the others is the most common
+`CORS_ORIGIN` must list the exact portal/admin/simulator browser origins and stay in sync with
+`PORTAL_PORT`/`ADMIN_PORT`/`SIMULATOR_PORT`; changing a port in one place and not the others is the most common
 local breakage. The SPAs themselves always call **relative** `/api/...` paths and rely on the
 Vite dev proxy (`VITE_API_BASE`) or the nginx `/api` proxy in Docker.
 
@@ -102,10 +105,18 @@ src/
   middleware/      attachActor (demo auth) and error handling
   database/        connection.ts (sequelize instance), index.ts (init), seed.ts
   models/          Sequelize models; index.ts exports + initializeAssociations()
+  telematics/      Coban decoding/encoding, TCP/UDP sessions, ingestion, SSE broadcasts
   types/           Express Request augmentation (request.actor)
   utils/           HttpError, asyncHandler
-test/api.test.ts   the whole test suite (node:test + supertest)
+test/api.test.ts   the primary API integration suite (node:test + supertest)
 ```
+
+### Device protocol catalog
+
+- Keep `database/protocol-catalog.ts` and `docs/devices/` aligned. The database catalog is rendered in the admin **Device documentation** view.
+- `ACTIVE` means a tested runtime decoder/adapter exists. `CATALOG_ONLY` is documentation and must never be presented as ingestion or command support.
+- Reseller device-family access belongs in `reseller_device_protocol_availability`, not UI-only configuration. Platform mutations must be audited.
+- Most catalogued trackers send vendor frames over raw TCP/UDP or SMS. JSON is the normalized platform representation after decoding, not a claim that the tracker calls a JSON API.
 
 ### Request flow
 
@@ -153,6 +164,12 @@ Existing codes worth reusing: `UNKNOWN_ACTOR` (401), `SCOPE_DENIED` / `GRANT_ADM
   Default dashboards, platform counts, and telemetry simulation exclude archived vehicles. Edit,
   archive, and restore reuse `canManageVehicles`, preserve all related records, and write
   `VEHICLE_UPDATED`, `VEHICLE_ARCHIVED`, or `VEHICLE_RESTORED` audit events.
+- Vehicle state and trip/log reads contain location-derived data and must pass `canViewLocation`.
+  Platform support remains denied; owning members and explicitly granted resellers are the only
+  callers that can receive coordinates or compact trip paths.
+- Retention assignments are customer-organization resources. Platform administrators may inspect
+  capacity and change an assignment; customer/reseller roles may not. New customers receive the
+  one-month policy transactionally with provisioning.
 - Never trust `organizationId` from a query string or body. Always resolve it through
   `getAccessMode` / `getMembership` / `canManageGrants` first (this is what the tests pin down).
 
@@ -186,18 +203,33 @@ Existing actions: `LOCATION_VIEWED`, `ACCESS_GRANT_CREATED`, `ACCESS_GRANT_REVOK
 
 ### Telemetry semantics
 
-Telemetry is append-only (`TelemetryEvent`) plus a mutable projection (`LatestPosition`, PK
-`vehicleId`). Events carry both `occurredAt` (device time) and `ingestedAt` (server time), a
-`schemaVersion`, a `quality` and a `source`, and are idempotent-friendly by event ID. The local
-simulator (`services/telemetry.service.ts`) is the only writer; it runs in a transaction and is
-disabled for actors without the fleet-manager role.
+Telemetry is append-only (`TelemetryEvent`) plus mutable `LatestPosition` and `VehicleState`
+projections. Events carry both `occurredAt` (device time) and `ingestedAt` (server time), a
+`schemaVersion`, a `quality` and a `source`, and are idempotent-friendly by event ID. Both the local
+HTTP simulator (`services/telemetry.service.ts`) and valid Coban gateway frames write normalized
+telemetry in transactions. Invalid GPS fixes refresh device/state health without replacing trusted
+coordinates.
+
+Trip segmentation lives in `telematics/ingestion.ts`: movement is speed above 2 km/h; a stop of at
+least five minutes closes the active trip at the first stationary point. `TripPoint` uses
+`(tripId, slot)` as a compact composite key and is capped at 100 rows per trip. The first/latest
+points are preserved and interior slots are sampled as reports arrive. Raw message and telemetry
+retention must never delete `Trip` or `TripPoint` rows.
+
+`retention_policies` contains the four seeded durations and sizing assumptions;
+`organization_retention_policies` assigns a customer plan. `startRetentionScheduler()` runs once at
+API startup and every 24 hours, deleting expired `DeviceMessageLog` and `TelemetryEvent` rows only.
+Storage estimates are planning calculations, not measured database sizes.
 
 ---
 
 ## 4. Hard invariants — do not break these
 
-1. **No remote vehicle commands, ever.** There is no command endpoint and there must not be one.
-   `GET /api/health` returns `highRiskCommandsEnabled: false`; the dashboard returns
+1. **No supported production remote vehicle commands, ever.** The repository currently contains
+   experimental Coban command plumbing used by the isolated lab/demo; this is a known inconsistency
+   with the locked production decision and must not be expanded, marketed as supported, or enabled
+   as a production capability without a separate safety/legal ADR. `GET /api/health` returns
+   `highRiskCommandsEnabled: false`; the dashboard returns
    `capabilities.remoteImmobilization: false`; the admin console shows the "high-risk commands"
    check as `DISABLED`; the portal displays the "vehicle control is unavailable" notice. Requiring
    an immobilization feature means stopping and asking for a separate safety/legal ADR
@@ -241,9 +273,11 @@ disabled for actors without the fleet-manager role.
   the Persian calendar and bundled Vazirmatn. Wrap plates, serials, emails, coordinates, IDs, and
   technical values with `LtrText` or `dir="ltr"`. Key naming and locale rules are in
   `src/packages/ui/src/i18n/README.md`.
-- The portal's Leaflet map (`LiveMap.tsx`) uses OSM tiles and **must keep the OpenStreetMap
-  attribution**; access-denied states render the "locations are private" overlay rather than
-  hiding the feature.
+- The portal's Leaflet maps (`LiveMap.tsx` and trip maps in `VehicleTelematicsDialog.tsx`) use OSM
+  tiles and **must keep the OpenStreetMap attribution**; access-denied states render the
+  "locations are private" overlay rather than hiding the feature.
+- `VehicleTelematicsDialog.tsx` owns Current state, Trips, Logs, and Controls. State/details poll
+  independently from the persisted log feed. Do not make offline history depend on a live socket.
 - Accessibility and polish already present (aria labels, `aria-current`, focusable buttons,
   responsive layout) should be preserved when editing TSX.
 - **Both `vite.config.ts` files are intentionally duplicated and contain a hand-written `.env`
@@ -276,8 +310,10 @@ disabled for actors without the fleet-manager role.
 ## 7. Database lifecycle, seeding, and how to reset
 
 `initializeDatabase(force)` runs `initializeAssociations()` once, connects, then
-`seedDatabase(force)`, which calls `sequelize.sync({ force })` and inserts demo data **only when
-`Organization.count() === 0`**.
+`seedDatabase(force)`, which calls `sequelize.sync({ force })`. Protocol and retention catalogs are
+seeded idempotently on every startup; the main demo fixtures are inserted only when
+`Organization.count() === 0`. Existing customer organizations missing a retention assignment
+receive the one-month default.
 
 Seeded fixtures (use these exact IDs in tests and manual checks):
 
@@ -291,9 +327,11 @@ Seeded fixtures (use these exact IDs in tests and manual checks):
 | Devices / assignments | `device-1` … `device-4` (org-customer, `device-4` is `QUARANTINED`), `device-5` (org-private); matching active records `assignment-1` … `assignment-5` |
 | Access grant | `grant-1`: `vehicle-1` → `org-reseller`, `LOCATION_CURRENT`, expires 2 h after seeding |
 | Alerts | `alert-1` … `alert-3`; audit events `audit-1` … `audit-3` |
+| Retention | `retention-1-month`, `retention-6-months`, `retention-1-year`, `retention-5-years`; seeded customers default to `retention-1-month` |
 
-Because seeding is skipped when data exists, **editing `seed.ts` has no effect on an existing
-database.** Reset explicitly:
+The protocol/retention catalogs use idempotent startup seeding, but edits to the main demo fixtures
+have no effect when organizations already exist. Column changes still require a reset because there
+is no migration framework. Reset explicitly:
 
 ```bash
 npm test                                   # always force-recreates the in-memory DB
@@ -307,7 +345,7 @@ There is no migration tool. If you need one, raise it with the user first.
 
 ## 8. Testing
 
-- One suite: `src/apps/api/test/api.test.ts`, run by `npm test` (`tsx --test`). It calls
+- API integration suite: `src/apps/api/test/api.test.ts`, run by `npm test` (`tsx --test`). It calls
   `createApp()` directly with `supertest` (no listening socket) and boots the DB via
   `initializeDatabase(true)` in `before`, closing it in `after`.
 - Keep tests black-box: go through HTTP, assert status codes and response shapes, and use the
@@ -319,6 +357,12 @@ There is no migration tool. If you need one, raise it with the user first.
   payload contains no coordinates, malformed grant bodies return 400 not 500.
 - Tests rely on relative time (`grant-1` expires 2 h after seeding, `minutesAgo()` fixtures), so
   a long-running process may drift; that is expected.
+- The simulator has separate `node:test` suites under `src/apps/device-simulator/test/` for protocol
+  packets and route interpolation. Root `npm test` runs both API and simulator suites.
+- For browser smoke tests, use the `playwright` Codex skill/CLI, start `npm run dev:sqlite`, snapshot
+  before using element refs, and cover the portal vehicle Current state/Trips/Logs tabs, offline
+  labeling, customer map, admin aggregate view, and simulator landing page. Browser checks do not
+  replace `npm test && npm run build`.
 - **No linter, formatter, or CI is configured.** TypeScript `strict` +
   `noUncheckedIndexedAccess` in `src/apps/api`, and `tsc --noEmit` in both web apps, are the real
   gates — keep them green.

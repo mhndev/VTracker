@@ -44,6 +44,7 @@ export type ParsedPacket =
   | { type: 'LOCATION'; data: CobanLocationData; raw: string }
   | { type: 'ALARM'; data: CobanAlarmData; raw: string }
   | { type: 'COMMAND_RESPONSE'; imei?: string; response: string; raw: string }
+  | { type: 'DEVICE_INFO'; imei: string; detectedModel?: string; firmwareVersion?: string; protocolVersion?: string; variantVersion?: string; raw: string }
   | { type: 'UNKNOWN'; raw: string };
 
 export interface DeviceSession {

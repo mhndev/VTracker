@@ -3,11 +3,11 @@ import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { EmptyState, LtrText, MetricCard, SectionTitle, StatusPill, Surface, Toast, isMessageKey, useI18n, type MessageKey, type SupportedLocale } from '@sentinel/ui';
 import {
-  Activity, AlertTriangle, Building2, CheckCircle2, Clock, FileClock, LayoutDashboard,
+  Activity, AlertTriangle, BookOpen, Building2, CheckCircle2, CirclePlay, Clock, ExternalLink, FileClock, LayoutDashboard,
   LockKeyhole, Pencil, Plus, Radio, RefreshCw, Search, Server, ShieldCheck, Signal, Users, X
 } from 'lucide-react';
 
-type AdminView = 'overview' | 'resellers' | 'organizations' | 'devices' | 'incidents' | 'audit';
+type AdminView = 'overview' | 'resellers' | 'organizations' | 'devices' | 'catalog' | 'incidents' | 'audit' | 'onboarding';
 type ResellerStatus = 'ACTIVE' | 'SUSPENDED';
 type DelegatedCapability = 'CUSTOMER_PROVISION' | 'CUSTOMER_SETTINGS' | 'FLEET_MANAGE' | 'DEVICE_MANAGE' | 'SUPPORT_OPERATIONS';
 type ResellerRecord = {
@@ -19,6 +19,21 @@ type ResellerRecord = {
   customerCount: number;
 };
 type ResellerInput = Omit<ResellerRecord, 'id' | 'customerCount'>;
+type ProtocolDefinition = {
+  id: string; displayName: string; description: string; messageType?: string; direction?: string;
+  commandKey?: string; wireTemplate?: string | null; riskLevel?: string; implementationStatus?: string;
+  example?: string | null; fieldSchema?: Array<Record<string, unknown>>;
+};
+type ProtocolProfile = {
+  id: string; vendor: string; family: string; displayName: string; transport: string; frameFormat: string;
+  implementationStatus: 'ACTIVE' | 'CATALOG_ONLY' | 'DISABLED'; documentationUrl: string; notes: string | null;
+  messageDefinitions: ProtocolDefinition[]; commandDefinitions: ProtocolDefinition[];
+};
+type DeviceCatalogData = {
+  profiles: ProtocolProfile[];
+  resellers: Array<{ id: string; name: string; status: string }>;
+  availability: Array<{ id: string; resellerOrganizationId: string; protocolProfileId: string; available: boolean }>;
+};
 
 const DELEGATED_CAPABILITIES: readonly DelegatedCapability[] = [
   'CUSTOMER_PROVISION', 'CUSTOMER_SETTINGS', 'FLEET_MANAGE', 'DEVICE_MANAGE', 'SUPPORT_OPERATIONS'
@@ -52,8 +67,10 @@ const VIEWS: readonly { id: AdminView; icon: LucideIcon }[] = [
   { id: 'resellers', icon: Users },
   { id: 'organizations', icon: Building2 },
   { id: 'devices', icon: Radio },
+  { id: 'catalog', icon: BookOpen },
   { id: 'incidents', icon: AlertTriangle },
-  { id: 'audit', icon: FileClock }
+  { id: 'audit', icon: FileClock },
+  { id: 'onboarding', icon: CirclePlay }
 ];
 
 function WorkspaceRail({ view }: { view: AdminView }) {
@@ -70,7 +87,7 @@ function WorkspaceRail({ view }: { view: AdminView }) {
     { id: 'network', label: t('admin.rail.network') },
     { id: 'risk', label: t('admin.rail.risk') }
   ];
-  const activeModeId = view === 'overview' ? 'operations' : view === 'organizations' || view === 'resellers' ? 'tenants' : view === 'devices' ? 'network' : view === 'incidents' ? 'risk' : 'operations';
+  const activeModeId = view === 'overview' || view === 'onboarding' ? 'operations' : view === 'organizations' || view === 'resellers' ? 'tenants' : view === 'devices' || view === 'catalog' ? 'network' : view === 'incidents' ? 'risk' : 'operations';
   return (
     <div className="workspace-rail" aria-label={t('admin.rail.timelineAria')}>
       <span className="rail-back" aria-hidden="true">←</span>
@@ -548,6 +565,97 @@ function Overview({ data, organizations, audit, query, updatingId, onLocaleChang
   );
 }
 
+function DeviceCatalog({ data, query, updatingKey, onAvailabilityChange }: {
+  data: DeviceCatalogData;
+  query: string;
+  updatingKey: string | null;
+  onAvailabilityChange: (resellerId: string, protocolProfileId: string, available: boolean) => void;
+}) {
+  const normalized = query.trim().toLowerCase();
+  const profiles = data.profiles.filter(profile => matches(normalized, profile.displayName, profile.vendor, profile.family, profile.transport, profile.frameFormat, profile.implementationStatus));
+  const isAvailable = (resellerId: string, profileId: string) => data.availability.some(item => item.resellerOrganizationId === resellerId && item.protocolProfileId === profileId && item.available);
+  return (
+    <div className="protocol-catalog">
+      <div className="protocol-callout">
+        <ShieldCheck aria-hidden="true" />
+        <div><strong>Runtime support is explicit</strong><p>Only profiles marked Active have a server decoder. Catalog-only entries are documentation and planning references and cannot ingest data or send commands.</p></div>
+      </div>
+      {profiles.map(profile => (
+        <details className="protocol-card surface" key={profile.id} open={profile.implementationStatus === 'ACTIVE'}>
+          <summary>
+            <span className="protocol-title"><BookOpen aria-hidden="true" /><span><strong>{profile.displayName}</strong><small>{profile.vendor} · {profile.family}</small></span></span>
+            <span className={`protocol-support ${profile.implementationStatus === 'ACTIVE' ? 'is-active' : ''}`}>{humanize(profile.implementationStatus)}</span>
+          </summary>
+          <div className="protocol-body">
+            <div className="protocol-facts">
+              <span><small>Transport</small><strong><LtrText>{humanize(profile.transport)}</LtrText></strong></span>
+              <span><small>Wire format</small><strong><LtrText>{humanize(profile.frameFormat)}</LtrText></strong></span>
+              <span><small>Platform API</small><strong>Normalized JSON after decoding</strong></span>
+              <a href={profile.documentationUrl} target="_blank" rel="noreferrer">Source reference <ExternalLink aria-hidden="true" /></a>
+            </div>
+            {profile.notes ? <p className="protocol-note">{profile.notes}</p> : null}
+            <h3>Messages sent by the device</h3>
+            <div className="table-wrap"><table><thead><tr><th>Message</th><th>Direction</th><th>Meaning</th><th>Example / fields</th></tr></thead><tbody>
+              {profile.messageDefinitions.map(message => <tr key={message.id}><td><strong>{message.displayName}</strong><small className="table-code">{message.messageType}</small></td><td>{humanize(message.direction ?? '')}</td><td>{message.description}</td><td><LtrText>{message.example ?? message.fieldSchema?.map(field => String(field.name ?? '')).join(', ') ?? 'Binary fields'}</LtrText></td></tr>)}
+            </tbody></table></div>
+            <h3>Available device commands</h3>
+            <div className="table-wrap"><table><thead><tr><th>Command</th><th>Purpose</th><th>Wire template</th><th>Risk / status</th></tr></thead><tbody>
+              {profile.commandDefinitions.map(command => <tr key={command.id}><td><strong>{command.displayName}</strong><small className="table-code">{command.commandKey}</small></td><td>{command.description}</td><td><LtrText>{command.wireTemplate ?? 'Vendor/model specific'}</LtrText></td><td>{humanize(command.riskLevel ?? '')} · {humanize(command.implementationStatus ?? '')}</td></tr>)}
+            </tbody></table></div>
+            <h3>Reseller availability</h3>
+            <div className="protocol-resellers">
+              {data.resellers.map(reseller => {
+                const key = `${reseller.id}:${profile.id}`;
+                return <label key={reseller.id}><input type="checkbox" checked={isAvailable(reseller.id, profile.id)} disabled={updatingKey === key} onChange={event => onAvailabilityChange(reseller.id, profile.id, event.target.checked)} /><span><strong>{reseller.name}</strong><small>{reseller.status}</small></span></label>;
+              })}
+            </div>
+          </div>
+        </details>
+      ))}
+      {!profiles.length ? <EmptyState icon={<Search />} title="No matching device profiles" copy="Try a vendor, family, transport, or support status." /> : null}
+    </div>
+  );
+}
+
+const ONBOARDING_VIDEOS = [
+  { id: 'customer-fleet-monitoring', audienceKey: 'admin.onboarding.customerAudience', titleKey: 'admin.onboarding.fleetTitle', descriptionKey: 'admin.onboarding.fleetDescription', duration: '25 sec' },
+  { id: 'customer-location-sharing', audienceKey: 'admin.onboarding.customerResellerAudience', titleKey: 'admin.onboarding.sharingTitle', descriptionKey: 'admin.onboarding.sharingDescription', duration: '24 sec' },
+  { id: 'reseller-customer-fleet', audienceKey: 'admin.onboarding.resellerAudience', titleKey: 'admin.onboarding.resellerTitle', descriptionKey: 'admin.onboarding.resellerDescription', duration: '23 sec' }
+] as const;
+
+function OnboardingLibrary() {
+  const { t } = useI18n();
+  return (
+    <section className="onboarding-library" aria-labelledby="onboarding-library-title">
+      <div className="onboarding-intro surface">
+        <span className="onboarding-intro-icon" aria-hidden="true"><CirclePlay /></span>
+        <div>
+          <p className="overline">{t('admin.onboarding.overline')}</p>
+          <h2 id="onboarding-library-title">{t('admin.onboarding.title')}</h2>
+          <p>{t('admin.onboarding.description')}</p>
+        </div>
+      </div>
+      <div className="onboarding-grid">
+        {ONBOARDING_VIDEOS.map(video => (
+          <article className="surface onboarding-card" key={video.id}>
+            <video controls preload="metadata" playsInline>
+              <source src={`/onboarding/${video.id}.mp4`} type="video/mp4" />
+              <track kind="captions" src={`/onboarding/${video.id}.vtt`} srcLang="en" label="English" default />
+              {t('admin.onboarding.videoUnsupported')}
+            </video>
+            <div className="onboarding-card-copy">
+              <div><span>{t(video.audienceKey)}</span><small>{video.duration}</small></div>
+              <h3>{t(video.titleKey)}</h3>
+              <p>{t(video.descriptionKey)}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <p className="onboarding-footnote"><ShieldCheck aria-hidden="true" />{t('admin.onboarding.privacyNote')}</p>
+    </section>
+  );
+}
+
 class AdminFetchError extends Error {
   constructor(readonly code: 'forbidden' | 'unavailable' | 'duplicate' | 'invalid') {
     super(code);
@@ -571,6 +679,16 @@ async function fetchAdmin(): Promise<AdminData> {
 
 async function fetchResellers(): Promise<ResellerRecord[]> {
   return parseAdminResponse(await fetch('/api/admin/resellers', { headers: adminHeaders }));
+}
+
+async function fetchDeviceCatalog(): Promise<DeviceCatalogData> {
+  return parseAdminResponse(await fetch('/api/admin/device-catalog', { headers: adminHeaders }));
+}
+
+async function saveDeviceAvailability(resellerId: string, protocolProfileId: string, available: boolean) {
+  return parseAdminResponse<{ id: string; resellerOrganizationId: string; protocolProfileId: string; available: boolean }>(await fetch(`/api/admin/device-catalog/resellers/${resellerId}/protocols/${protocolProfileId}`, {
+    method: 'PUT', headers: { 'content-type': 'application/json', ...adminHeaders }, body: JSON.stringify({ available })
+  }));
 }
 
 async function fetchSession(): Promise<{ effectiveLocale: SupportedLocale }> {
@@ -602,6 +720,7 @@ export default function AdminApp() {
   const { t, formatNumber, formatDateTime, setLocale } = useI18n();
   const [data, setData] = useState<AdminData | null>(null);
   const [resellers, setResellers] = useState<ResellerRecord[]>([]);
+  const [deviceCatalog, setDeviceCatalog] = useState<DeviceCatalogData>({ profiles: [], resellers: [], availability: [] });
   const [view, setView] = useState<AdminView>('overview');
   const [query, setQuery] = useState('');
   const [resellerStatusFilter, setResellerStatusFilter] = useState<'ALL' | ResellerStatus>('ALL');
@@ -614,13 +733,15 @@ export default function AdminApp() {
   const [resellerMutationState, setResellerMutationState] = useState<'idle' | 'submitting'>('idle');
   const [resellerFormErrorKey, setResellerFormErrorKey] = useState<MessageKey | null>(null);
   const [resellerToast, setResellerToast] = useState<{ name: string; mode: 'created' | 'updated' } | null>(null);
+  const [updatingDeviceAvailability, setUpdatingDeviceAvailability] = useState<string | null>(null);
 
   const load = useCallback(async (mode: 'initial' | 'refresh') => {
     setStatus(mode === 'refresh' ? 'refreshing' : 'loading');
     try {
-      const [next, session, nextResellers] = await Promise.all([fetchAdmin(), fetchSession(), fetchResellers()]);
+      const [next, session, nextResellers, nextCatalog] = await Promise.all([fetchAdmin(), fetchSession(), fetchResellers(), fetchDeviceCatalog()]);
       setData(next);
       setResellers(nextResellers);
+      setDeviceCatalog(nextCatalog);
       setLocale(session.effectiveLocale);
       setErrorKey(null);
       setStatus('ready');
@@ -722,6 +843,22 @@ export default function AdminApp() {
       setLocaleNoticeKey('admin.organizations.languageFailed');
     } finally {
       setUpdatingLocaleId(null);
+    }
+  };
+
+  const changeDeviceAvailability = async (resellerId: string, protocolProfileId: string, available: boolean) => {
+    const key = `${resellerId}:${protocolProfileId}`;
+    setUpdatingDeviceAvailability(key);
+    try {
+      const saved = await saveDeviceAvailability(resellerId, protocolProfileId, available);
+      setDeviceCatalog(current => ({
+        ...current,
+        availability: [...current.availability.filter(item => !(item.resellerOrganizationId === resellerId && item.protocolProfileId === protocolProfileId)), saved]
+      }));
+    } catch {
+      setErrorKey('admin.state.apiUnavailable');
+    } finally {
+      setUpdatingDeviceAvailability(null);
     }
   };
 
@@ -872,6 +1009,10 @@ export default function AdminApp() {
                 </Panel>
               )}
 
+              {view === 'catalog' && (
+                <DeviceCatalog data={deviceCatalog} query={query} updatingKey={updatingDeviceAvailability} onAvailabilityChange={(resellerId, profileId, available) => void changeDeviceAvailability(resellerId, profileId, available)} />
+              )}
+
               {view === 'incidents' && (
                 <section className="admin-grid incidents-grid">
                   <Panel overline={t('admin.incidents.overline')} title={t('admin.incidents.panelTitle')} meta={<ResultCount shown={incidents.length} total={data.devices.length} />} flush>
@@ -891,6 +1032,8 @@ export default function AdminApp() {
                   <AuditTable events={audit} emptyMessage={t('admin.audit.emptyMessage')} />
                 </Panel>
               )}
+
+              {view === 'onboarding' && <OnboardingLibrary />}
             </>
           )}
 

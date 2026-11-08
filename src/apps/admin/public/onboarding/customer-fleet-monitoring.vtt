@@ -1,0 +1,21 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:01.792
+Welcome to Sentinel Fleet.
+
+2
+00:00:01.792 --> 00:00:06.273
+The customer overview shows fleet health without hiding privacy controls.
+
+3
+00:00:06.273 --> 00:00:12.545
+Refresh positions to create a new demo telemetry snapshot, then open the live map.
+
+4
+00:00:12.545 --> 00:00:20.610
+From the vehicle directory, choose Telematics to inspect the saved current state, trip history, and decoded device logs.
+
+5
+00:00:20.610 --> 00:00:25.090
+These views stay useful even when a tracker goes offline.

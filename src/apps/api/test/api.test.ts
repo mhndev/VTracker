@@ -5,6 +5,8 @@ import { createApp } from '../src/app.js';
 import { closeDatabase } from '../src/database/connection.js';
 import { initializeDatabase } from '../src/database/index.js';
 import { AuditEvent, Organization, ServiceRelationship } from '../src/models/index.js';
+import { persistTelematicsMessage, processLocationUpdate } from '../src/telematics/ingestion.js';
+import { evictExpiredLogs } from '../src/services/retention.service.js';
 
 const app = createApp();
 
@@ -16,10 +18,127 @@ test('health endpoint is public and commands are disabled', async () => {
   assert.equal(response.body.highRiskCommandsEnabled, false);
 });
 
+test('protocol catalog exposes active and researched device families with messages and commands', async () => {
+  const response = await supertest(app)
+    .get('/api/telematics/protocols')
+    .set('x-demo-actor', 'user-customer-admin')
+    .expect(200);
+  assert.equal(response.body.count, 4);
+  const coban = response.body.profiles.find((profile: { id: string }) => profile.id === 'protocol-coban-gps103');
+  assert.equal(coban.implementationStatus, 'ACTIVE');
+  assert.ok(coban.messageDefinitions.some((definition: { messageType: string }) => definition.messageType === 'STATUS_SYNC'));
+  assert.ok(coban.commandDefinitions.some((definition: { commandKey: string }) => definition.commandKey === 'DEVICE_INFO'));
+  const teltonika = response.body.profiles.find((profile: { id: string }) => profile.id === 'protocol-teltonika-codec8');
+  assert.equal(teltonika.implementationStatus, 'CATALOG_ONLY');
+  const queclink = response.body.profiles.find((profile: { id: string }) => profile.id === 'protocol-queclink-gv300');
+  assert.equal(queclink.implementationStatus, 'CATALOG_ONLY');
+});
+
+test('platform admins manage reseller device-family availability', async () => {
+  await supertest(app).get('/api/admin/device-catalog').set('x-demo-actor', 'user-customer-admin').expect(403);
+  const catalog = await supertest(app).get('/api/admin/device-catalog').set('x-demo-actor', 'user-platform-support').expect(200);
+  assert.equal(catalog.body.profiles.length, 4);
+  assert.equal(catalog.body.resellers[0].id, 'org-reseller');
+  assert.equal(catalog.body.availability.find((item: { protocolProfileId: string }) => item.protocolProfileId === 'protocol-coban-gps103').available, true);
+
+  const changed = await supertest(app)
+    .put('/api/admin/device-catalog/resellers/org-reseller/protocols/protocol-teltonika-codec8')
+    .set('x-demo-actor', 'user-platform-support')
+    .send({ available: true })
+    .expect(200);
+  assert.equal(changed.body.available, true);
+});
+
 test('customer receives all owned vehicle coordinates', async () => {
   const response = await supertest(app).get('/api/dashboard?organizationId=org-customer').set('x-demo-actor', 'user-customer-admin').expect(200);
   assert.equal(response.body.accessMode, 'member');
   assert.equal(response.body.stats.locationVisible, 4);
+});
+
+test('vehicle message logs are scoped to actors with location access', async () => {
+  await persistTelematicsMessage({
+    id: 'inbound-test',
+    imei: '358123049582103',
+    direction: 'INBOUND',
+    kind: 'LOCATION',
+    recordedAt: new Date(Date.now() - 1000),
+    raw: 'imei:358123049582103,status,123456;'
+  });
+  await persistTelematicsMessage({
+    id: 'outbound-test',
+    imei: '358123049582103',
+    vehicleId: 'vehicle-1',
+    actorId: 'user-customer-admin',
+    direction: 'OUTBOUND',
+    kind: 'COMMAND',
+    recordedAt: new Date(),
+    raw: 'check123456;\r\n'
+  });
+
+  const customer = await supertest(app)
+    .get('/api/telematics/vehicles/vehicle-1/messages')
+    .set('x-demo-actor', 'user-customer-admin')
+    .expect(200);
+  assert.equal(customer.body.imei, '358123049582103');
+  assert.equal(customer.body.messages[0].direction, 'OUTBOUND');
+  assert.equal(customer.body.messages[0].actorId, 'user-customer-admin');
+  assert.equal(customer.body.messages[0].raw, 'check••••••;');
+  assert.equal(customer.body.messages[1].kind, 'LOCATION');
+  assert.equal(customer.body.messages[1].raw, 'imei:358123049582103,status,••••••;');
+
+  await supertest(app)
+    .get('/api/telematics/vehicles/vehicle-2/messages')
+    .set('x-demo-actor', 'user-reseller-support')
+    .expect(403);
+  await supertest(app)
+    .get('/api/telematics/vehicles/vehicle-1/messages')
+    .set('x-demo-actor', 'user-platform-support')
+    .expect(403);
+});
+
+test('vehicle details persist decoded state and split trips after a five-minute stop', async () => {
+  const base = Date.now() - 10 * 60_000;
+  const location = (occurredAt: Date, speedKph: number, latitude: number) => ({
+    imei: '358123049582103',
+    occurredAt,
+    validFix: true,
+    latitude,
+    longitude: 13.4095,
+    speedKph,
+    heading: 90,
+    fuelPercent: 64,
+    ignitionOn: speedKph > 0,
+    doorOpen: false,
+    externalPower: true,
+    armed: false,
+    immobilized: false,
+    rawStatusMask: '10010000'
+  });
+  await processLocationUpdate(location(new Date(base), 30, 52.5208));
+  await processLocationUpdate(location(new Date(base + 4 * 60_000), 0, 52.5218));
+  await processLocationUpdate(location(new Date(base + 10 * 60_000), 0, 52.5218));
+  await processLocationUpdate(location(new Date(base + 10 * 60_000 + 1000), 25, 52.5228));
+
+  const response = await supertest(app)
+    .get('/api/telematics/vehicles/vehicle-1/details')
+    .set('x-demo-actor', 'user-customer-admin')
+    .expect(200);
+  assert.equal(response.body.connection.online, true);
+  assert.equal(response.body.state.fuelPercent, 64);
+  assert.equal(response.body.state.doorOpen, false);
+  assert.equal(response.body.motion.moving, true);
+  assert.equal(response.body.trips.length, 2);
+  assert.equal(response.body.trips[0].status, 'IN_PROGRESS');
+  assert.equal(response.body.trips[1].status, 'COMPLETED');
+
+  for (let index = 0; index < 105; index += 1) {
+    await processLocationUpdate(location(new Date(base + 11 * 60_000 + index * 1000), 25, 52.5228 + index * 0.00001));
+  }
+  const sampled = await supertest(app)
+    .get('/api/telematics/vehicles/vehicle-1/details')
+    .set('x-demo-actor', 'user-customer-admin')
+    .expect(200);
+  assert.equal(sampled.body.trips[0].pathPoints.length, 100);
 });
 
 test('reseller receives only specifically granted location', async () => {
@@ -31,6 +150,38 @@ test('reseller receives only specifically granted location', async () => {
 
 test('platform admin endpoint rejects customer actor', async () => {
   await supertest(app).get('/api/admin/overview').set('x-demo-actor', 'user-customer-admin').expect(403);
+});
+
+test('retention configuration exposes four capacity tiers and supports customer assignment', async () => {
+  await supertest(app).get('/api/admin/retention').set('x-demo-actor', 'user-customer-admin').expect(403);
+  const policies = await supertest(app).get('/api/admin/retention').set('x-demo-actor', 'user-platform-support').expect(200);
+  assert.deepEqual(policies.body.map((policy: { logRetentionDays: number }) => policy.logRetentionDays), [30, 183, 365, 1826]);
+  assert.ok(policies.body.every((policy: { estimatedRetainedLogBytesPerVehicle: number; estimatedMonthlyTripGrowthBytesPerVehicle: number }) => policy.estimatedRetainedLogBytesPerVehicle > 0 && policy.estimatedMonthlyTripGrowthBytesPerVehicle > 0));
+
+  const assignment = await supertest(app)
+    .put('/api/admin/retention/organizations/org-customer')
+    .set('x-demo-actor', 'user-platform-support')
+    .send({ retentionPolicyId: 'retention-6-months' })
+    .expect(200);
+  assert.equal(assignment.body.retentionPolicyId, 'retention-6-months');
+  assert.equal(assignment.body.policy.logRetentionDays, 183);
+
+  await persistTelematicsMessage({
+    id: 'expired-log',
+    imei: '358123049582103',
+    vehicleId: 'vehicle-1',
+    actorId: 'user-customer-admin',
+    direction: 'OUTBOUND',
+    kind: 'COMMAND',
+    recordedAt: new Date(Date.now() - 200 * 24 * 60 * 60_000),
+    raw: 'expired-retention-test'
+  });
+  const beforeCleanup = await supertest(app).get('/api/telematics/vehicles/vehicle-1/details').set('x-demo-actor', 'user-customer-admin').expect(200);
+  await evictExpiredLogs();
+  const logs = await supertest(app).get('/api/telematics/vehicles/vehicle-1/messages').set('x-demo-actor', 'user-customer-admin').expect(200);
+  const afterCleanup = await supertest(app).get('/api/telematics/vehicles/vehicle-1/details').set('x-demo-actor', 'user-customer-admin').expect(200);
+  assert.ok(!logs.body.messages.some((message: { raw: string }) => message.raw === 'expired-retention-test'));
+  assert.equal(afterCleanup.body.trips.length, beforeCleanup.body.trips.length);
 });
 
 test('platform organization membership alone does not grant the platform support role', async () => {
@@ -441,7 +592,7 @@ test('customer can end and create device assignments without losing assignment h
   assert.equal(/latitude|longitude/.test(JSON.stringify(inventory.body)), false);
   const before = await supertest(app).get('/api/device-assignments?organizationId=org-customer').set('x-demo-actor', 'user-customer-admin').expect(200);
   assert.equal(before.body.filter((assignment: { unassignedAt: string | null }) => assignment.unassignedAt === null).length, 4);
-  assert.equal(before.body.find((assignment: { id: string }) => assignment.id === 'assignment-1').device.serial, 'NT-DE-210041');
+  assert.equal(before.body.find((assignment: { id: string }) => assignment.id === 'assignment-1').device.serial, '358123049582103');
 
   const deviceConflict = await supertest(app).post('/api/device-assignments').set('x-demo-actor', 'user-customer-admin').send({ deviceId: 'device-1', vehicleId: 'vehicle-2' }).expect(409);
   assert.equal(deviceConflict.body.error.code, 'DEVICE_ALREADY_ASSIGNED');

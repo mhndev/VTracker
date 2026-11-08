@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { ORGANIZATION_LIFECYCLE, type OrganizationLifecycle } from '../contracts/provisioning.contracts.js';
 import { sequelize } from '../database/connection.js';
-import { Organization, ServiceRelationship } from '../models/index.js';
+import { Organization, OrganizationRetentionPolicy, ServiceRelationship } from '../models/index.js';
 import type { SupportedLocale } from '../models/Organization.js';
 import { HttpError } from '../utils/errors.js';
 import { recordAudit } from './audit.service.js';
@@ -134,6 +134,12 @@ export async function createCustomer(actorId: string, resellerId: string, input:
       customerOrganizationId: customer.id,
       status: 'ACTIVE',
       startedAt: new Date()
+    }, { transaction });
+    await OrganizationRetentionPolicy.create({
+      organizationId: customer.id,
+      retentionPolicyId: 'retention-1-month',
+      assignedAt: new Date(),
+      assignedBy: actorId
     }, { transaction });
     await recordAudit({
       actorId,

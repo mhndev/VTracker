@@ -74,6 +74,37 @@
         }
       },
       "updatedAt": "2026-11-01T15:42:42Z"
+    },
+    "device-simulator-console": {
+      "targetKind": "existing-ui",
+      "projectId": "eced8947-3260-4a5d-b49e-d8445afd9ff0",
+      "baselineDraftId": "2dc28ad3-7053-43a8-a0c6-e7e037dadf1c",
+      "activeDraftId": "2dc28ad3-7053-43a8-a0c6-e7e037dadf1c",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "bd11e72c-d731-4955-967a-583731c3d778"
+      ],
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        ".superdesign/init/theme.md",
+        "src/apps/device-simulator/src/App.tsx",
+        "src/apps/device-simulator/src/styles.css"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "3c69c89ea686edc8f756121ab61a825d383a410e929788db5aad0d8199b8cb5a",
+        ".superdesign/init/theme.md": "9c95885014d6850d4b25d76c7902d383bc98faea5b1977a9c63ca0c7fb349342",
+        "src/apps/device-simulator/src/App.tsx": "4548059e7ab8ebedca8537bce930ff9e0efb79036248369548a85357f3554d64",
+        "src/apps/device-simulator/src/styles.css": "7e232b7bc674ae9e0ea0903b373a25f4c8837ba4e8fa9c3d7707857c2a889ef7"
+      },
+      "components": [],
+      "drafts": {
+        "2dc28ad3-7053-43a8-a0c6-e7e037dadf1c": {
+          "title": "303FG Desktop Operations Console",
+          "visualDirection": "Full-screen multi-session GPS simulator with route playback and light/dark operational themes",
+          "currentVersion": 2
+        }
+      },
+      "updatedAt": "2026-11-07T14:36:00Z"
     }
   }
 }

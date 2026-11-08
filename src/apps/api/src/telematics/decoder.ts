@@ -147,6 +147,17 @@ export function decodeCobanPacket(rawFrame: string, activeImei?: string): Parsed
   // Format: imei:358123049582103,tracker,2611071005,,F,100532.000,A,5230.1234,N,01323.5678,E,024.5,180.0,0.00,00000000...
   if (trimmed.startsWith('imei:')) {
     const parts = trimmed.split(',');
+    if (parts[0] && parts[1]?.trim().toLowerCase() === 'vvt') {
+      return {
+        type: 'DEVICE_INFO',
+        imei: parts[0].replace(/^imei:/i, '').trim(),
+        firmwareVersion: parts[2]?.trim() || undefined,
+        detectedModel: parts[3]?.trim() || undefined,
+        protocolVersion: parts[4]?.trim() || undefined,
+        variantVersion: parts[5]?.replace(/;$/, '').trim() || undefined,
+        raw: trimmed
+      };
+    }
     if (parts.length >= 12 && parts[0]) {
       const imei = parts[0].replace('imei:', '').trim();
       const alarmTag = parts[1]?.trim() || 'tracker';
@@ -163,6 +174,18 @@ export function decodeCobanPacket(rawFrame: string, activeImei?: string): Parsed
       const headingDeg = parseFloat(parts[12]?.trim() || '0') || 0;
       const fuelVal = parseFloat(parts[13]?.trim() || '0') || 0;
       const statusMask = parts[14]?.trim() || '10010000';
+
+      // Some 303FG status/diagnostic frames also start with "imei:" and contain
+      // enough comma-separated fields to resemble telemetry. Reject those before
+      // positional parsing so they cannot overwrite a real GPS fix.
+      const hasTelemetryShape = /^\d{6}/.test(datePart)
+        && /^\d{6}(?:\.\d+)?$/.test(timePart)
+        && /^[AV]$/.test(fixStatus)
+        && /^\d{4}\.\d+$/.test(rawLat)
+        && /^[NS]$/.test(latHem.toUpperCase())
+        && /^\d{5}\.\d+$/.test(rawLon)
+        && /^[EW]$/.test(lonHem.toUpperCase());
+      if (!hasTelemetryShape) return { type: 'UNKNOWN', raw: trimmed };
 
       const validFix = fixStatus === 'A';
       const latitude = nmeaToDecimalLat(rawLat, latHem);

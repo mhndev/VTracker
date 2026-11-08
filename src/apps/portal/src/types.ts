@@ -22,6 +22,7 @@ export interface Vehicle {
   createdAt?: string; updatedAt?: string; archivedAt?: string | null;
   device?: { id: string; serial: string; model: string; status: string; lastCommunicationAt: string; batteryPercent: number; signalQuality: string; radio: string };
   location?: { latitude: number; longitude: number; speedKph: number; heading: number; occurredAt: string; quality: string };
+  currentState?: { ignitionOn: boolean; doorOpen: boolean; externalPower: boolean; armed: boolean; immobilized: boolean; fuelPercent: number | null; updatedAt: string };
 }
 export interface NewVehicleInput { organizationId: string; name: string; plate: string; kind: VehicleKind; markerStyle: MarkerStyle; markerColor: MarkerColor; markerSize: MarkerSize }
 export type VehicleUpdateInput = Omit<NewVehicleInput, 'organizationId'>;

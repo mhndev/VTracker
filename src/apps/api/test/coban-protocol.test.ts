@@ -81,6 +81,23 @@ test('Decode Coban Periodic Telemetry Frame', () => {
   }
 });
 
+test('Rejects diagnostic frames that only resemble telemetry', () => {
+  const packet = decodeCobanPacket('imei:869706067315228,tracker,invalid,,F,missing,A,0013.0000,N,00409.0000,E,0,0,0,1;');
+  assert.equal(packet.type, 'UNKNOWN');
+});
+
+test('Decode Coban model and firmware identification response', () => {
+  const packet = decodeCobanPacket('imei:869706067315228,vvt,303FG-251027-V5.3,303FG,V5.3,GSM;');
+  assert.equal(packet.type, 'DEVICE_INFO');
+  if (packet.type === 'DEVICE_INFO') {
+    assert.equal(packet.imei, '869706067315228');
+    assert.equal(packet.firmwareVersion, '303FG-251027-V5.3');
+    assert.equal(packet.detectedModel, '303FG');
+    assert.equal(packet.protocolVersion, 'V5.3');
+    assert.equal(packet.variantVersion, 'GSM');
+  }
+});
+
 test('Decode Coban Security & Hardware Alarms', () => {
   // SOS panic button
   const sos = decodeCobanPacket('imei:358123049582103,help!,2611071005,,F,100532.000,A,5230.1234,N,01323.5678,E,024.5,180.0,0.00,10010000;');

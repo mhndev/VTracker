@@ -3,6 +3,7 @@ import { Device, DeviceAssignment, LatestPosition, TelemetryEvent, Vehicle } fro
 import { HttpError } from '../utils/errors.js';
 import { canSimulateTelemetry } from './policy.service.js';
 import { recordAudit } from './audit.service.js';
+import { updateTrip } from '../telematics/ingestion.js';
 
 export async function simulateTelemetry(actorId: string, organizationId: string) {
   if (!await canSimulateTelemetry(actorId, organizationId)) {
@@ -32,6 +33,7 @@ export async function simulateTelemetry(actorId: string, organizationId: string)
       };
       await TelemetryEvent.create(event, { transaction });
       await previous.update({ ...event, eventId: event.id }, { transaction });
+      await updateTrip(vehicle.id, event, transaction);
       await device.update({ lastCommunicationAt: now, signalQuality: 'GOOD' }, { transaction });
       count += 1;
     }

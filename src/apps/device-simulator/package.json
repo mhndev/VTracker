@@ -1,0 +1,27 @@
+{
+  "name": "@sentinel/device-simulator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n UI,DEVICE -c green,yellow \"vite\" \"node --watch server.mjs\"",
+    "build": "tsc --noEmit && vite build",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "concurrently": "10.0.6",
+    "express": "5.2.1",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@types/express": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest"
+  }
+}

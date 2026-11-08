@@ -1,10 +1,22 @@
 import { Op, UniqueConstraintError } from 'sequelize';
 import { sequelize } from '../database/connection.js';
-import { Device, DeviceAssignment, Vehicle } from '../models/index.js';
+import { Device, DeviceAssignment, DeviceMessageLog, Vehicle } from '../models/index.js';
+import { decodeCobanPacket } from '../telematics/decoder.js';
 import { HttpError } from '../utils/errors.js';
 import { recordAudit } from './audit.service.js';
 import { canManageDeviceAssignments } from './policy.service.js';
 import { isDeviceOnline } from './dashboard.service.js';
+import { processLocationUpdate } from '../telematics/ingestion.js';
+
+export async function projectLatestDeviceLocation(imei: string): Promise<void> {
+  const latest = await DeviceMessageLog.findOne({
+    where: { imei, direction: 'INBOUND', kind: 'LOCATION' },
+    order: [['recordedAt', 'DESC']]
+  });
+  if (!latest) return;
+  const packet = decodeCobanPacket(latest.raw);
+  if (packet.type === 'LOCATION' && packet.data.validFix) await processLocationUpdate(packet.data);
+}
 
 async function requireAssignmentAuthority(actorId: string, customerOrganizationId: string): Promise<void> {
   if (!await canManageDeviceAssignments(actorId, customerOrganizationId)) {
@@ -99,7 +111,7 @@ export async function createDeviceAssignment(actorId: string, input: { deviceId:
     throw new HttpError(403, 'DEVICE_ASSIGNMENT_SCOPE_DENIED', 'The device and vehicle must belong to the same customer scope.');
   }
   try {
-    return await sequelize.transaction(async transaction => {
+    const result = await sequelize.transaction(async transaction => {
       const [deviceConflict, vehicleConflict] = await Promise.all([
         DeviceAssignment.findOne({ where: { deviceId, unassignedAt: null }, transaction }),
         DeviceAssignment.findOne({ where: { vehicleId, unassignedAt: null }, transaction })
@@ -123,6 +135,8 @@ export async function createDeviceAssignment(actorId: string, input: { deviceId:
       }, transaction);
       return assignmentResponse(assignment, device, vehicle);
     });
+    await projectLatestDeviceLocation(device.serial);
+    return result;
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
       throw new HttpError(409, 'DEVICE_ASSIGNMENT_CONFLICT', 'The device or vehicle already has an active assignment.');

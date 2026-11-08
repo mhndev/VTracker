@@ -1,21 +1,62 @@
 import { sequelize } from './connection.js';
 import {
-  AccessGrant, Alert, AuditEvent, Device, DeviceAssignment, LatestPosition, Membership,
-  Organization, ResellerCapability, ServiceRelationship, ServiceRelationshipCapability, TelemetryEvent, User, Vehicle
+  AccessGrant, Alert, AuditEvent, Device, DeviceAssignment, DeviceProtocolProfile, LatestPosition, Membership,
+  Organization, OrganizationRetentionPolicy, ResellerCapability, RetentionPolicy, ServiceRelationship,
+  ResellerDeviceProtocolAvailability, ServiceRelationshipCapability, TelemetryEvent, User, Vehicle
 } from '../models/index.js';
+import { seedProtocolCatalog } from './protocol-catalog.js';
 
 const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000);
 const hoursFromNow = (hours: number) => new Date(Date.now() + hours * 3_600_000);
 
 export async function seedDatabase(force = false): Promise<void> {
   await sequelize.sync({ force });
-  if (!force && await Organization.count() > 0) return;
+  await seedProtocolCatalog();
+  await RetentionPolicy.bulkCreate([
+    { id: 'retention-1-month', name: '1 month', logRetentionDays: 30, estimatedMessagesPerVehiclePerDay: 1440, averageMessageBytes: 600, estimatedTelemetryEventsPerVehiclePerDay: 1440, averageTelemetryEventBytes: 160, estimatedTripsPerVehiclePerDay: 4, maxPointsPerTrip: 100, averageTripPointBytes: 128 },
+    { id: 'retention-6-months', name: '6 months', logRetentionDays: 183, estimatedMessagesPerVehiclePerDay: 1440, averageMessageBytes: 600, estimatedTelemetryEventsPerVehiclePerDay: 1440, averageTelemetryEventBytes: 160, estimatedTripsPerVehiclePerDay: 4, maxPointsPerTrip: 100, averageTripPointBytes: 128 },
+    { id: 'retention-1-year', name: '1 year', logRetentionDays: 365, estimatedMessagesPerVehiclePerDay: 1440, averageMessageBytes: 600, estimatedTelemetryEventsPerVehiclePerDay: 1440, averageTelemetryEventBytes: 160, estimatedTripsPerVehiclePerDay: 4, maxPointsPerTrip: 100, averageTripPointBytes: 128 },
+    { id: 'retention-5-years', name: '5 years', logRetentionDays: 1826, estimatedMessagesPerVehiclePerDay: 1440, averageMessageBytes: 600, estimatedTelemetryEventsPerVehiclePerDay: 1440, averageTelemetryEventBytes: 160, estimatedTripsPerVehiclePerDay: 4, maxPointsPerTrip: 100, averageTripPointBytes: 128 }
+  ], { ignoreDuplicates: true });
+  if (!force && await Organization.count() > 0) {
+    const customers = await Organization.findAll({ where: { type: 'CUSTOMER' } });
+    for (const customer of customers) {
+      await OrganizationRetentionPolicy.findOrCreate({
+        where: { organizationId: customer.id },
+        defaults: { organizationId: customer.id, retentionPolicyId: 'retention-1-month', assignedAt: new Date(), assignedBy: null }
+      });
+    }
+    const [resellers, protocolProfiles] = await Promise.all([
+      Organization.findAll({ where: { type: 'RESELLER' } }),
+      DeviceProtocolProfile.findAll()
+    ]);
+    for (const reseller of resellers) {
+      for (const profile of protocolProfiles) {
+        await ResellerDeviceProtocolAvailability.findOrCreate({
+          where: { resellerOrganizationId: reseller.id, protocolProfileId: profile.id },
+          defaults: {
+            id: `device-availability-${reseller.id}-${profile.id}`,
+            resellerOrganizationId: reseller.id,
+            protocolProfileId: profile.id,
+            available: profile.id === 'protocol-coban-gps103',
+            updatedAt: new Date(),
+            updatedBy: null
+          }
+        });
+      }
+    }
+    return;
+  }
   await sequelize.transaction(async transaction => {
     await Organization.bulkCreate([
       { id: 'org-platform', name: 'Sentinel Platform', type: 'PLATFORM', defaultLocale: 'en', status: 'ACTIVE' },
       { id: 'org-reseller', name: 'NordTrack Services', type: 'RESELLER', defaultLocale: 'en', status: 'ACTIVE' },
       { id: 'org-customer', name: 'Berlin Field Logistics', type: 'CUSTOMER', defaultLocale: 'en', status: 'ACTIVE' },
       { id: 'org-private', name: 'Meyer Household', type: 'CUSTOMER', defaultLocale: 'en', status: 'ACTIVE' }
+    ], { transaction });
+    await OrganizationRetentionPolicy.bulkCreate([
+      { organizationId: 'org-customer', retentionPolicyId: 'retention-1-month', assignedAt: new Date(), assignedBy: null },
+      { organizationId: 'org-private', retentionPolicyId: 'retention-1-month', assignedAt: new Date(), assignedBy: null }
     ], { transaction });
     await User.bulkCreate([
       { id: 'user-customer-admin', name: 'Maya Chen', email: 'maya@berlin-logistics.demo' },
@@ -38,6 +79,12 @@ export async function seedDatabase(force = false): Promise<void> {
       { id: 'reseller-capability-4', resellerOrganizationId: 'org-reseller', capability: 'FLEET_MANAGE', grantedAt: minutesAgo(90_000), grantedBy: 'user-platform-support' },
       { id: 'reseller-capability-5', resellerOrganizationId: 'org-reseller', capability: 'DEVICE_MANAGE', grantedAt: minutesAgo(90_000), grantedBy: 'user-platform-support' }
     ], { transaction });
+    await ResellerDeviceProtocolAvailability.bulkCreate([
+      { id: 'device-availability-org-reseller-protocol-coban-gps103', resellerOrganizationId: 'org-reseller', protocolProfileId: 'protocol-coban-gps103', available: true, updatedAt: new Date(), updatedBy: null },
+      { id: 'device-availability-org-reseller-protocol-teltonika-codec8', resellerOrganizationId: 'org-reseller', protocolProfileId: 'protocol-teltonika-codec8', available: false, updatedAt: new Date(), updatedBy: null },
+      { id: 'device-availability-org-reseller-protocol-gt06', resellerOrganizationId: 'org-reseller', protocolProfileId: 'protocol-gt06', available: false, updatedAt: new Date(), updatedBy: null },
+      { id: 'device-availability-org-reseller-protocol-queclink-gv300', resellerOrganizationId: 'org-reseller', protocolProfileId: 'protocol-queclink-gv300', available: false, updatedAt: new Date(), updatedBy: null }
+    ], { transaction });
     await ServiceRelationship.bulkCreate([
       { id: 'relationship-1', resellerOrganizationId: 'org-reseller', customerOrganizationId: 'org-customer', status: 'ACTIVE', startedAt: minutesAgo(90_000) },
       { id: 'relationship-2', resellerOrganizationId: 'org-reseller', customerOrganizationId: 'org-private', status: 'ACTIVE', startedAt: minutesAgo(40_000) }
@@ -54,10 +101,10 @@ export async function seedDatabase(force = false): Promise<void> {
       { id: 'vehicle-private', ownerOrganizationId: 'org-private', name: 'Family Car', plate: 'B-MM 4431', kind: 'CAR', markerStyle: 'DOT', markerColor: 'BLUE', markerSize: 'MEDIUM' }
     ], { transaction });
     await Device.bulkCreate([
-      { id: 'device-1', serial: 'NT-DE-210041', model: 'LTE-C1 Pilot', radio: 'LTE Cat 1 bis', custodyOrganizationId: 'org-customer', status: 'ACTIVE', batteryPercent: 91, signalQuality: 'GOOD', lastCommunicationAt: minutesAgo(1) },
-      { id: 'device-2', serial: 'NT-DE-210052', model: 'LTE-C1 Pilot', radio: 'LTE Cat 1 bis', custodyOrganizationId: 'org-customer', status: 'ACTIVE', batteryPercent: 78, signalQuality: 'GOOD', lastCommunicationAt: minutesAgo(3) },
-      { id: 'device-3', serial: 'NT-DE-210063', model: 'LTE-C1 Pilot', radio: 'LTE Cat 1 bis', custodyOrganizationId: 'org-customer', status: 'ACTIVE', batteryPercent: 39, signalQuality: 'FAIR', lastCommunicationAt: minutesAgo(18) },
-      { id: 'device-4', serial: 'NT-DE-210074', model: 'LTE-C1 Pilot', radio: 'LTE Cat 1 bis', custodyOrganizationId: 'org-customer', status: 'QUARANTINED', batteryPercent: 16, signalQuality: 'UNKNOWN', lastCommunicationAt: minutesAgo(190) },
+      { id: 'device-1', serial: '358123049582103', model: 'Coban GPS-303FG', radio: 'GSM/GPRS', custodyOrganizationId: 'org-customer', status: 'ACTIVE', batteryPercent: 91, signalQuality: 'GOOD', lastCommunicationAt: minutesAgo(1) },
+      { id: 'device-2', serial: '358123049582104', model: 'Coban GPS-303FG', radio: 'GSM/GPRS', custodyOrganizationId: 'org-customer', status: 'ACTIVE', batteryPercent: 78, signalQuality: 'GOOD', lastCommunicationAt: minutesAgo(3) },
+      { id: 'device-3', serial: '358123049582105', model: 'Coban GPS-303FG', radio: 'GSM/GPRS', custodyOrganizationId: 'org-customer', status: 'ACTIVE', batteryPercent: 39, signalQuality: 'FAIR', lastCommunicationAt: minutesAgo(18) },
+      { id: 'device-4', serial: '358123049582106', model: 'Coban GPS-303FG', radio: 'GSM/GPRS', custodyOrganizationId: 'org-customer', status: 'QUARANTINED', batteryPercent: 16, signalQuality: 'UNKNOWN', lastCommunicationAt: minutesAgo(190) },
       { id: 'device-6', serial: 'NT-DE-210086', model: 'LTE-C1 Pilot', radio: 'LTE Cat 1 bis', custodyOrganizationId: 'org-customer', status: 'ACTIVE', batteryPercent: 100, signalQuality: 'GOOD', lastCommunicationAt: minutesAgo(4) },
       { id: 'device-5', serial: 'NT-DE-210099', model: 'LTE-C1 Pilot', radio: 'LTE Cat 1 bis', custodyOrganizationId: 'org-private', status: 'ACTIVE', batteryPercent: 84, signalQuality: 'GOOD', lastCommunicationAt: minutesAgo(2) }
     ], { transaction });

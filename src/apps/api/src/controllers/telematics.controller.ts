@@ -1,8 +1,9 @@
 import type { Request, Response } from 'express';
-import { listConnectedTelematicsDevices, sendVehicleCommand } from '../services/telematics-command.service.js';
+import { getVehicleTelematicsDetails, listConnectedTelematicsDevices, listVehicleTelematicsMessages, sendVehicleCommand } from '../services/telematics-command.service.js';
 import { subscribeToTelematicsStream } from '../telematics/ingestion.js';
 import type { DownlinkCommandType } from '../telematics/types.js';
 import { HttpError } from '../utils/errors.js';
+import { listProtocolCatalog } from '../services/device-protocol.service.js';
 
 export async function listConnectedDevicesController(req: Request, res: Response) {
   const sessions = listConnectedTelematicsDevices();
@@ -28,6 +29,21 @@ export async function sendCommandController(req: Request, res: Response) {
   );
 
   res.json(result);
+}
+
+export async function listVehicleMessagesController(req: Request, res: Response) {
+  const requestedLimit = Number(req.query.limit ?? 100);
+  const limit = Number.isFinite(requestedLimit) ? requestedLimit : 100;
+  res.json(await listVehicleTelematicsMessages(req.actor!.id, String(req.params.vehicleId), limit));
+}
+
+export async function getVehicleTelematicsDetailsController(req: Request, res: Response) {
+  res.json(await getVehicleTelematicsDetails(req.actor!.id, String(req.params.vehicleId)));
+}
+
+export async function listProtocolCatalogController(_req: Request, res: Response) {
+  const profiles = await listProtocolCatalog();
+  res.json({ count: profiles.length, profiles });
 }
 
 export function telematicsStreamController(req: Request, res: Response) {

@@ -29,7 +29,7 @@ function FitFleet({ vehicles }: { vehicles: Vehicle[] }) {
   return null;
 }
 
-export default function LiveMap({ vehicles, tall = false, isCustomer = true }: { vehicles: Vehicle[]; tall?: boolean; isCustomer?: boolean }) {
+export default function LiveMap({ vehicles, tall = false, isCustomer = true, onVehicleClick }: { vehicles: Vehicle[]; tall?: boolean; isCustomer?: boolean; onVehicleClick?: (vehicle: Vehicle) => void }) {
   const { t, formatNumber, formatDateTime } = useI18n();
   const visible = vehicles.filter((vehicle) => vehicle.location);
   const markerIcon = (vehicle: Vehicle) => {
@@ -59,6 +59,7 @@ export default function LiveMap({ vehicles, tall = false, isCustomer = true }: {
             key={vehicle.id}
             position={[vehicle.location!.latitude, vehicle.location!.longitude]}
             icon={markerIcon(vehicle)}
+            eventHandlers={onVehicleClick ? { click: () => onVehicleClick(vehicle) } : undefined}
           >
             <Popup>
               <div className="map-popup">

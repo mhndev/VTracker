@@ -915,9 +915,18 @@ export default function PortalApp() {
                   },
                   device: v.device ? {
                     ...v.device,
-                    status: 'ACTIVE',
-                    lastCommunicationAt: payload.occurredAt
-                  } : undefined
+                    status: 'ONLINE',
+                    lastCommunicationAt: payload.lastCommunicationAt
+                  } : undefined,
+                  currentState: {
+                    ignitionOn: payload.ignitionOn,
+                    doorOpen: payload.doorOpen,
+                    externalPower: payload.externalPower,
+                    armed: payload.armed,
+                    immobilized: payload.immobilized,
+                    fuelPercent: payload.fuelPercent ?? null,
+                    updatedAt: payload.lastCommunicationAt
+                  }
                 };
               }
               return v;
@@ -987,6 +996,14 @@ export default function PortalApp() {
     setDeviceInventory([]);
     setDeviceHistory([]);
     setSelectedDeviceId(null);
+  }, [organizationId, actorId]);
+
+  useEffect(() => {
+    if (!organizationId) return;
+    const interval = window.setInterval(() => {
+      void loadData().catch(error => setMessage(error.message));
+    }, 60_000);
+    return () => window.clearInterval(interval);
   }, [organizationId, actorId]);
 
   useEffect(() => {
@@ -1379,7 +1396,7 @@ export default function PortalApp() {
                     title={isCustomer ? t('portal.map.liveFleetMapTitle') : t('portal.map.grantedLocationMapTitle')}
                     action={<span className="map-note">{t('portal.map.mapAttribution')}</span>}
                   />
-                  <LiveMap vehicles={data.vehicles} tall isCustomer={isCustomer} />
+                  <LiveMap vehicles={data.vehicles} tall isCustomer={isCustomer} onVehicleClick={isCustomer ? vehicle => setTelematicsVehicle(vehicle) : undefined} />
                   <VehicleList vehicles={data.vehicles} isCustomer={isCustomer} onTelematics={isCustomer ? vehicle => setTelematicsVehicle(vehicle) : undefined} />
                 </section>
               )}

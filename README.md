@@ -18,9 +18,10 @@ not, development automatically continues with SQLite at `.data/sentinel.sqlite`.
 
 - Portal: `http://localhost:5173`
 - Admin: `http://localhost:5174`
+- GPS device simulator: `http://localhost:5175`
 - API health: `http://localhost:8787/api/health`
 
-Use `Control-C` to stop all three processes. To require a specific database:
+Use `Control-C` to stop all four processes. To require a specific database:
 
 ```bash
 npm run dev:sqlite                         # no Docker or server required
@@ -38,17 +39,19 @@ Verify a change with `npm test && npm run build`. AI coding agents should read
 | --- | --- | --- |
 | Portal | Customer fleet views and reseller support | Resellers need a service relationship; coordinates also require a live grant |
 | Admin | Platform operations and aggregate health | Separate app/API; never returns coordinates |
+| Device simulator | Multi-session Coban 303FG operations console | Isolated lab UI; sends raw GPS103 TCP/UDP to the gateway |
 | API | Authorization, fleet data, telemetry simulation, audit | Tenant checks happen server-side on every request |
 | Database | Seeded demo organizations, vehicles, devices and grants | PostgreSQL or local SQLite through Sequelize |
 
-Remote vehicle commands, real hardware protocols, billing and production authentication are
-deliberately absent.
+The device lab is isolated from the customer and admin interfaces. Simulated relay actions are
+clearly marked and do not enable remote immobilization in either fleet UI.
 
 ## Application structure
 
 ```text
 src/apps/portal/   Customer and reseller React + TypeScript portal   (PORTAL_PORT, default 5173)
 src/apps/admin/    Isolated platform-admin React + TypeScript console (ADMIN_PORT,  default 5174)
+src/apps/device-simulator/ Full-screen Coban tracker lab             (SIMULATOR_PORT, default 5175)
 src/apps/api/      Express 5 + TypeScript + Sequelize API             (API_PORT,    default 8787)
 src/packages/ui/   Shared React UI components and the portal design system
 ```
@@ -57,8 +60,36 @@ The portal and admin remain separate applications, but both use `@sentinel/ui` f
 `src/packages/ui/` for common presentation components and styling. The admin uses the portal's visual
 system while keeping its own navigation, API surface, and platform-only data boundary.
 
-Every port is configured in `.env` (`API_PORT`, `PORTAL_PORT`, `ADMIN_PORT`, plus `WEB_HOST` for the
-Vite dev servers) and consumed by the API, both Vite configs, and `docker-compose.yml`.
+Every port is configured in `.env` (`API_PORT`, `PORTAL_PORT`, `ADMIN_PORT`, `SIMULATOR_PORT`, plus
+`WEB_HOST` for the Vite dev servers).
+
+## Coban 303FG device lab
+
+The isolated full-screen simulator connects directly to the local TCP/UDP gateway or to an ngrok
+TCP endpoint. It sends login, heartbeat, location, ACC/state changes, and every documented alarm
+family. Its SMS console implements the documented device command vocabulary with simulated
+acknowledgements. Light and dark themes are included.
+
+```bash
+npm run dev:sqlite
+npm run tunnel:tcp
+npm run tunnel:status
+```
+
+Open `http://localhost:5175`, enter the ngrok hostname and port, then select **Connect**. The public
+test path is `simulator -> ngrok -> localhost:8090 -> Sentinel telematics gateway`. ngrok does not
+forward UDP; UDP hardware testing requires a UDP-capable relay, VPN, or router port-forward.
+
+Each browser session receives isolated device state, traffic history, transport socket, and route.
+The first four concurrent sessions map to the four seeded customer vehicles and use IMEIs
+`358123049582103` through `358123049582106`, so their movement can be watched together on the
+portal's live map.
+
+The Route view accepts an address or `latitude, longitude` pair for both endpoints. It uses the
+public Nominatim service for address lookup and OSRM's fastest driving route for geometry and ETA.
+Playback defaults to `1x`, so simulated movement takes the route's estimated real travel time;
+`10x` and `60x` are available for test runs. The public OpenStreetMap services are rate-limited
+development dependencies, not a production routing SLA.
 
 The admin console is not a role-hidden page inside the portal. It is a separate build, entry point, navigation system, development server, and API surface. Its platform overview returns operational aggregates and deliberately omits coordinates.
 
@@ -76,6 +107,10 @@ The admin console is not a role-hidden page inside the portal. It is a separate 
 - Time-limited, revocable reseller location grants.
 - Audit records for cross-tenant location views (`LOCATION_VIEWED`), so a customer can see when a reseller or platform actor received coordinates. Owning-organization member views are not logged to keep the trail meaningful.
 - Telemetry simulation with immutable event records and a mutable latest-position projection.
+- Persisted decoded vehicle state, five-minute stop-based trip segmentation, and trip paths capped at 100 sampled points per trip.
+- Customer-account log-retention policies for 1 month, 6 months, 1 year, and 5 years, with capacity estimates and daily eviction of expired raw messages and telemetry events. Trips and compact trip paths are retained independently.
+- A vehicle detail workspace with Current state, Trips, Logs, and Device controls tabs. Logs remain queryable while a tracker is offline and follow the vehicle across historical device assignments.
+- An admin Device documentation catalog with protocol/message/command tables and audited per-reseller device-family availability. The checked-in reference starts at [`docs/devices/README.md`](docs/devices/README.md); only Coban GPS103/GPS303 is runtime-supported today.
 - Alerts, device inventory, and audit history.
 - Cross-tenant policy and HTTP integration tests.
 - Express 5 API organized into routes, controllers, services, middleware, database connection/seed files, and Sequelize models.
@@ -111,6 +146,28 @@ The arrows to and from `QUARANTINED` show possible lifecycle concepts only; ther
 provisioning, quarantine, or release endpoint. `GOOD`, `FAIR`, and `UNKNOWN` are signal-quality
 labels, not device lifecycle states. The simulator sets signal quality to `GOOD` when it accepts a
 report.
+
+Inbound login, heartbeat, location, alarm, and response frames all update the device's last
+communication time. The portal refreshes dashboard connectivity periodically and the vehicle detail
+workspace polls its state, so an inactive tracker does not remain visually online indefinitely.
+
+### Vehicle state, trips, and logs
+
+Valid Coban position packets update both `LatestPosition` and `VehicleState`. The state projection
+stores ignition, door, external-power, armed, immobilized, fuel, raw status mask, and update time.
+Packets without a valid GPS fix may refresh device/state health but do not overwrite the last trusted
+coordinates.
+
+A trip starts when speed exceeds 2 km/h. A stationary interval shorter than five minutes remains part
+of the same trip; five minutes or more closes the trip at the first stationary point, and later
+movement starts another trip. Every trip retains its start/end summary and at most 100 sampled
+`TripPoint` rows. The permanent points preserve the first/latest positions and enough intermediate
+shape to draw the trip without retaining every raw GPS event.
+
+Raw protocol traffic is stored in `device_message_logs`. The vehicle Logs tab queries persisted rows,
+not only the live socket session, and includes historical device assignments. Its human-readable
+location view decodes coordinates, speed, heading, fix quality, fuel sensor, ignition, security,
+relay, external power, door state, and the raw status mask.
 
 ### Location access grants
 
@@ -221,10 +278,12 @@ stateDiagram-v2
 | --- | --- | --- |
 | Stored device status | `ACTIVE`, `QUARANTINED` | Stored device state. Only `ACTIVE` devices produce simulated telemetry. No status change endpoint exists. |
 | Derived device connectivity | `ONLINE`, `OFFLINE` | Computed from stored `ACTIVE` plus last communication time. Changes automatically as the 10-minute threshold passes or a report arrives. |
+| Vehicle movement | Moving, stopped | Derived from the latest trusted speed using a 2 km/h movement threshold; offline views identify this as the last reported state. |
+| Trip | `IN_PROGRESS`, `COMPLETED` | Starts on movement; closes after a confirmed stationary gap of at least five minutes. |
 | Signal quality | `GOOD`, `FAIR`, `UNKNOWN` | Radio quality labels; they do not form a state machine. A simulated report sets the value to `GOOD`. |
 | Access grant | Active, expired, revoked | Active/expired are determined from `expiresAt`; revoking sets `revokedAt`. Expiry and revocation both end access. |
 | Vehicle lifecycle | Active, archived | Active while `archivedAt` is empty; archive/restore preserves all related history. |
-| Device assignment | Assigned, ended | Assigned while `unassignedAt` is empty; ended once it is set. Assignment mutations are not implemented. |
+| Device assignment | Assigned, ended | Assigned while `unassignedAt` is empty; authorized create/end APIs preserve historical rows. |
 | Alert status | `OPEN`, `ACKNOWLEDGED`, `RESOLVED` | Seeded states are open and acknowledged. Resolve is recognized for display only. There are no alert transition actions. |
 | Alert severity | `MEDIUM`, `HIGH`, `CRITICAL` | Priority labels, not lifecycle states. |
 | Service relationship | `ACTIVE` | Created transactionally with a provisioned customer; no lifecycle transitions are implemented. |
@@ -234,7 +293,8 @@ stateDiagram-v2
 
 ## Deliberately excluded
 
-- Real GPS303 protocol handling or claims about exact device behavior.
+- Production-certified GPS303 behavior. The device lab is manual-based and remains a test simulator
+  until packets from the exact hardware/firmware are captured and added as fixtures.
 - Remote immobilization or any high-risk vehicle command.
 - Billing, payment splitting, production identity, SMS, push, and white-label domains.
 - Production-grade database, map provider, and durable event broker decisions.
@@ -280,7 +340,20 @@ Notes:
 ```bash
 npm test
 npm run build
+npm run test:e2e
 ```
+
+`npm run test:e2e` starts an isolated in-memory SQLite stack and runs the short Chromium regression
+suite without AI or external services. It covers customer monitoring and telematics, scoped location
+sharing, delegated reseller fleet management, the admin privacy boundary and onboarding library, and
+the simulator landing page. Install the browser once with `npx playwright install chromium`. Failure
+artifacts are written under ignored `output/playwright/`. Browser testing complements rather than
+replaces `npm test && npm run build`; the full scenario catalog is in `docs/TEST_SCENARIOS.md`.
+
+The admin console includes three narrated onboarding recordings for customers and resellers. Rebuild
+them deterministically with `npm run onboarding:videos`. The script drives the same Playwright flows,
+uses the free macOS `Rocko (English (US))` text-to-speech voice, and writes finalized MP4/VTT assets
+to `src/apps/admin/public/onboarding/`.
 
 ## Demo security note
 
@@ -307,11 +380,28 @@ With PostgreSQL (the default) all state lives in the `sentinel` database, create
 run. When the API runs on the SQLite fallback it creates `.data/sentinel.sqlite` at the repository root
 and seeds it when empty. The legacy JSON store is no longer used.
 
-`Organization.defaultLocale`, `Organization.timezone`, `Organization.status`, vehicle lifecycle timestamps, and the normalized `ResellerCapability` table
-are part of the current schema. Because this project has no migrations, an existing local database
-created before those fields were added must be reset before starting the API: remove
+`Organization.defaultLocale`, `Organization.timezone`, `Organization.status`, vehicle lifecycle
+timestamps, retention configuration, decoded vehicle state, trips, compact trip points, and the
+normalized `ResellerCapability` table are part of the current schema. New tables are created by
+`sequelize.sync()` on startup, but changing columns on an existing table still requires resetting the
+demo database because this project has no migrations. Remove
 `.data/sentinel.sqlite` for SQLite, or run `docker compose down -v` for PostgreSQL. This deletes local
 demo data; preserve a copy first if that data matters.
+
+### Retention and storage estimates
+
+`retention_policies` stores the retention duration and explicit sizing assumptions for message rate,
+event rate, average row size, trip frequency, and compact path points. `organization_retention_policies`
+assigns one policy to each customer organization; newly provisioned customers start on the one-month
+policy. `GET /api/admin/retention` returns current subscriber/vehicle counts, estimated steady-state
+log bytes, and estimated monthly trip-storage growth per tier. Platform administrators can change a
+customer assignment with `PUT /api/admin/retention/organizations/:organizationId`.
+
+The API runs retention eviction at startup and every 24 hours. It removes expired
+`device_message_logs` and `telemetry_events` only. `trips` and their at-most-100 `trip_points` are not
+deleted by log retention, so a route remains reproducible on the map without retaining every raw GPS
+packet. Storage estimates are planning assumptions, not measured database file sizes; tune the policy
+table values using observed production traffic and index/backup overhead.
 
 ## Database configuration
 

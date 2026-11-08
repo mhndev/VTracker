@@ -2,6 +2,17 @@ import EventEmitter from 'node:events';
 import type net from 'node:net';
 import type { CobanAlarmData, CobanLocationData, DeviceSession } from './types.js';
 
+export interface TelematicsMessage {
+  id: string;
+  imei: string;
+  vehicleId?: string;
+  actorId?: string;
+  direction: 'INBOUND' | 'OUTBOUND';
+  kind: 'LOGIN' | 'HEARTBEAT' | 'LOCATION' | 'ALARM' | 'COMMAND_RESPONSE' | 'DEVICE_INFO' | 'UNKNOWN' | 'ACK' | 'COMMAND';
+  recordedAt: Date;
+  raw: string;
+}
+
 export interface TelematicsEventMap {
   'session:connected': { imei?: string; remoteAddress: string; remotePort: number };
   'session:authenticated': { imei: string; remoteAddress: string };
@@ -10,11 +21,13 @@ export interface TelematicsEventMap {
   'telemetry:alarm': CobanAlarmData;
   'command:sent': { imei: string; command: string };
   'command:response': { imei: string; response: string };
+  'message:logged': TelematicsMessage;
 }
 
 export class TelematicsSessionManager extends EventEmitter {
   private sessionsByImei = new Map<string, DeviceSession>();
   private imeisBySocket = new Map<net.Socket, string>();
+  private messagesByImei = new Map<string, TelematicsMessage[]>();
 
   public registerSocket(socket: net.Socket): void {
     socket.setKeepAlive(true, 30000);
@@ -56,6 +69,32 @@ export class TelematicsSessionManager extends EventEmitter {
 
   public getImeiForSocket(socket: net.Socket): string | undefined {
     return this.imeisBySocket.get(socket);
+  }
+
+  public recordIncomingMessage(imei: string, kind: TelematicsMessage['kind'], raw: string): void {
+    this.recordMessage({ imei, direction: 'INBOUND', kind, raw });
+  }
+
+  public recordOutgoingMessage(imei: string, kind: 'ACK' | 'COMMAND', raw: string, actorId?: string, vehicleId?: string): void {
+    this.recordMessage({ imei, direction: 'OUTBOUND', kind, raw, actorId, vehicleId });
+  }
+
+  private recordMessage(input: Omit<TelematicsMessage, 'id' | 'recordedAt'>): void {
+    const messages = this.messagesByImei.get(input.imei) ?? [];
+    const message: TelematicsMessage = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      ...input,
+      recordedAt: new Date(),
+      raw: input.raw.trim()
+    };
+    messages.push(message);
+    this.messagesByImei.set(input.imei, messages.slice(-200));
+    this.emit('message:logged', message);
+  }
+
+  public listIncomingMessages(imei: string, limit = 100): TelematicsMessage[] {
+    const safeLimit = Math.max(1, Math.min(200, Math.floor(limit)));
+    return (this.messagesByImei.get(imei) ?? []).slice(-safeLimit).reverse();
   }
 
   public updateLastCommunication(imei: string, telemetry?: CobanLocationData): void {
@@ -105,7 +144,8 @@ export class TelematicsSessionManager extends EventEmitter {
   public async sendCommand(
     imei: string,
     commandString: string,
-    timeoutMs = 10000
+    timeoutMs = 10000,
+    context?: { actorId?: string; vehicleId?: string }
   ): Promise<string> {
     const session = this.sessionsByImei.get(imei);
     if (!session || session.socket.destroyed) {
@@ -128,6 +168,7 @@ export class TelematicsSessionManager extends EventEmitter {
           session.pendingCommands.delete(commandId);
           reject(new Error(`Failed to transmit command to ${imei}: ${err.message}`));
         } else {
+          this.recordOutgoingMessage(imei, 'COMMAND', commandString, context?.actorId, context?.vehicleId);
           this.emit('command:sent', { imei, command: commandString });
         }
       });

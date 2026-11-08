@@ -2,6 +2,7 @@ import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { initializeDatabase } from './database/index.js';
 import { startTelematicsServer } from './telematics/server.js';
+import { startRetentionScheduler } from './services/retention.service.js';
 
 function describeError(error: unknown): string {
   if (!error || typeof error !== 'object') return String(error);
@@ -20,6 +21,7 @@ function describeError(error: unknown): string {
 
 async function start(): Promise<void> {
   await initializeDatabase();
+  startRetentionScheduler();
   const host = env.host || '0.0.0.0';
   startTelematicsServer(env.telematicsPort, host);
   createApp().listen(env.port, host, () => {

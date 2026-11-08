@@ -545,6 +545,13 @@ export const en = {
         description: 'Every tracker in custody, with communication and quarantine status.',
         placeholder: 'Search serial, model or custody…'
       },
+      catalog: {
+        label: 'Device documentation',
+        overline: 'Protocol catalog',
+        title: 'Supported device families',
+        description: 'Wire formats, inbound messages, command references and reseller availability in one operational catalog.',
+        placeholder: 'Search vendor, family or protocol…'
+      },
       incidents: {
         label: 'Risk & incidents',
         overline: 'Requires attention',
@@ -558,7 +565,30 @@ export const en = {
         title: 'Global audit',
         description: 'Recent platform audit events with actor, resource and outcome.',
         placeholder: 'Search action or actor…'
+      },
+      onboarding: {
+        label: 'Onboarding videos',
+        overline: 'Training library',
+        title: 'Onboarding library',
+        description: 'Short guided workflows for customers and reseller teams.',
+        placeholder: 'Browse onboarding videos…'
       }
+    },
+    onboarding: {
+      overline: 'Guided product tours',
+      title: 'Onboarding library',
+      description: 'Use these narrated recordings during reseller enablement and end-user onboarding. Each tour follows the same deterministic workflow covered by the browser regression suite.',
+      customerAudience: 'Customer admin',
+      customerResellerAudience: 'Customer + reseller support',
+      resellerAudience: 'Reseller admin',
+      fleetTitle: 'Monitor a fleet and inspect telematics',
+      fleetDescription: 'Refresh positions, use the live map, and review current state, trips, and decoded tracker logs.',
+      sharingTitle: 'Share location access safely',
+      sharingDescription: 'Create a time-limited customer grant and verify the reseller sees only approved locations.',
+      resellerTitle: 'Manage a customer fleet',
+      resellerDescription: 'Open a customer workspace and add a vehicle under delegated reseller permissions.',
+      privacyNote: 'Training content preserves the same tenant and location privacy boundaries as the live product.',
+      videoUnsupported: 'Your browser does not support embedded video.'
     },
     results: {
       totalRecords: '{count} records',

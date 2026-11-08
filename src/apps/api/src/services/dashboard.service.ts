@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { Alert, Device, DeviceAssignment, LatestPosition, Organization, Vehicle } from '../models/index.js';
+import { Alert, Device, DeviceAssignment, LatestPosition, Organization, Vehicle, VehicleState } from '../models/index.js';
 import { canViewLocation, getAccessMode, getActorContext } from './policy.service.js';
 import { recordAudit } from './audit.service.js';
 
@@ -19,9 +19,11 @@ export async function getDashboard(actorId: string, organizationId: string) {
   const assignments = vehicleIds.length ? await DeviceAssignment.findAll({ where: { vehicleId: { [Op.in]: vehicleIds }, unassignedAt: null } }) : [];
   const devices = assignments.length ? await Device.findAll({ where: { id: { [Op.in]: assignments.map(assignment => assignment.deviceId) } } }) : [];
   const positions = vehicleIds.length ? await LatestPosition.findAll({ where: { vehicleId: { [Op.in]: vehicleIds } } }) : [];
+  const states = vehicleIds.length ? await VehicleState.findAll({ where: { vehicleId: { [Op.in]: vehicleIds } } }) : [];
   const deviceById = new Map(devices.map(device => [device.id, device]));
   const deviceByVehicleId = new Map(assignments.map(assignment => [assignment.vehicleId, deviceById.get(assignment.deviceId)]));
   const positionByVehicleId = new Map(positions.map(position => [position.vehicleId, position]));
+  const stateByVehicleId = new Map(states.map(state => [state.vehicleId, state]));
   const viewedAt = new Date();
   const projectedVehicles = await Promise.all(vehicles.map(async vehicle => {
     const device = deviceByVehicleId.get(vehicle.id) ?? null;
@@ -44,6 +46,7 @@ export async function getDashboard(actorId: string, organizationId: string) {
       ...vehicle.get(),
       device: device ? { ...device.get(), status: isDeviceOnline(device) ? 'ONLINE' : device.status === 'QUARANTINED' ? 'QUARANTINED' : 'OFFLINE' } : undefined,
       location: projectedLocation?.get(),
+      currentState: locationAccess ? stateByVehicleId.get(vehicle.id)?.get() : undefined,
       locationAccess
     };
   }));

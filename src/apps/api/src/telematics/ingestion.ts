@@ -1,12 +1,157 @@
 import crypto from 'node:crypto';
+import type { Transaction } from 'sequelize';
 import { sequelize } from '../database/connection.js';
-import { Alert, Device, DeviceAssignment, LatestPosition, TelemetryEvent, Vehicle } from '../models/index.js';
-import { telematicsSessions } from './session.js';
+import { Alert, Device, DeviceAssignment, DeviceMessageLog, LatestPosition, TelemetryEvent, Trip, TripPoint, Vehicle, VehicleState } from '../models/index.js';
+import { telematicsSessions, type TelematicsMessage } from './session.js';
 import type { CobanAlarmData, CobanAlarmType, CobanLocationData } from './types.js';
 
 // Global Event Stream subscribers for SSE
 type SseSubscriber = (event: { type: string; payload: unknown }) => void;
 const sseSubscribers = new Set<SseSubscriber>();
+let ingestionQueue: Promise<void> = Promise.resolve();
+const MOVING_SPEED_KPH = 2;
+const STOP_CONFIRMATION_MS = 5 * 60_000;
+const MAX_TRIP_POINTS = 100;
+
+function distanceKm(fromLatitude: number, fromLongitude: number, toLatitude: number, toLongitude: number): number {
+  const radians = (degrees: number) => degrees * Math.PI / 180;
+  const latitudeDelta = radians(toLatitude - fromLatitude);
+  const longitudeDelta = radians(toLongitude - fromLongitude);
+  const a = Math.sin(latitudeDelta / 2) ** 2
+    + Math.cos(radians(fromLatitude)) * Math.cos(radians(toLatitude)) * Math.sin(longitudeDelta / 2) ** 2;
+  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+async function addTripPoint(tripId: string, location: Pick<CobanLocationData, 'occurredAt' | 'latitude' | 'longitude'>, transaction: Transaction): Promise<void> {
+  const pointCount = await TripPoint.count({ where: { tripId }, transaction });
+  const values = { latitude: location.latitude, longitude: location.longitude, occurredAt: location.occurredAt };
+  if (pointCount < MAX_TRIP_POINTS) {
+    await TripPoint.create({ tripId, slot: pointCount, ...values }, { transaction });
+    return;
+  }
+
+  // Keep the first and latest points. As new points arrive, move the previous
+  // endpoint into a deterministic interior slot before replacing the endpoint.
+  // This bounds every path at 100 rows while retaining shape across long trips.
+  const latest = await TripPoint.findOne({ where: { tripId, slot: MAX_TRIP_POINTS - 1 }, transaction });
+  if (latest) {
+    const hash = Math.abs(Math.round(location.occurredAt.getTime() / 1000));
+    const interiorSlot = 1 + hash % (MAX_TRIP_POINTS - 2);
+    await TripPoint.update({ latitude: latest.latitude, longitude: latest.longitude, occurredAt: latest.occurredAt }, { where: { tripId, slot: interiorSlot }, transaction });
+    await latest.update(values, { transaction });
+  }
+}
+
+export async function updateTrip(vehicleId: string, location: Pick<CobanLocationData, 'occurredAt' | 'speedKph' | 'latitude' | 'longitude'>, transaction: Transaction): Promise<void> {
+  const activeTrip = await Trip.findOne({
+    where: { vehicleId, endedAt: null },
+    order: [['startedAt', 'DESC']],
+    transaction
+  });
+  const moving = location.speedKph > MOVING_SPEED_KPH;
+
+  if (!activeTrip) {
+    if (!moving) return;
+    const trip = await Trip.create({
+      id: `trip-${crypto.randomUUID()}`,
+      vehicleId,
+      startedAt: location.occurredAt,
+      endedAt: null,
+      startLatitude: location.latitude,
+      startLongitude: location.longitude,
+      endLatitude: location.latitude,
+      endLongitude: location.longitude,
+      lastMovementAt: location.occurredAt,
+      stoppedSince: null,
+      distanceKm: 0
+    }, { transaction });
+    await addTripPoint(trip.id, location, transaction);
+    return;
+  }
+
+  const additionalDistance = distanceKm(activeTrip.endLatitude, activeTrip.endLongitude, location.latitude, location.longitude);
+  if (moving) {
+    if (activeTrip.stoppedSince && location.occurredAt.getTime() - activeTrip.stoppedSince.getTime() >= STOP_CONFIRMATION_MS) {
+      await activeTrip.update({ endedAt: activeTrip.stoppedSince }, { transaction });
+      const trip = await Trip.create({
+        id: `trip-${crypto.randomUUID()}`,
+        vehicleId,
+        startedAt: location.occurredAt,
+        endedAt: null,
+        startLatitude: location.latitude,
+        startLongitude: location.longitude,
+        endLatitude: location.latitude,
+        endLongitude: location.longitude,
+        lastMovementAt: location.occurredAt,
+        stoppedSince: null,
+        distanceKm: 0
+      }, { transaction });
+      await addTripPoint(trip.id, location, transaction);
+      return;
+    }
+    await activeTrip.update({
+      endLatitude: location.latitude,
+      endLongitude: location.longitude,
+      lastMovementAt: location.occurredAt,
+      stoppedSince: null,
+      distanceKm: activeTrip.distanceKm + additionalDistance
+    }, { transaction });
+    await addTripPoint(activeTrip.id, location, transaction);
+    return;
+  }
+
+  const stoppedSince = activeTrip.stoppedSince ?? location.occurredAt;
+  await activeTrip.update({
+    endLatitude: location.latitude,
+    endLongitude: location.longitude,
+    stoppedSince,
+    distanceKm: activeTrip.distanceKm + additionalDistance,
+    endedAt: location.occurredAt.getTime() - stoppedSince.getTime() >= STOP_CONFIRMATION_MS ? stoppedSince : null
+  }, { transaction });
+  await addTripPoint(activeTrip.id, location, transaction);
+}
+
+function enqueueIngestion(task: () => Promise<void>): void {
+  ingestionQueue = ingestionQueue.then(task, task).catch(error => {
+    console.error('[Telematics] Queued ingestion failed:', error);
+  });
+}
+
+export function sanitizeOutgoingTelematicsMessage(raw: string): string {
+  return raw.replace(/(\D)(\d{6})(?=[ ;\r\n]|$)/, '$1••••••').trim();
+}
+
+export function sanitizeInboundTelematicsMessage(raw: string): string {
+  return raw.replace(/(?<!\d)123456(?!\d)/g, '••••••').trim();
+}
+
+export async function persistTelematicsMessage(message: TelematicsMessage): Promise<void> {
+  let vehicleId = message.vehicleId ?? null;
+  let matchedDevice: Device | null = null;
+  if (!vehicleId) {
+    matchedDevice = await Device.findOne({ where: { serial: message.imei } });
+    if (matchedDevice) {
+      const assignment = await DeviceAssignment.findOne({ where: { deviceId: matchedDevice.id, unassignedAt: null } });
+      vehicleId = assignment?.vehicleId ?? null;
+    }
+  }
+  if (message.direction === 'INBOUND') {
+    matchedDevice ??= await Device.findOne({ where: { serial: message.imei } });
+    if (matchedDevice) await matchedDevice.update({ lastCommunicationAt: message.recordedAt });
+  }
+  await DeviceMessageLog.create({
+    id: `device-message-${crypto.randomUUID()}`,
+    vehicleId,
+    imei: message.imei,
+    actorId: message.actorId ?? null,
+    direction: message.direction,
+    kind: message.kind,
+    raw: message.direction === 'OUTBOUND'
+      ? sanitizeOutgoingTelematicsMessage(message.raw)
+      : sanitizeInboundTelematicsMessage(message.raw),
+    recordedAt: message.recordedAt
+  });
+}
 
 export function subscribeToTelematicsStream(callback: SseSubscriber): () => void {
   sseSubscribers.add(callback);
@@ -114,6 +259,28 @@ export async function processLocationUpdate(location: CobanLocationData): Promis
       return;
     }
 
+    // A no-fix packet proves the device is online but must not replace the last
+    // trustworthy point with zero or placeholder coordinates.
+    if (!location.validFix) {
+      await sequelize.transaction(async transaction => {
+        await device!.update({ lastCommunicationAt: now, signalQuality: 'FAIR' }, { transaction });
+        const state = {
+          ignitionOn: location.ignitionOn,
+          doorOpen: location.doorOpen,
+          externalPower: location.externalPower,
+          armed: location.armed,
+          immobilized: location.immobilized,
+          fuelPercent: location.fuelPercent ?? null,
+          rawStatusMask: location.rawStatusMask ?? null,
+          updatedAt: now
+        };
+        const existingState = await VehicleState.findByPk(vehicle.id, { transaction });
+        if (existingState) await existingState.update(state, { transaction });
+        else await VehicleState.create({ vehicleId: vehicle.id, ...state }, { transaction });
+      });
+      return;
+    }
+
     // 3. Persist Telemetry Event & Update Latest Position inside a transaction
     await sequelize.transaction(async transaction => {
       const eventId = `telemetry-${crypto.randomUUID()}`;
@@ -158,6 +325,22 @@ export async function processLocationUpdate(location: CobanLocationData): Promis
         }, { transaction });
       }
 
+      const existingState = await VehicleState.findByPk(vehicle.id, { transaction });
+      const state = {
+        ignitionOn: location.ignitionOn,
+        doorOpen: location.doorOpen,
+        externalPower: location.externalPower,
+        armed: location.armed,
+        immobilized: location.immobilized,
+        fuelPercent: location.fuelPercent ?? null,
+        rawStatusMask: location.rawStatusMask ?? null,
+        updatedAt: now
+      };
+      if (existingState) await existingState.update(state, { transaction });
+      else await VehicleState.create({ vehicleId: vehicle.id, ...state }, { transaction });
+
+      await updateTrip(vehicle.id, location, transaction);
+
       await device!.update({
         lastCommunicationAt: now,
         signalQuality: location.validFix ? 'GOOD' : 'FAIR'
@@ -174,6 +357,7 @@ export async function processLocationUpdate(location: CobanLocationData): Promis
       speedKph: location.speedKph,
       heading: location.heading,
       occurredAt: location.occurredAt,
+      lastCommunicationAt: now,
       ignitionOn: location.ignitionOn,
       doorOpen: location.doorOpen,
       externalPower: location.externalPower,
@@ -234,11 +418,15 @@ export async function processAlarmEvent(alarm: CobanAlarmData): Promise<void> {
 }
 
 export function initializeTelematicsIngestion(): void {
+  telematicsSessions.on('message:logged', (message: TelematicsMessage) => {
+    enqueueIngestion(() => persistTelematicsMessage(message));
+  });
+
   telematicsSessions.on('telemetry:location', (location: CobanLocationData) => {
-    processLocationUpdate(location);
+    enqueueIngestion(() => processLocationUpdate(location));
   });
 
   telematicsSessions.on('telemetry:alarm', (alarm: CobanAlarmData) => {
-    processAlarmEvent(alarm);
+    enqueueIngestion(() => processAlarmEvent(alarm));
   });
 }

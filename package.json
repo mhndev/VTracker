@@ -9,24 +9,34 @@
   ],
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "dev:services": "concurrently -k -n API,PORTAL,ADMIN -c cyan,blue,magenta \"npm:dev:api\" \"npm:dev:portal\" \"npm:dev:admin\"",
+    "dev:services": "concurrently -k -n API,PORTAL,ADMIN,SIMULATOR -c cyan,blue,magenta,green \"npm:dev:api\" \"npm:dev:portal\" \"npm:dev:admin\" \"npm:dev:simulator\"",
     "dev:postgres": "node scripts/dev.mjs --database=postgres",
     "dev:sqlite": "node scripts/dev.mjs --database=sqlite",
     "dev:api": "npm --workspace @sentinel/api run dev",
     "dev:portal": "npm --workspace @sentinel/portal run dev",
     "dev:admin": "npm --workspace @sentinel/admin run dev",
-    "build": "npm run build:portal && npm run build:admin && npm run build:api",
+    "dev:simulator": "npm --workspace @sentinel/device-simulator run dev",
+    "build": "npm run build:portal && npm run build:admin && npm run build:simulator && npm run build:api",
     "build:portal": "npm --workspace @sentinel/portal run build",
     "build:admin": "npm --workspace @sentinel/admin run build",
+    "build:simulator": "npm --workspace @sentinel/device-simulator run build",
     "build:api": "npm --workspace @sentinel/api run build",
     "start": "npm --workspace @sentinel/api run start",
-    "test": "npm --workspace @sentinel/api run test"
+    "test": "npm --workspace @sentinel/api run test && npm --workspace @sentinel/device-simulator run test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "onboarding:videos": "node scripts/onboarding/generate-videos.mjs",
+    "tunnel:tcp": "ngrok tcp 8090",
+    "tunnel:status": "node scripts/telematics-tunnel.mjs"
   },
   "devDependencies": {
-    "concurrently": "10.0.6"
+    "@playwright/test": "^1.62.1",
+    "concurrently": "10.0.6",
+    "ffmpeg-static": "^5.3.0"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
+    "ffmpeg-static@5.3.0": true,
     "sqlite3@6.0.1": true,
     "fsevents@2.3.3": true
   }
