@@ -618,9 +618,9 @@ function DeviceCatalog({ data, query, updatingKey, onAvailabilityChange }: {
 }
 
 const ONBOARDING_VIDEOS = [
-  { id: 'customer-fleet-monitoring', audienceKey: 'admin.onboarding.customerAudience', titleKey: 'admin.onboarding.fleetTitle', descriptionKey: 'admin.onboarding.fleetDescription', duration: '25 sec' },
+  { id: 'customer-fleet-monitoring', audienceKey: 'admin.onboarding.customerAudience', titleKey: 'admin.onboarding.fleetTitle', descriptionKey: 'admin.onboarding.fleetDescription', duration: '23 sec' },
   { id: 'customer-location-sharing', audienceKey: 'admin.onboarding.customerResellerAudience', titleKey: 'admin.onboarding.sharingTitle', descriptionKey: 'admin.onboarding.sharingDescription', duration: '24 sec' },
-  { id: 'reseller-customer-fleet', audienceKey: 'admin.onboarding.resellerAudience', titleKey: 'admin.onboarding.resellerTitle', descriptionKey: 'admin.onboarding.resellerDescription', duration: '23 sec' }
+  { id: 'reseller-customer-fleet', audienceKey: 'admin.onboarding.resellerAudience', titleKey: 'admin.onboarding.resellerTitle', descriptionKey: 'admin.onboarding.resellerDescription', duration: '22 sec' }
 ] as const;
 
 function OnboardingLibrary() {

@@ -26,7 +26,7 @@ npm run test:e2e
 # Interactive Playwright runner for debugging
 npm run test:e2e:ui
 
-# Re-record the three onboarding videos with macOS Rocko TTS
+# Re-record the three onboarding videos with local Kokoro TTS
 npm run onboarding:videos
 ```
 
@@ -34,6 +34,6 @@ Failures retain a screenshot, trace, and browser video under `output/playwright/
 
 ## Recording behavior
 
-`npm run onboarding:videos` starts the same isolated stack, drives the top three workflows with Playwright, records a 1280×720 browser video, creates narration with the free macOS `say` voice `Rocko (English (US))`, and muxes the tracks with the local `ffmpeg-static` development dependency. Set `ONBOARDING_VOICE` to another installed macOS voice when needed.
+`npm run onboarding:videos` starts the same isolated stack, drives the top three workflows with Playwright, and records a 1920×1080 browser video. It downloads the Apache-2.0 Kokoro-82M ONNX model once into ignored `.data/onboarding/`, synthesizes the `af_heart` voice entirely on the local CPU, loudness-normalizes the narration, and produces a high-quality H.264 master with the local `ffmpeg-static` development dependency. Set `ONBOARDING_VOICE` to another Kokoro voice or `ONBOARDING_VOICE_SPEED` to adjust delivery.
 
 The recording script is separate from `npm run test:e2e`: ordinary regression runs never regenerate media and never invoke text-to-speech.

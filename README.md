@@ -352,8 +352,9 @@ replaces `npm test && npm run build`; the full scenario catalog is in `docs/TEST
 
 The admin console includes three narrated onboarding recordings for customers and resellers. Rebuild
 them deterministically with `npm run onboarding:videos`. The script drives the same Playwright flows,
-uses the free macOS `Rocko (English (US))` text-to-speech voice, and writes finalized MP4/VTT assets
-to `src/apps/admin/public/onboarding/`.
+records 1080p masters, and generates the narration locally with the free Kokoro-82M ONNX model. Model
+files are downloaded once into ignored `.data/onboarding/`; no API key or cloud inference is used.
+Final MP4/VTT assets are written to `src/apps/admin/public/onboarding/`.
 
 ## Demo security note
 

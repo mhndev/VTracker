@@ -1,85 +1,98 @@
 import fs from 'node:fs/promises';
+import { createWriteStream } from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import ffmpegPath from 'ffmpeg-static';
 import { chromium } from '@playwright/test';
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const rawDirectory = path.join(repositoryRoot, 'output/onboarding/raw');
 const publicDirectory = path.join(repositoryRoot, 'src/apps/admin/public/onboarding');
-const voice = process.env.ONBOARDING_VOICE || 'Rocko (English (US))';
+const modelDirectory = path.join(repositoryRoot, '.data/onboarding/kokoro');
+const kokoroModel = path.join(modelDirectory, 'kokoro-v1.0.onnx');
+const kokoroVoices = path.join(modelDirectory, 'voices-v1.0.bin');
+const kokoroVoice = process.env.ONBOARDING_VOICE || 'af_heart';
+const kokoroSpeed = process.env.ONBOARDING_VOICE_SPEED || '0.96';
 const portalUrl = process.env.ONBOARDING_PORTAL_URL || 'http://127.0.0.1:15173';
 const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const uvCommand = process.env.UV || 'uv';
+const MODEL_URL = 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx';
+const VOICES_URL = 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin';
 
 const flows = [
   {
     slug: 'customer-fleet-monitoring',
-    narration: 'Welcome to Sentinel Fleet. The customer overview shows fleet health without hiding privacy controls. Refresh positions to create a new demo telemetry snapshot, then open the live map. From the vehicle directory, choose Telematics to inspect the saved current state, trip history, and decoded device logs. These views stay useful even when a tracker goes offline.',
-    run: async page => {
+    waitUnits: 6.5,
+    narration: 'Welcome to Sentinel Fleet. Let’s take a quick look at your fleet. The overview brings vehicle health, open alerts, and visible locations into one place. Refresh positions for a new demo update, then open the live map. For more detail, go to Vehicles and choose Telematics. Current state, trips, and tracker logs stay available—even if a vehicle later goes offline.',
+    run: async (page, wait) => {
       await openPortal(page);
-      await pause();
+      await wait();
       await page.getByRole('button', { name: 'Refresh positions' }).click();
       await page.getByText(/live positions updated/i).waitFor();
-      await pause();
+      await wait();
       await page.getByRole('button', { name: 'Live map' }).click();
       await page.getByRole('heading', { name: 'Live fleet map' }).waitFor();
-      await pause();
+      await wait();
       await page.getByRole('button', { name: 'Vehicles', exact: true }).click();
       await page.locator('#vehicle-vehicle-1').getByRole('button', { name: 'Telematics' }).click();
       await page.getByRole('dialog').waitFor();
-      await pause();
+      await wait();
       await page.getByRole('dialog').getByRole('button', { name: 'Trips' }).click();
-      await pause();
+      await wait();
       await page.getByRole('dialog').getByRole('button', { name: 'Logs' }).click();
-      await pause(1800);
+      await wait(1.5);
     }
   },
   {
     slug: 'customer-location-sharing',
-    narration: 'Location sharing is always controlled by the customer. Open Privacy and Access, choose the vehicle, duration, and support purpose, then grant temporary access. When the portal switches to reseller support, the granted map shows only approved vehicles. Other customer locations remain protected, and the access event is available to the audit trail.',
-    run: async page => {
+    waitUnits: 5.5,
+    narration: 'Location sharing always stays under the customer’s control. Open Privacy and Access, then choose the vehicle, duration, and support purpose. Create the secure, time-limited grant. Now switch to reseller support and open the granted map. Only approved vehicles reveal their location; the rest remain protected, and every access event is recorded for audit.',
+    run: async (page, wait) => {
       await openPortal(page);
       await page.getByRole('button', { name: 'Privacy & access' }).click();
-      await pause();
+      await wait();
       const builder = page.locator('.grant-builder').filter({ hasText: 'Grant temporary access' });
       await builder.getByLabel('Vehicle').selectOption('vehicle-2');
       await builder.getByLabel('Duration').selectOption('4');
       await builder.getByLabel('Purpose').fill('Onboarding support diagnosis');
-      await pause();
+      await wait();
       await builder.getByRole('button', { name: 'Create secure grant' }).click();
       await page.getByText('Temporary location access granted.').waitFor();
-      await pause();
+      await wait();
       await page.getByLabel('Switch portal role').selectOption('user-reseller-support');
       await page.getByRole('heading', { name: /Good morning, Noah Fischer/ }).waitFor();
-      await pause();
+      await wait();
       await page.getByRole('button', { name: 'Granted map' }).click();
       await page.getByRole('heading', { name: 'Granted location map' }).waitFor();
-      await pause(1800);
+      await wait(1.5);
     }
   },
   {
     slug: 'reseller-customer-fleet',
-    narration: 'Reseller administrators start in the customer directory. Open a customer workspace to work inside that tenant scope, then choose Customer Fleet. Delegated fleet management allows the reseller to add a vehicle and select its map appearance. Location access does not come with fleet management; customers still control every location grant.',
-    run: async page => {
+    waitUnits: 4.75,
+    narration: 'Reseller administrators begin in the customer directory. Open a customer workspace to enter that tenant’s permitted scope, then choose Customer Fleet. Delegated fleet management lets you add a vehicle and choose how it appears on the map. Notice that location access is still separate: the customer continues to control every location grant.',
+    run: async (page, wait) => {
       await openPortal(page);
       await page.getByLabel('Switch portal role').selectOption('user-reseller-admin');
       await page.getByRole('heading', { name: 'Customers' }).waitFor();
-      await pause();
+      await wait();
       const customer = page.locator('.customer-card').filter({ hasText: 'Berlin Field Logistics' });
       await customer.getByRole('button', { name: /Open the permitted operational workspace for Berlin Field Logistics/ }).click();
       await page.getByRole('heading', { name: /Good morning, Leila Haddad/ }).waitFor();
-      await pause();
+      await wait();
       await page.getByRole('button', { name: 'Customer fleet' }).click();
       await page.getByRole('button', { name: 'Add customer vehicle' }).click();
       const dialog = page.getByRole('dialog');
       await dialog.getByLabel('Vehicle name').fill('Onboarding Support Van');
       await dialog.getByLabel('Registration plate').fill('ONBOARD-01');
       await dialog.getByRole('button', { name: 'Van' }).click();
-      await pause();
+      await wait();
       await dialog.getByRole('button', { name: 'Create vehicle' }).click();
       await page.getByText('Vehicle created', { exact: true }).waitFor();
-      await pause(1800);
+      await wait(1.75);
     }
   }
 ];
@@ -118,6 +131,34 @@ async function run(command, args, options = {}) {
   });
 }
 
+async function ensureDownload(url, destination, minimumBytes) {
+  try {
+    const stat = await fs.stat(destination);
+    if (stat.size >= minimumBytes) return;
+  } catch {
+    // Download the missing local model asset below.
+  }
+  const temporary = `${destination}.download`;
+  console.log(`Downloading ${path.basename(destination)} for local Kokoro narration…`);
+  const response = await fetch(url);
+  if (!response.ok || !response.body) throw new Error(`Could not download ${url} (${response.status})`);
+  await pipeline(Readable.fromWeb(response.body), createWriteStream(temporary));
+  await fs.rename(temporary, destination);
+}
+
+async function createVoiceover(output, narration) {
+  await run(uvCommand, [
+    'run', '--quiet', '--python', '3.12', '--with', 'kokoro-onnx==0.6.1', '--with', 'soundfile>=0.13.0',
+    path.join(repositoryRoot, 'scripts/onboarding/kokoro_voiceover.py'),
+    '--model', kokoroModel,
+    '--voices', kokoroVoices,
+    '--voice', kokoroVoice,
+    '--speed', kokoroSpeed,
+    '--output', output,
+    '--text', narration
+  ]);
+}
+
 async function mediaDuration(file) {
   let output = '';
   try {
@@ -153,28 +194,31 @@ async function writeCaptions(file, narration, duration) {
 }
 
 async function recordFlow(browser, flow) {
+  const audio = path.join(rawDirectory, `${flow.slug}.wav`);
+  await createVoiceover(audio, flow.narration);
+  const duration = await mediaDuration(audio);
+  const stepMilliseconds = Math.max(1400, (duration * 1000 - 500) / flow.waitUnits);
+  const wait = (units = 1) => pause(stepMilliseconds * units);
+
   const context = await browser.newContext({
-    viewport: { width: 1280, height: 720 },
-    recordVideo: { dir: rawDirectory, size: { width: 1280, height: 720 } },
+    viewport: { width: 1920, height: 1080 },
+    recordVideo: { dir: rawDirectory, size: { width: 1920, height: 1080 } },
     reducedMotion: 'reduce'
   });
   const page = await context.newPage();
-  await flow.run(page);
+  await flow.run(page, wait);
   const video = page.video();
   await page.close();
   const rawVideo = path.join(rawDirectory, `${flow.slug}.webm`);
   await video.saveAs(rawVideo);
   await context.close();
 
-  const audio = path.join(rawDirectory, `${flow.slug}.aiff`);
-  await run('/usr/bin/say', ['-v', voice, '-o', audio, flow.narration]);
-  const duration = await mediaDuration(audio);
   const output = path.join(publicDirectory, `${flow.slug}.mp4`);
   await run(ffmpegPath, [
     '-y', '-i', rawVideo, '-i', audio,
-    '-filter_complex', '[0:v]tpad=stop_mode=clone:stop_duration=60,scale=1280:720[v]',
-    '-map', '[v]', '-map', '1:a', '-c:v', 'libx264', '-preset', 'fast', '-crf', '23',
-    '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '160k', '-shortest', '-movflags', '+faststart', output
+    '-filter_complex', '[0:v]tpad=stop_mode=clone:stop_duration=5,scale=1920:1080:flags=lanczos[v];[1:a]highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=7,aresample=48000,afade=t=in:d=0.08,apad=pad_dur=0.35[a]',
+    '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-preset', 'slow', '-crf', '16', '-profile:v', 'high', '-level', '4.1',
+    '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', '-shortest', '-movflags', '+faststart', output
   ]);
   await writeCaptions(path.join(publicDirectory, `${flow.slug}.vtt`), flow.narration, duration);
   console.log(`Created ${path.relative(repositoryRoot, output)}`);
@@ -182,6 +226,9 @@ async function recordFlow(browser, flow) {
 
 await fs.mkdir(rawDirectory, { recursive: true });
 await fs.mkdir(publicDirectory, { recursive: true });
+await fs.mkdir(modelDirectory, { recursive: true });
+await ensureDownload(MODEL_URL, kokoroModel, 300_000_000);
+await ensureDownload(VOICES_URL, kokoroVoices, 20_000_000);
 
 const server = spawn(npmCommand, ['run', 'dev:services'], {
   cwd: repositoryRoot,
