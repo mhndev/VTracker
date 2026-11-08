@@ -19,7 +19,9 @@ not, development automatically continues with SQLite at `.data/sentinel.sqlite`.
 - Portal: `http://localhost:5173`
 - Admin: `http://localhost:5174`
 - GPS device simulator: `http://localhost:5175`
+- Simulator control service: `http://localhost:5176`
 - API health: `http://localhost:8787/api/health`
+- Coban TCP/UDP gateway: `localhost:8090`
 
 Use `Control-C` to stop all four processes. To require a specific database:
 
@@ -60,8 +62,24 @@ The portal and admin remain separate applications, but both use `@sentinel/ui` f
 `src/packages/ui/` for common presentation components and styling. The admin uses the portal's visual
 system while keeping its own navigation, API surface, and platform-only data boundary.
 
-Every port is configured in `.env` (`API_PORT`, `PORTAL_PORT`, `ADMIN_PORT`, `SIMULATOR_PORT`, plus
-`WEB_HOST` for the Vite dev servers).
+Every port is configured in `.env` (`API_PORT`, `PORTAL_PORT`, `ADMIN_PORT`, `SIMULATOR_PORT`,
+`SIMULATOR_CONTROL_PORT`, `TELEMATICS_PORT`, plus `WEB_HOST` for the Vite dev servers).
+
+The Playwright and onboarding recorders use a separate temporary stack so they cannot collide with
+normal development: portal `15173`, admin `15174`, simulator `15175`, simulator control `15176`, API
+`18787`, and telematics gateway `18090`. Those processes exist only while the command is running and
+are stopped automatically afterward.
+
+## Project skills
+
+Reusable Codex instructions are versioned with the repository under [`skills/`](skills/):
+
+- [`sentinel-e2e`](skills/sentinel-e2e/SKILL.md) maintains the fast, deterministic Playwright journeys.
+- [`sentinel-onboarding-media`](skills/sentinel-onboarding-media/SKILL.md) maintains the local Kokoro
+  narration and high-quality onboarding-video pipeline.
+
+These project skills contain repository-specific decisions. Global Codex/system skills and external
+third-party skills are not copied into this repository.
 
 ## Coban 303FG device lab
 

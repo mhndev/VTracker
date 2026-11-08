@@ -7,6 +7,9 @@ most importantly — the **product and privacy invariants that must never be rel
 Human-facing docs: `README.md` (run/build/deploy) and `DECISIONS.md` (locked product decisions
 and what is deliberately out of scope). If a change contradicts `DECISIONS.md`, stop and ask.
 
+Repository-specific reusable workflows live under `skills/`. Read `skills/sentinel-e2e/SKILL.md`
+for browser regression work and `skills/sentinel-onboarding-media/SKILL.md` for onboarding media.
+
 ---
 
 ## 1. What this project is
