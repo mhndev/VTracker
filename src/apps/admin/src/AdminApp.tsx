@@ -1,66 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { LucideIcon } from 'lucide-react';
-import { EmptyState, LtrText, MetricCard, SectionTitle, StatusPill, Surface, Toast, isMessageKey, useI18n, type MessageKey, type SupportedLocale } from '@sentinel/ui';
+import { DashboardSearch, DashboardSidebar, DashboardTopbar, EmptyState, LtrText, MetricCard, SectionTitle, StatusPill, Surface, Toast, WorkspaceRail as SharedWorkspaceRail, isMessageKey, useI18n, type MessageKey, type SupportedLocale } from '@sentinel/ui';
 import {
   Activity, AlertTriangle, BookOpen, Building2, CheckCircle2, CirclePlay, Clock, ExternalLink, FileClock, LayoutDashboard,
   LockKeyhole, Pencil, Plus, Radio, RefreshCw, Search, Server, ShieldCheck, Signal, Users, X
 } from 'lucide-react';
-
-type AdminView = 'overview' | 'resellers' | 'organizations' | 'devices' | 'catalog' | 'incidents' | 'audit' | 'onboarding';
-type ResellerStatus = 'ACTIVE' | 'SUSPENDED';
-type DelegatedCapability = 'CUSTOMER_PROVISION' | 'CUSTOMER_SETTINGS' | 'FLEET_MANAGE' | 'DEVICE_MANAGE' | 'SUPPORT_OPERATIONS';
-type ResellerRecord = {
-  id: string;
-  name: string;
-  defaultLocale: SupportedLocale;
-  status: ResellerStatus;
-  capabilities: DelegatedCapability[];
-  customerCount: number;
-};
-type ResellerInput = Omit<ResellerRecord, 'id' | 'customerCount'>;
-type ProtocolDefinition = {
-  id: string; displayName: string; description: string; messageType?: string; direction?: string;
-  commandKey?: string; wireTemplate?: string | null; riskLevel?: string; implementationStatus?: string;
-  example?: string | null; fieldSchema?: Array<Record<string, unknown>>;
-};
-type ProtocolProfile = {
-  id: string; vendor: string; family: string; displayName: string; transport: string; frameFormat: string;
-  implementationStatus: 'ACTIVE' | 'CATALOG_ONLY' | 'DISABLED'; documentationUrl: string; notes: string | null;
-  messageDefinitions: ProtocolDefinition[]; commandDefinitions: ProtocolDefinition[];
-};
-type DeviceCatalogData = {
-  profiles: ProtocolProfile[];
-  resellers: Array<{ id: string; name: string; status: string }>;
-  availability: Array<{ id: string; resellerOrganizationId: string; protocolProfileId: string; available: boolean }>;
-};
-
-const DELEGATED_CAPABILITIES: readonly DelegatedCapability[] = [
-  'CUSTOMER_PROVISION', 'CUSTOMER_SETTINGS', 'FLEET_MANAGE', 'DEVICE_MANAGE', 'SUPPORT_OPERATIONS'
-];
-
-type AdminData = {
-  actor: { name: string; email: string };
-  generatedAt: string;
-  privacyBoundary: string;
-  stats: {
-    customers: number; resellers: number; devices: number;
-    onlineDevices: number; openAlerts: number; quarantinedDevices: number;
-  };
-  organizations: Array<{
-    id: string; name: string; resellerName: string; vehicles: number;
-    devices: number; onlineDevices: number; openAlerts: number; serviceStatus: string; defaultLocale: SupportedLocale;
-  }>;
-  devices: Array<{
-    id: string; serial: string; model: string; radio: string; status: string;
-    signalQuality: string; lastCommunicationAt: string; custodyOrganizationName: string;
-  }>;
-  systemChecks: Array<{ id: string; name: string; status: string; detail: string; detailCount?: number }>;
-  recentAudit: Array<{
-    id: string; action: string; outcome: string; occurredAt: string;
-    actorName: string; resourceType: string;
-  }>;
-};
+import { OnboardingLibrary } from './components/OnboardingLibrary';
+import { DELEGATED_CAPABILITIES, type AdminData, type AdminView, type DelegatedCapability, type DeviceCatalogData, type ProtocolProfile, type ResellerInput, type ResellerRecord, type ResellerStatus } from './types';
+import { AdminFetchError, fetchAdmin, fetchDeviceCatalog, fetchResellers, fetchSession, saveDeviceAvailability, saveReseller, updateOrganizationLocale } from './api';
 
 const VIEWS: readonly { id: AdminView; icon: LucideIcon }[] = [
   { id: 'overview', icon: LayoutDashboard },
@@ -74,13 +22,7 @@ const VIEWS: readonly { id: AdminView; icon: LucideIcon }[] = [
 ];
 
 function WorkspaceRail({ view }: { view: AdminView }) {
-  const { formatDate, t } = useI18n();
-  const today = new Date();
-  const days = Array.from({ length: 7 }, (_, offset) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() + offset - 3);
-    return { day: formatDate(date, { weekday: 'short' }), date: formatDate(date, { day: '2-digit' }), key: date.toISOString(), active: offset === 3 };
-  });
+  const { t } = useI18n();
   const modes = [
     { id: 'operations', label: t('admin.rail.operations') },
     { id: 'tenants', label: t('admin.rail.tenants') },
@@ -88,27 +30,7 @@ function WorkspaceRail({ view }: { view: AdminView }) {
     { id: 'risk', label: t('admin.rail.risk') }
   ];
   const activeModeId = view === 'overview' || view === 'onboarding' ? 'operations' : view === 'organizations' || view === 'resellers' ? 'tenants' : view === 'devices' || view === 'catalog' ? 'network' : view === 'incidents' ? 'risk' : 'operations';
-  return (
-    <div className="workspace-rail" aria-label={t('admin.rail.timelineAria')}>
-      <span className="rail-back" aria-hidden="true">←</span>
-      <div className="rail-days">
-        {days.map(day => (
-          <span className={day.active ? 'rail-day active' : 'rail-day'} key={day.key}>
-            <small>{day.day}</small>
-            <b>{day.date}</b>
-          </span>
-        ))}
-      </div>
-      <div className="rail-modes">
-        {modes.map(mode => (
-          <span className={mode.id === activeModeId ? 'active' : ''} key={mode.id}>
-            {mode.label}
-            {mode.id === 'tenants' || mode.id === 'network' ? ' ✓' : ''}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
+  return <SharedWorkspaceRail label={t('admin.rail.timelineAria')} modes={modes} activeModeId={activeModeId} completedModeIds={['tenants', 'network']} />;
 }
 
 type Tone = 'positive' | 'warning' | 'critical' | 'neutral';
@@ -617,102 +539,6 @@ function DeviceCatalog({ data, query, updatingKey, onAvailabilityChange }: {
   );
 }
 
-const ONBOARDING_VIDEOS = [
-  { id: 'customer-fleet-monitoring', audienceKey: 'admin.onboarding.customerAudience', titleKey: 'admin.onboarding.fleetTitle', descriptionKey: 'admin.onboarding.fleetDescription', duration: '23 sec' },
-  { id: 'customer-location-sharing', audienceKey: 'admin.onboarding.customerResellerAudience', titleKey: 'admin.onboarding.sharingTitle', descriptionKey: 'admin.onboarding.sharingDescription', duration: '24 sec' },
-  { id: 'reseller-customer-fleet', audienceKey: 'admin.onboarding.resellerAudience', titleKey: 'admin.onboarding.resellerTitle', descriptionKey: 'admin.onboarding.resellerDescription', duration: '22 sec' }
-] as const;
-
-function OnboardingLibrary() {
-  const { t } = useI18n();
-  return (
-    <section className="onboarding-library" aria-labelledby="onboarding-library-title">
-      <div className="onboarding-intro surface">
-        <span className="onboarding-intro-icon" aria-hidden="true"><CirclePlay /></span>
-        <div>
-          <p className="overline">{t('admin.onboarding.overline')}</p>
-          <h2 id="onboarding-library-title">{t('admin.onboarding.title')}</h2>
-          <p>{t('admin.onboarding.description')}</p>
-        </div>
-      </div>
-      <div className="onboarding-grid">
-        {ONBOARDING_VIDEOS.map(video => (
-          <article className="surface onboarding-card" key={video.id}>
-            <video controls preload="metadata" playsInline>
-              <source src={`/onboarding/${video.id}.mp4`} type="video/mp4" />
-              <track kind="captions" src={`/onboarding/${video.id}.vtt`} srcLang="en" label="English" default />
-              {t('admin.onboarding.videoUnsupported')}
-            </video>
-            <div className="onboarding-card-copy">
-              <div><span>{t(video.audienceKey)}</span><small>{video.duration}</small></div>
-              <h3>{t(video.titleKey)}</h3>
-              <p>{t(video.descriptionKey)}</p>
-            </div>
-          </article>
-        ))}
-      </div>
-      <p className="onboarding-footnote"><ShieldCheck aria-hidden="true" />{t('admin.onboarding.privacyNote')}</p>
-    </section>
-  );
-}
-
-class AdminFetchError extends Error {
-  constructor(readonly code: 'forbidden' | 'unavailable' | 'duplicate' | 'invalid') {
-    super(code);
-  }
-}
-
-const adminHeaders = { 'x-demo-actor': 'user-platform-support' };
-
-async function parseAdminResponse<T>(response: Response): Promise<T> {
-  const payload = await response.json().catch(() => null) as T | { error?: { code?: string } } | null;
-  if (!response.ok) {
-    const errorCode = payload && typeof payload === 'object' && 'error' in payload ? payload.error?.code : undefined;
-    throw new AdminFetchError(response.status === 403 ? 'forbidden' : errorCode === 'RESELLER_NAME_EXISTS' ? 'duplicate' : response.status === 400 ? 'invalid' : 'unavailable');
-  }
-  return payload as T;
-}
-
-async function fetchAdmin(): Promise<AdminData> {
-  return parseAdminResponse(await fetch('/api/admin/overview', { headers: adminHeaders }));
-}
-
-async function fetchResellers(): Promise<ResellerRecord[]> {
-  return parseAdminResponse(await fetch('/api/admin/resellers', { headers: adminHeaders }));
-}
-
-async function fetchDeviceCatalog(): Promise<DeviceCatalogData> {
-  return parseAdminResponse(await fetch('/api/admin/device-catalog', { headers: adminHeaders }));
-}
-
-async function saveDeviceAvailability(resellerId: string, protocolProfileId: string, available: boolean) {
-  return parseAdminResponse<{ id: string; resellerOrganizationId: string; protocolProfileId: string; available: boolean }>(await fetch(`/api/admin/device-catalog/resellers/${resellerId}/protocols/${protocolProfileId}`, {
-    method: 'PUT', headers: { 'content-type': 'application/json', ...adminHeaders }, body: JSON.stringify({ available })
-  }));
-}
-
-async function fetchSession(): Promise<{ effectiveLocale: SupportedLocale }> {
-  return parseAdminResponse(await fetch('/api/session', { headers: adminHeaders }));
-}
-
-async function updateOrganizationLocale(organizationId: string, defaultLocale: SupportedLocale): Promise<{ defaultLocale: SupportedLocale }> {
-  const response = await fetch(`/api/organizations/${organizationId}/settings`, {
-    method: 'PATCH',
-    headers: { 'content-type': 'application/json', ...adminHeaders },
-    body: JSON.stringify({ defaultLocale })
-  });
-  return parseAdminResponse(response);
-}
-
-async function saveReseller(input: ResellerInput, resellerId?: string): Promise<ResellerRecord> {
-  const response = await fetch(resellerId ? `/api/admin/resellers/${resellerId}` : '/api/admin/resellers', {
-    method: resellerId ? 'PATCH' : 'POST',
-    headers: { 'content-type': 'application/json', ...adminHeaders },
-    body: JSON.stringify(input)
-  });
-  return parseAdminResponse(response);
-}
-
 const initialsOf = (name: string): string =>
   name.split(' ').filter(Boolean).slice(0, 2).map(part => part.charAt(0).toUpperCase()).join('');
 
@@ -864,7 +690,7 @@ export default function AdminApp() {
 
   return (
     <div className="portal-shell admin-shell">
-      <aside className="portal-nav admin-nav">
+      <DashboardSidebar className="admin-nav">
         <div className="logo">
           <span><ShieldCheck /></span>
           <div><strong>{t('admin.brand.title')}</strong><small>{t('admin.brand.subtitle')}</small></div>
@@ -904,21 +730,12 @@ export default function AdminApp() {
             </div>
           </div>
         </div>
-      </aside>
+      </DashboardSidebar>
       <div className="portal-main admin-main">
-        <header>
+        <DashboardTopbar>
           <div><span>{t('admin.header.eyebrow')}</span><h2>{activeLabel}</h2></div>
           <div className="header-tools">
-            <label className="search">
-              <Search aria-hidden="true" />
-              <input
-                type="search"
-                value={query}
-                onChange={event => setQuery(event.target.value)}
-                placeholder={activePlaceholder}
-                aria-label={activePlaceholder}
-              />
-            </label>
+            <DashboardSearch icon={<Search aria-hidden="true" />} value={query} onChange={setQuery} placeholder={activePlaceholder} />
             <button
               type="button"
               className={status === 'refreshing' ? 'outline is-busy' : 'outline'}
@@ -936,7 +753,7 @@ export default function AdminApp() {
               })}
             </span>
           </div>
-        </header>
+        </DashboardTopbar>
 
         <main className="portal-content admin-content">
           <WorkspaceRail view={view} />
@@ -979,10 +796,7 @@ export default function AdminApp() {
                   flush
                 >
                   <div className="reseller-toolbar">
-                    <label className="search reseller-search">
-                      <Search aria-hidden="true" />
-                      <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder={t('admin.views.resellers.placeholder')} aria-label={t('admin.views.resellers.placeholder')} />
-                    </label>
+                    <DashboardSearch className="reseller-search" icon={<Search aria-hidden="true" />} value={query} onChange={setQuery} placeholder={t('admin.views.resellers.placeholder')} />
                     <label className="filter-field">
                       <span>{t('admin.resellers.statusFilter')}</span>
                       <select value={resellerStatusFilter} onChange={event => setResellerStatusFilter(event.target.value as 'ALL' | ResellerStatus)}>

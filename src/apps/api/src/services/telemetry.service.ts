@@ -1,5 +1,5 @@
 import { sequelize } from '../database/connection.js';
-import { Device, DeviceAssignment, LatestPosition, TelemetryEvent, Vehicle } from '../models/index.js';
+import { Device, DeviceAssignment, DeviceMessageLog, LatestPosition, TelemetryEvent, Vehicle } from '../models/index.js';
 import { HttpError } from '../utils/errors.js';
 import { canSimulateTelemetry } from './policy.service.js';
 import { recordAudit } from './audit.service.js';
@@ -35,6 +35,16 @@ export async function simulateTelemetry(actorId: string, organizationId: string)
       await previous.update({ ...event, eventId: event.id }, { transaction });
       await updateTrip(vehicle.id, event, transaction);
       await device.update({ lastCommunicationAt: now, signalQuality: 'GOOD' }, { transaction });
+      await DeviceMessageLog.create({
+        id: `device-message-${crypto.randomUUID()}`,
+        vehicleId: vehicle.id,
+        imei: device.serial,
+        actorId,
+        direction: 'INBOUND',
+        kind: 'LOCATION',
+        raw: `local simulator check-in for ${device.serial}`,
+        recordedAt: now
+      }, { transaction });
       count += 1;
     }
     return count;

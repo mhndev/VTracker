@@ -76,3 +76,5 @@ export {
   useI18n
 } from './i18n';
 export type { ActiveLocale, I18nApi, MessageKey, MessageParams, Messages, SupportedLocale } from './i18n';
+export { DashboardSearch, DashboardSidebar, DashboardTopbar, WorkspaceRail } from './dashboard';
+export type { WorkspaceRailMode } from './dashboard';

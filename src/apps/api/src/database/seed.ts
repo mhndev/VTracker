@@ -1,6 +1,6 @@
 import { sequelize } from './connection.js';
 import {
-  AccessGrant, Alert, AuditEvent, Device, DeviceAssignment, DeviceProtocolProfile, LatestPosition, Membership,
+  AccessGrant, Alert, AuditEvent, Device, DeviceAssignment, DeviceMessageLog, DeviceProtocolProfile, LatestPosition, Membership,
   Organization, OrganizationRetentionPolicy, ResellerCapability, RetentionPolicy, ServiceRelationship,
   ResellerDeviceProtocolAvailability, ServiceRelationshipCapability, TelemetryEvent, User, Vehicle
 } from '../models/index.js';
@@ -10,7 +10,6 @@ const minutesAgo = (minutes: number) => new Date(Date.now() - minutes * 60_000);
 const hoursFromNow = (hours: number) => new Date(Date.now() + hours * 3_600_000);
 
 export async function seedDatabase(force = false): Promise<void> {
-  await sequelize.sync({ force });
   await seedProtocolCatalog();
   await RetentionPolicy.bulkCreate([
     { id: 'retention-1-month', name: '1 month', logRetentionDays: 30, estimatedMessagesPerVehiclePerDay: 1440, averageMessageBytes: 600, estimatedTelemetryEventsPerVehiclePerDay: 1440, averageTelemetryEventBytes: 160, estimatedTripsPerVehiclePerDay: 4, maxPointsPerTrip: 100, averageTripPointBytes: 128 },
@@ -118,6 +117,14 @@ export async function seedDatabase(force = false): Promise<void> {
     ];
     await TelemetryEvent.bulkCreate(positions.map(position => ({ ...position, ingestedAt: position.occurredAt, schemaVersion: 1, source: 'SEEDED_SIMULATOR' })), { transaction });
     await LatestPosition.bulkCreate(positions.map(({ id, ...position }) => ({ ...position, eventId: id, ingestedAt: position.occurredAt })), { transaction });
+    await DeviceMessageLog.bulkCreate([
+      { id: 'seed-message-1', vehicleId: 'vehicle-1', imei: '358123049582103', actorId: null, direction: 'INBOUND', kind: 'LOCATION', raw: 'imei:358123049582103,tracker,seeded location;', recordedAt: positions[0]!.occurredAt },
+      { id: 'seed-message-2', vehicleId: 'vehicle-2', imei: '358123049582104', actorId: null, direction: 'INBOUND', kind: 'LOCATION', raw: 'imei:358123049582104,tracker,seeded location;', recordedAt: positions[1]!.occurredAt },
+      { id: 'seed-message-3', vehicleId: 'vehicle-3', imei: '358123049582105', actorId: null, direction: 'INBOUND', kind: 'LOCATION', raw: 'imei:358123049582105,tracker,seeded location;', recordedAt: positions[2]!.occurredAt },
+      { id: 'seed-message-4', vehicleId: 'vehicle-4', imei: '358123049582106', actorId: null, direction: 'INBOUND', kind: 'LOCATION', raw: 'imei:358123049582106,tracker,seeded location;', recordedAt: positions[3]!.occurredAt },
+      { id: 'seed-message-5', vehicleId: 'vehicle-private', imei: 'NT-DE-210099', actorId: null, direction: 'INBOUND', kind: 'LOCATION', raw: 'seeded LTE location report', recordedAt: positions[4]!.occurredAt },
+      { id: 'seed-message-6', vehicleId: null, imei: 'NT-DE-210086', actorId: null, direction: 'INBOUND', kind: 'HEARTBEAT', raw: 'seeded LTE heartbeat', recordedAt: minutesAgo(4) }
+    ], { transaction });
     await Alert.bulkCreate([
       { id: 'alert-1', organizationId: 'org-customer', vehicleId: 'vehicle-3', type: 'DEVICE_OFFLINE', severity: 'HIGH', status: 'OPEN', occurredAt: minutesAgo(13), summary: 'Device has missed its expected reporting window.' },
       { id: 'alert-2', organizationId: 'org-customer', vehicleId: 'vehicle-4', type: 'DEVICE_QUARANTINED', severity: 'CRITICAL', status: 'OPEN', occurredAt: minutesAgo(175), summary: 'Device was quarantined after repeated session anomalies.' },

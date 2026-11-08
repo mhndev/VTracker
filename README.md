@@ -154,7 +154,7 @@ The admin console is not a role-hidden page inside the portal. It is a separate 
 - Alerts, device inventory, and audit history.
 - Cross-tenant policy and HTTP integration tests.
 - Express 5 API organized into routes, controllers, services, middleware, database connection/seed files, and Sequelize models.
-- PostgreSQL 18 (`postgres:latest`) as the default database; SQLite remains available as an offline fallback.
+- PostgreSQL 18 with versioned Umzug migrations as the default database; SQLite remains available as an offline fallback.
 - Explicitly disabled remote immobilization.
 
 ## Statuses and state machines
@@ -337,7 +337,9 @@ stateDiagram-v2
   until packets from the exact hardware/firmware are captured and added as fixtures.
 - Remote immobilization or any high-risk vehicle command.
 - Billing, payment splitting, production identity, SMS, push, and white-label domains.
-- Production-grade database, map provider, and durable event broker decisions.
+- Production map provider and durable event-broker decisions. The repository now includes a
+  production-style PostgreSQL, Sequelize, and immutable Umzug migration foundation; deployment,
+  backup, replication, and disaster-recovery policy remain environment-specific.
 
 ## Run locally
 
@@ -354,7 +356,7 @@ On macOS, double-click `Start Sentinel Fleet.command` in this folder. It starts 
 
 | Service  | Image / build             | Host port                          |
 | -------- | ------------------------- | ---------------------------------- |
-| `db`     | `postgres:latest`         | `DATABASE_PORT` (5432)             |
+| `db`     | `postgres:18`             | `DATABASE_PORT` (5432)             |
 | `api`    | `src/apps/api/Dockerfile`     | `API_PORT` (8787)                  |
 | `portal` | `src/apps/portal/Dockerfile`  | `PORTAL_PORT` (5173) → container 80 |
 | `admin`  | `src/apps/admin/Dockerfile`   | `ADMIN_PORT` (5174) → container 80  |
@@ -372,6 +374,10 @@ Notes:
   reverse-proxy `/api` to the `api` service, so the apps keep using relative API paths.
 - `docker compose` sets `DATABASE_DIALECT=postgres`, `DATABASE_HOST=db` and an empty `DATABASE_URL`
   for the API container, so containerised runs always use the bundled database.
+- PostgreSQL data is stored in the named `pgdata` Docker volume mounted at `/var/lib/postgresql`.
+  `docker compose down` preserves it; only `docker compose down -v` removes it.
+- The API applies pending migrations before seeding or accepting requests. Migration history is
+  persisted in PostgreSQL's `SequelizeMeta` table alongside the application data.
 - Switching from an older PostgreSQL major (for example 16) requires a fresh volume:
   `docker compose down -v` before `docker compose up --build`.
 
@@ -406,7 +412,7 @@ The actor selector sends an `x-demo-actor` header so policy behavior can be demo
 src/apps/api/src/
   config/       Environment configuration
   controllers/  HTTP request/response adapters
-  database/     Sequelize connection and seed lifecycle
+  database/     Sequelize connection, Umzug migrations, and seed lifecycle
   middleware/   Demo authentication and error handling
   models/       Sequelize models and associations
   routes/       Express 5 route modules
@@ -417,17 +423,25 @@ src/apps/api/src/
 
 ## Local persistence
 
-With PostgreSQL (the default) all state lives in the `sentinel` database, created and seeded on first
-run. When the API runs on the SQLite fallback it creates `.data/sentinel.sqlite` at the repository root
-and seeds it when empty. The legacy JSON store is no longer used.
+With PostgreSQL (the default) all state lives in the `sentinel` database and persists in Compose's
+named `pgdata` volume. The API migrates and seeds an empty database on first run. When explicitly run
+with `npm run dev:sqlite`, state lives in `.data/sentinel.sqlite`; the automatic fallback is in-memory.
+The legacy JSON store is no longer used.
 
 `Organization.defaultLocale`, `Organization.timezone`, `Organization.status`, vehicle lifecycle
 timestamps, retention configuration, decoded vehicle state, trips, compact trip points, and the
-normalized `ResellerCapability` table are part of the current schema. New tables are created by
-`sequelize.sync()` on startup, but changing columns on an existing table still requires resetting the
-demo database because this project has no migrations. Remove
-`.data/sentinel.sqlite` for SQLite, or run `docker compose down -v` for PostgreSQL. This deletes local
-demo data; preserve a copy first if that data matters.
+normalized `ResellerCapability` table are part of the current schema. Sequelize remains the ORM;
+Umzug applies immutable migrations from `src/apps/api/src/database/migrations` and records them in
+`SequelizeMeta`. Use these commands for operational checks:
+
+```bash
+npm run db:migrate          # apply pending migrations
+npm run db:migrate:status   # list executed and pending migrations
+npm run db:migrate:undo     # development only: revert the latest migration
+```
+
+Add a new numbered migration for every schema or data transition. Do not use `sequelize.sync()` or
+reset a PostgreSQL volume for ordinary application upgrades.
 
 ### Retention and storage estimates
 
@@ -448,8 +462,7 @@ table values using observed production traffic and index/backup overhead.
 
 PostgreSQL is the configured default backend; `npm start` and `npm run dev` automatically fall back to
 clean in-memory SQLite when the configured PostgreSQL address is unreachable. `npm run dev:postgres`
-is strict. `npm run dev:sqlite` explicitly uses the persistent `.data/sentinel.sqlite` database;
-because this demo has no migrations, remove or rename that file after model/column changes.
+is strict. `npm run dev:sqlite` explicitly uses the persistent `.data/sentinel.sqlite` database.
 
 `DATABASE_DIALECT` selects the backend (`postgres` default, or `sqlite` with the file at
 `DATABASE_STORAGE`). When `DATABASE_URL` is present it takes precedence over
@@ -476,9 +489,9 @@ never needs a database server.
 - `SequelizeConnectionRefusedError`: use `npm start` or `npm run dev` for automatic SQLite fallback. `npm run start:api`
   is the strict compiled-API command and expects the configured database to be reachable. Alternatively, start
   PostgreSQL with `docker compose up -d --wait db` before `npm run dev:postgres`.
-- `SQLITE_ERROR: no such column`: the persistent demo database predates the current models. Rename
-  `.data/sentinel.sqlite` to keep a backup, then run `npm run dev:sqlite` again, or use `npm start`
-  for a clean in-memory session.
+- `SQLITE_ERROR: no such column`: back up `.data/sentinel.sqlite`, then run
+  `DATABASE_DIALECT=sqlite DATABASE_STORAGE=.data/sentinel.sqlite npm run db:migrate`; legacy schema
+  upgrades are applied in place.
 - A port is already in use: stop the other process or change `API_PORT`, `PORTAL_PORT`, and
   `ADMIN_PORT` in `.env`; keep `CORS_ORIGIN` and `VITE_API_BASE` in sync.
 - Seed edits do not appear: remove `.data/sentinel.sqlite` for SQLite, or recreate the Docker

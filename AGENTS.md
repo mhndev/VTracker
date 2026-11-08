@@ -206,8 +206,8 @@ Existing actions: `LOCATION_VIEWED`, `ACCESS_GRANT_CREATED`, `ACCESS_GRANT_REVOK
   for every column you filter or join on.
 - New model checklist: create `models/X.ts` → export from `models/index.ts` → register
   associations in `initializeAssociations()` (aliases are used by the services).
-- **No migrations exist.** Schema is created with `sequelize.sync()`; `force = true` drops and
-  recreates. Changing a column therefore requires a reset (see §7).
+- Schema changes require a new immutable migration in `database/migrations`; Umzug records applied
+  versions in `SequelizeMeta`. Never use `sequelize.sync()` in application startup.
 - Avoid N+1 queries: the codebase deliberately batches with `Op.in` + `Map` lookups and comments
   say so. Follow that pattern; a per-item `await` inside a `.map` is a review blocker.
 
@@ -319,9 +319,9 @@ Storage estimates are planning calculations, not measured database sizes.
 
 ## 7. Database lifecycle, seeding, and how to reset
 
-`initializeDatabase(force)` runs `initializeAssociations()` once, connects, then
-`seedDatabase(force)`, which calls `sequelize.sync({ force })`. Protocol and retention catalogs are
-seeded idempotently on every startup; the main demo fixtures are inserted only when
+`initializeDatabase(force)` runs `initializeAssociations()` once, connects, optionally drops the
+in-memory test schema, applies all pending Umzug migrations, then runs `seedDatabase(force)`.
+Protocol and retention catalogs are seeded idempotently on every startup; the main demo fixtures are inserted only when
 `Organization.count() === 0`. Existing customer organizations missing a retention assignment
 receive the one-month default.
 
@@ -340,16 +340,18 @@ Seeded fixtures (use these exact IDs in tests and manual checks):
 | Retention | `retention-1-month`, `retention-6-months`, `retention-1-year`, `retention-5-years`; seeded customers default to `retention-1-month` |
 
 The protocol/retention catalogs use idempotent startup seeding, but edits to the main demo fixtures
-have no effect when organizations already exist. Column changes still require a reset because there
-is no migration framework. Reset explicitly:
+have no effect when organizations already exist. Schema and production data changes require a new
+numbered migration. Inspect or apply migrations explicitly with:
 
 ```bash
-npm test                                   # always force-recreates the in-memory DB
-rm -f .data/sentinel.sqlite                # SQLite fallback
-docker compose down -v && docker compose up --build   # Postgres (also required after a Postgres major upgrade)
+npm run db:migrate:status
+npm run db:migrate
+npm run db:migrate:undo                    # development only
 ```
 
-There is no migration tool. If you need one, raise it with the user first.
+Tests always create a fresh in-memory database and apply the complete migration chain. Never remove
+the PostgreSQL volume for an ordinary application upgrade; `docker compose down -v` is reserved for
+an intentional local-data reset or a PostgreSQL major-version rebuild.
 
 ---
 

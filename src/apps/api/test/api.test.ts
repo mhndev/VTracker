@@ -55,6 +55,18 @@ test('customer receives all owned vehicle coordinates', async () => {
   assert.equal(response.body.stats.locationVisible, 4);
 });
 
+test('seeded online vehicles have a matching auditable device check-in', async () => {
+  const dashboard = await supertest(app).get('/api/dashboard?organizationId=org-customer').set('x-demo-actor', 'user-customer-admin').expect(200);
+  const deliveryVan = dashboard.body.vehicles.find((vehicle: { id: string }) => vehicle.id === 'vehicle-1');
+  assert.equal(deliveryVan.device.status, 'ONLINE');
+
+  const messages = await supertest(app)
+    .get('/api/telematics/vehicles/vehicle-1/messages')
+    .set('x-demo-actor', 'user-customer-admin')
+    .expect(200);
+  assert.equal(messages.body.messages.some((message: { id: string; direction: string }) => message.id === 'seed-message-1' && message.direction === 'INBOUND'), true);
+});
+
 test('vehicle message logs are scoped to actors with location access', async () => {
   await persistTelematicsMessage({
     id: 'inbound-test',
